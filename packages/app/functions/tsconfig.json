@@ -2,11 +2,12 @@
   "compilerOptions": {
     "target": "esnext",
     "lib": ["esnext"],
-    "module": "NodeNext",
-    "moduleResolution": "nodenext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "paths": {
       "@/*": ["./*"]
     },
-    "types": ["@cloudflare/workers-types"]
+    "types": ["@cloudflare/workers-types"],
+    "strictNullChecks": true
   }
 }
