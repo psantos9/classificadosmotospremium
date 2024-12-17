@@ -1,0 +1,14 @@
+{
+  "name": "classificadosmotospremium",
+  "license": "MIT",
+  "scripts": {
+    "dev:landing-page": "npm run dev -w landing-page"
+  },
+  "workspaces": [
+    "./packages/*"
+  ],
+  "dependencies": {
+    "@antfu/eslint-config": "^3.12.0",
+    "@cloudflare/workers-types": "^4.20241216.0"
+  }
+}
