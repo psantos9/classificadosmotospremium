@@ -43,7 +43,7 @@ const { api } = useApp()
 const emailEl = ref<null | HTMLInputElement>(null)
 const loading = ref(false)
 
-const validationSchema = toTypedSchema(z.object({ email: z.string({ required_error: 'obrigatório' }).email('E-mail inválido') }))
+const validationSchema = toTypedSchema(z.object({ email: z.string({ required_error: 'Obrigatório' }).email('E-mail inválido') }))
 const { errors, defineField, validate, meta } = useForm({ validationSchema })
 
 const [email, emailAttrs] = defineField('email', { validateOnModelUpdate: false })

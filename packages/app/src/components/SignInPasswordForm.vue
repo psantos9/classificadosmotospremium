@@ -2,6 +2,7 @@
   <span class="mt-4 title mx-auto">Insira a senha</span>
   <div class="max-w-[250px] w-full mx-auto relative flex items-center">
     <input
+      ref="passwordEl"
       v-model="password"
       :type="showPassword ? 'text' : 'password'"
       class="block w-full rounded-md bg-white py-1.5 pl-10 pr-10 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-[var(--primary)] sm:pl-9 sm:text-sm/6"
@@ -31,7 +32,7 @@ import { UnauthorizedError } from '@/composables/api-client'
 import { useApp } from '@/composables/useApp'
 import { faArrowRight, faEye, faEyeSlash, faKey, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { onBeforeUnmount, ref, toRefs, unref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, toRefs, unref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{ email: string }>()
@@ -44,6 +45,7 @@ const router = useRouter()
 const { email } = toRefs(props)
 const { api } = useApp()
 
+const passwordEl = ref<HTMLInputElement | null>(null)
 const loading = ref(false)
 const password = ref('')
 const showPassword = ref(false)
@@ -75,6 +77,10 @@ const keydownEventHandler = async (evt: KeyboardEvent) => {
 
 window.addEventListener('keydown', keydownEventHandler)
 onBeforeUnmount(() => window.removeEventListener('keydown', keydownEventHandler))
+
+onMounted(() => {
+  unref(passwordEl)?.focus()
+})
 
 watch(password, () => {
   invalidPassword.value = false

@@ -124,6 +124,7 @@
                 type="password"
                 autocomplete="off"
                 class="form-input"
+                hidden
               >
               <p class="absolute text-xs text-red-600 -bottom-4 right-0">
                 {{ errors.password }}
