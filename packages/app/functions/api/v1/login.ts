@@ -22,7 +22,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     if (cadastro === null || await bcrypt.compare(password, cadastro.password) === false) {
       return new Response(null, { status: 401 })
     }
-
     const iat = new Date().getTime()
     const expirationTime = iat + 3600 * 1e3
 

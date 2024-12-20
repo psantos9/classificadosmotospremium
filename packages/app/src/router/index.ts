@@ -22,6 +22,16 @@ const router = createRouter({
       component: async () => import('@/views/CadastroAnunciante.vue') as Component
     },
     {
+      path: '/minha-conta',
+      name: 'minha-conta',
+      component: async () => import('@/views/MinhaConta.vue') as Component
+    },
+    {
+      path: '/meus-dados',
+      name: 'meus-dados',
+      component: async () => import('@/views/MeusDados.vue') as Component
+    },
+    {
       path: '/institucional',
       name: 'institucional',
       component: async () => import('@/views/Institucional.vue') as Component

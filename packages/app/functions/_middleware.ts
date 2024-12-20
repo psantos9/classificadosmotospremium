@@ -6,7 +6,7 @@ import { JWSSignatureVerificationFailed } from 'jose/errors'
 const bearerRegex = /Bearer\s(\w.+)/
 const unauthenticatedURLs: Record<string, string[]> = {
   '/api/v1/healthcheck': ['GET'], // getting healthcheckks
-  '/api/v1/login': ['POST'], // logging in
+  '/api/v1/login': ['OPTIONS', 'POST'], // logging in
   '/api/v1/cadastro': ['POST'], // add cadastro
   '/api/v1/cadastro/verificar': ['OPTIONS', 'POST']
 }
