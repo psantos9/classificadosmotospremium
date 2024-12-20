@@ -30,14 +30,17 @@
 </template>
 
 <script lang="ts" setup>
+import { useApp } from '@/composables/useApp'
 import { faArrowRight, faEnvelope, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import { ref, unref } from 'vue'
-import { useRouter } from 'vue-router'
 import { z } from 'zod'
 
+const emit = defineEmits<{ (e: 'emailVerified', payload: { email: string, exists: boolean }): void }>()
+
+const { api } = useApp()
 const loading = ref(false)
 const validationSchema = toTypedSchema(z.object({ email: z.string().email('E-mail inválido').optional() }))
 const { errors, defineField, validate, meta } = useForm({ validationSchema })
@@ -50,8 +53,10 @@ const validateEmail = async () => {
     return
   }
   loading.value = true
+
   try {
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 1000))
+    const exists = await api.validateEmail(unref(email) as string)
+    emit('emailVerified', { email: unref(email) as string, exists })
   }
   finally {
     loading.value = false

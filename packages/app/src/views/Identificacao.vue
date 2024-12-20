@@ -6,13 +6,13 @@
     <div class="card-section">
       <div class="max-w-xs w-full mx-auto flex flex-col items-center gap-4">
         <FontAwesomeIcon :icon="faUserCircle" size="4x" class="text-primary" />
-        <SignInForm v-if="phase === SignInPhase.Username" />
+        <SignInForm v-if="phase === SignInPhase.Username" @email-verified="emailVerifiedHandler" />
         <template v-if="phase !== SignInPhase.Username">
           <div class="flex items-center gap-2 text-xs font-semibold" @click="phase = SignInPhase.Username">
             <button class="border border-gray-300 rounded w-7 h-7">
               <FontAwesomeIcon :icon="faArrowLeft" size="sm" />
             </button>
-            <span>pauloramires@gmail.com</span>
+            <span>{{ email }}</span>
           </div>
         </template>
         <template v-if="phase === SignInPhase.Method">
@@ -74,6 +74,7 @@ import SignInForm from '@/components/SignInForm.vue'
 import { faArrowLeft, faArrowRight, faEnvelope, faKey, faTh, faUserCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 enum SignInPhase {
   Username = 'username',
@@ -83,16 +84,19 @@ enum SignInPhase {
   WaitingPin = 'waiting-pin'
 }
 
+const router = useRouter()
 const phase = ref<SignInPhase>(SignInPhase.Username)
+const email = ref('')
 
-/*
-const validateUsername = () => {
-  if (unref(username) === 'pauloramires@gmail.com') {
+const emailVerifiedHandler = (payload: { email: string, exists: boolean }) => {
+  email.value = payload.email
+  if (payload.exists) {
     phase.value = SignInPhase.Method
   }
-  else { router.push({ name: 'cadastro-anunciante' }) }
+  else {
+    router.push({ name: 'cadastro-anunciante' })
+  }
 }
-  */
 </script>
 
 <style lang="css" scoped>

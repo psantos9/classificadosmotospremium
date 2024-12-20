@@ -1,15 +1,14 @@
 {
-  "name": "app",
+  "name": "@cmp/app",
   "type": "module",
-  "version": "0.0.0",
-  "private": true,
   "scripts": {
-    "dev": "npm run start:functions && vite",
+    "dev": "npm run start:pages & vite",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
-    "start:functions": "npx wrangler@latest pages dev functions"
+    "start:pages": "npx wrangler@latest pages dev --d1 DB=2d1d8ed4-a86a-4fd3-9587-3f754b010d5a --kv=CEP -b API_SECRET=1a9d8369-7b50-4b61-b52c-a4462f7ec309",
+    "migrations:commit:dev": "npx wrangler@latest d1 migrations apply cmp-dev -e dev --local"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.1",
@@ -18,6 +17,10 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.1",
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "@vee-validate/zod": "^4.14.7",
+    "axios": "^1.7.9",
+    "bcryptjs": "^2.4.3",
+    "cpf-cnpj-validator": "^1.0.3",
+    "jose": "^5.9.6",
     "vee-validate": "^4.14.7",
     "vue": "^3.5.13",
     "vue-router": "^4.4.5",
@@ -26,6 +29,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^3.11.2",
     "@tsconfig/node22": "^22.0.0",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.9.3",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/tsconfig": "^0.7.0",

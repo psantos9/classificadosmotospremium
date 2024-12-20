@@ -1,3 +1,4 @@
+import { API } from '@/composables/api'
 import { computed, ref, unref } from 'vue'
 
 const menuItems = [
@@ -7,9 +8,11 @@ const menuItems = [
 ]
 
 const sidebarOpen = ref(false)
+const api = new API({ baseURL: 'http://localhost:8788' })
 
 export const useApp = () => {
   return {
+    api,
     menuItems: computed(() => menuItems),
     sidebarOpen: computed(() => unref(sidebarOpen)),
     openSidebar: (value: boolean) => {

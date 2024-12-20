@@ -2,6 +2,9 @@
 name = "cmd-app"
 pages_build_output_dir = "dist"
 compatibility_date = "2024-12-17"
+account_id = "32fd818651196edff39528b23343042d"
+compatibility_flags = ["nodejs_compat"]
 
-[env]
-production = { }
+d1_databases = [
+  { binding = "DB", database_name = "cmp-dev", database_id = "2d1d8ed4-a86a-4fd3-9587-3f754b010d5a", migrations_dir="../database/migrations" }
+]

@@ -4,6 +4,7 @@ export default antfu({
   lessOpinionated: true,
   stylistic: {
     overrides: {
+      'n/prefer-global/process': ['error', 'always'],
       'style/comma-dangle': ['error', 'never'],
       'no-console': 'warn'
     }
