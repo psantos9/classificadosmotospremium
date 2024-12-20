@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ae1b981d-3649-493f-9ee9-f215377d55e3",
+  "id": "066a2020-c489-43f4-a617-3726eb1758eb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "cadastro": {
@@ -42,12 +42,34 @@
           "notNull": true,
           "autoincrement": false
         },
+        "nomeFantasia": {
+          "name": "nomeFantasia",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "dataNascimento": {
+          "name": "dataNascimento",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "email": {
           "name": "email",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "emailValidado": {
+          "name": "emailValidado",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
         },
         "celular": {
           "name": "celular",
@@ -91,16 +113,16 @@
           "notNull": true,
           "autoincrement": false
         },
-        "cidade": {
-          "name": "cidade",
+        "localidade": {
+          "name": "localidade",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "estado": {
-          "name": "estado",
-          "type": "text",
+        "uf": {
+          "name": "uf",
+          "type": "text(2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -122,6 +144,13 @@
         }
       },
       "indexes": {
+        "cadastro_cpfCnpj_unique": {
+          "name": "cadastro_cpfCnpj_unique",
+          "columns": [
+            "cpfCnpj"
+          ],
+          "isUnique": true
+        },
         "cadastro_email_unique": {
           "name": "cadastro_email_unique",
           "columns": [

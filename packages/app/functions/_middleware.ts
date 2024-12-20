@@ -7,8 +7,9 @@ const bearerRegex = /Bearer\s(\w.+)/
 const unauthenticatedURLs: Record<string, string[]> = {
   '/api/v1/healthcheck': ['GET'], // getting healthcheckks
   '/api/v1/login': ['OPTIONS', 'POST'], // logging in
-  '/api/v1/cadastro': ['POST'], // add cadastro
-  '/api/v1/cadastro/verificar': ['OPTIONS', 'POST']
+  '/api/v1/cadastro': ['OPTIONS', 'POST'], // add cadastro
+  '/api/v1/cadastro/verificar': ['OPTIONS', 'POST'],
+  '/api/v1/cadastro/cep/*': ['OPTIONS', 'GET']
 }
 
 const errorHandling: PagesFunction<Env> = async (context) => {
@@ -25,7 +26,8 @@ const errorHandling: PagesFunction<Env> = async (context) => {
 const authentication: PagesFunction<Env, any, ContextData> = async (context) => {
   const { request, next, env, data } = context
   const url = new URL(request.url)
-  if (unauthenticatedURLs[url.pathname]?.includes(request.method)) {
+  const parentWildcard = [...url.pathname.split('/').slice(0, -1), '*'].join('/')
+  if ((unauthenticatedURLs[url.pathname] ?? unauthenticatedURLs[parentWildcard])?.includes(request.method)) {
     return next()
   }
   else {

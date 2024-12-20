@@ -1,63 +1,9 @@
 import type { ContextData, Env } from '@/types'
-import type { NovoCadastro } from '@cmp/database/schema'
-import { cadastro, schema } from '@cmp/database/schema'
+import { cadastro, type NovoCadastro, schema } from '@cmp/database/schema'
+import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
 import bcrypt from 'bcryptjs'
-import { cnpj, cpf } from 'cpf-cnpj-validator'
 import { drizzle } from 'drizzle-orm/d1'
 import { z, ZodError } from 'zod'
-
-const novoCadastroSchema = z.object({
-  cpfCnpj: z.string().transform(val => val.replace(/\D+/g, '')).refine(val => cpf.isValid(val, true) || cnpj.isValid(val, true), { message: 'invalid cpf or cnpj' }),
-  nomeRazaoSocial: z.string(),
-  email: z.string().email(),
-  celular: z.string(),
-  cep: z.string().transform(val => val.replace(/\D+/g, '')).refine(val => val.length === 8, { message: 'cep inválido' }),
-  logradouro: z.string(),
-  complemento: z.string(),
-  numero: z.string().optional(),
-  bairro: z.string(),
-  cidade: z.string(),
-  estado: z.string().length(2),
-  password: z.string().superRefine((val, ctx) => {
-    const minLength = 10
-    const containsUppercase = (val: string) => /[A-Z]/.test(val)
-    const containsLowercase = (val: string) => /[a-z]/.test(val)
-    const containsNumber = (val: string) => /\d/.test(val)
-    const containsSpecialChar = (val: string) =>
-      /[`!@#$%^&*()_\-+=[\]{};':"\\|,.<>/?~ ]/.test(val)
-
-    if (val.length < minLength) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `a password deve ter pelo menos ${minLength} caracteres`
-      })
-    }
-    if (!containsUppercase(val)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `a password deve conter caracteres maísculos`
-      })
-    }
-    if (!containsLowercase(val)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `a password deve conter caracteres minúsculos`
-      })
-    }
-    if (!containsNumber(val)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `a password deve conter números`
-      })
-    }
-    if (!containsSpecialChar(val)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `a password deve conter caracteres especiais \`!@#$%^&*()_\-+=[\]{};':"\\|,.<>/?~`
-      })
-    }
-  })
-})
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const db = drizzle(context.env.DB)
@@ -78,9 +24,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       ...novoCadastro,
       password
     }
-    await db.insert(cadastro).values(_cadastro)
+    const [{ userId }] = await db.insert(cadastro).values(_cadastro).returning({ userId: cadastro.id })
 
-    return new Response(null, { status: 200 })
+    return Response.json({ userId })
   }
   catch (err) {
     if (err instanceof ZodError) {
@@ -88,7 +34,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     }
     else if (err instanceof Error && err.message.includes('D1_ERROR')) {
       if (err.message.includes('UNIQUE constraint failed: cadastro.email')) {
-        return Response.json({ status: 409, error: 'já existe uma conta com este email' }, { status: 409 })
+        return Response.json({ status: 409, error: 'conflito:email' }, { status: 409 })
+      }
+      else if (err.message.includes('UNIQUE constraint failed: cadastro.cpfCnpj')) {
+        return Response.json({ status: 409, error: 'conflito:cpfCnpj' }, { status: 409 })
       }
       throw err
     }
