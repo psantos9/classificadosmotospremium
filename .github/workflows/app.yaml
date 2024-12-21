@@ -3,7 +3,7 @@ name: app
 on:
   push:
     paths:
-      - .github/workflows/cloudflare-api.yaml
+      - .github/workflows/cloudflare-app.yaml
       - packages/app/**
       - packages/shared/**
     branches:
