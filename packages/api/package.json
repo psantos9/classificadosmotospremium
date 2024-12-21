@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cpf-cnpj-validator": "^1.0.3",
     "drizzle-orm": "^0.38.2",
     "itty-router": "^5.0.18",
     "jose": "^5.9.6",
