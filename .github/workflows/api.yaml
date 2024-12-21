@@ -1,11 +1,10 @@
-name: Deploy API Test
+name: api
 
 on:
   push:
     paths:
       - .github/workflows/cloudflare-api.yaml
       - packages/api/**
-      - packages/database/**
       - packages/shared/**
     branches:
       - main

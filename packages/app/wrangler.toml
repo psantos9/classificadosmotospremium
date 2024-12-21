@@ -7,7 +7,7 @@ compatibility_flags = ["nodejs_compat"]
 
 [[env.preview.d1_databases]]
 binding = "DB"
-database_name = "cmp-preview"
+database_name = "cmp"
 database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 migrations_dir = "../database/migrations"
 
