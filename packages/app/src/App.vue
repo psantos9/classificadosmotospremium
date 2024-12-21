@@ -11,6 +11,7 @@
 <script lang="ts" setup>
 import Header from '@/components/Header.vue'
 import Sidebar from '@/components/Sidebar.vue'
+import { ModalsContainer } from 'vue-final-modal'
 </script>
 
 <style lang="sass" scoped>

@@ -5,7 +5,7 @@ import { z, ZodError } from 'zod'
 const getInvalidCepResponse = () => Response.json({ status: 404, error: 'invalid cep' }, { status: 404 })
 const getExternalApiError = () => Response.json({ status: 500, error: 'error while fetching cep' }, { status: 500 })
 
-const cepSchema = z.coerce.number().int().refine(val => val.toString().length === 8)
+const cepSchema = z.string().transform(val => Number.parseInt(val.replace(/\D+/g, ''))).refine(val => val.toString().length === 8)
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   try {

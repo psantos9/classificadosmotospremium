@@ -7,11 +7,10 @@
       v-bind="emailAttrs"
       class="block w-full rounded-md bg-white py-1.5 pl-10 pr-3 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-[var(--primary)] sm:pl-9 sm:text-sm/6"
       placeholder="E-mail"
-      :class="[!errors.email ? 'outline-gray-300 focus:outline-[var(--primary)]' : 'outline-red-500 focus:outline-red-500']"
       :invalid="!!errors.email"
     >
     <FontAwesomeIcon :icon="faEnvelope" size="sm" class="absolute pointer-events-none top-1/2 -translate-y-1/2 left-3 text-gray-400" />
-    <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+    <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
       {{ errors.email }}
     </p>
   </div>

@@ -22,7 +22,7 @@
                 autocomplete="off"
                 class="form-input"
               >
-              <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.nomeRazaoSocial }}
               </p>
             </div>
@@ -34,12 +34,13 @@
               <input
                 id="cpfCnpj"
                 v-model="cpfCnpj"
+                v-maska="{ mask: (value) => cpf.isValid(value) ? '###.###.###-##' : cnpj.isValid(value) ? '##.###.###/####-##' : '##############' }"
                 v-bind="cpfCnpjAttrs"
                 type="text"
                 autocomplete="off"
                 class="form-input"
               >
-              <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.cpfCnpj }}
               </p>
             </div>
@@ -56,7 +57,7 @@
                 autocomplete="off"
                 class="form-input"
               >
-              <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.email }}
               </p>
             </div>
@@ -68,12 +69,13 @@
               <input
                 id="mobile"
                 v-model="celular"
+                v-maska="{ mask: '(##) #########' }"
                 v-bind="celularAttrs"
                 type="text"
                 autocomplete="off"
                 class="form-input"
               >
-              <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.celular }}
               </p>
             </div>
@@ -87,11 +89,13 @@
                   id="data_nascimento"
                   v-model="dataNascimento"
                   v-bind="dataNascimentoAttrs"
+                  v-maska="{ mask: '####-##-##' }"
+                  placeholder="AAAA-MM-DD"
                   type="text"
                   autocomplete="off"
                   class="form-input"
                 >
-                <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+                <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                   {{ errors.dataNascimento }}
                 </p>
               </div>
@@ -109,7 +113,7 @@
                 autocomplete="off"
                 class="form-input"
               >
-              <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.nomeFantasia }}
               </p>
             </div>
@@ -126,7 +130,7 @@
                 class="form-input"
                 hidden
               >
-              <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.password }}
               </p>
             </div>
@@ -142,7 +146,7 @@
                 autocomplete="off"
                 class="form-input"
               >
-              <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.confirmPassword }}
               </p>
             </div>
@@ -159,10 +163,11 @@
                 id="cep"
                 v-model="cep"
                 v-bind="cepAttrs"
+                v-maska="{ mask: '#####-###' }"
                 type="text"
                 autocomplete="off"
                 class="form-input"
-              ><p class="absolute text-xs text-red-600 -bottom-4 right-0">
+              ><p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.cep }}
               </p>
             </div>
@@ -179,7 +184,7 @@
                 autocomplete="off"
                 class="form-input"
               >
-              <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.logradouro }}
               </p>
             </div>
@@ -196,7 +201,7 @@
                 autocomplete="off"
                 class="form-input"
               >
-              <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.numero }}
               </p>
             </div>
@@ -212,7 +217,7 @@
                 autocomplete="off"
                 class="form-input"
               >
-              <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.complemento }}
               </p>
             </div>
@@ -228,7 +233,7 @@
                 autocomplete="off"
                 class="form-input"
               >
-              <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.bairro }}
               </p>
             </div>
@@ -245,7 +250,7 @@
                 autocomplete="off"
                 class="form-input"
               >
-              <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.localidade }}
               </p>
             </div>
@@ -262,7 +267,7 @@
                 autocomplete="off"
                 class="form-input"
               >
-              <p class="absolute text-xs text-red-600 -bottom-4 right-0">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.uf }}
               </p>
             </div>
@@ -292,15 +297,17 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { cnpj, cpf } from 'cpf-cnpj-validator'
 import debounce from 'lodash.debounce'
+import { vMaska } from 'maska/vue'
 import { useForm } from 'vee-validate'
 import { ref, unref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toast-notification'
 
 enum EntityType {
   PF = 'pf',
   PJ = 'pj'
 }
-
+const $toast = useToast()
 const router = useRouter()
 const { api } = useApp()
 const tipoEntidade = ref<EntityType | null>(null)
@@ -330,6 +337,7 @@ const submit = async () => {
     try {
       await api.criaNovoCadastro(cadastro)
       router.push({ name: 'home' })
+      $toast.success('Conta criada com sucesso')
     }
     catch (err) {
       if (err instanceof CpfCnpjConflictError) {

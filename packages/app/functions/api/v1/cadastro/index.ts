@@ -1,12 +1,14 @@
-import type { ContextData, Env } from '@/types'
+import type { Env } from '@/types'
+import { getBearerToken } from '@/helpers/getBearerToken'
 import { cadastro, type NovoCadastro, schema } from '@cmp/database/schema'
 import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
 import bcrypt from 'bcryptjs'
 import { drizzle } from 'drizzle-orm/d1'
-import { z, ZodError } from 'zod'
+import { ZodError } from 'zod'
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
-  const db = drizzle(context.env.DB)
+  const { env } = context
+  const db = drizzle(env.DB)
   try {
     if (context.request.headers.get('content-type') !== 'application/json') {
       return Response.json({ message: 'unsupported media type' }, { status: 415 })
@@ -14,7 +16,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     const body = await context.request.json()
     const novoCadastro = novoCadastroSchema.parse(body)
-
     const password: string = bcrypt.hashSync(novoCadastro.password, 10)
 
     const _cadastro: NovoCadastro = {
@@ -24,9 +25,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       ...novoCadastro,
       password
     }
-    const [{ userId }] = await db.insert(cadastro).values(_cadastro).returning({ userId: cadastro.id })
 
-    return Response.json({ userId })
+    await db.insert(cadastro).values(_cadastro).returning({ userId: cadastro.id })
+    const bearerToken = await getBearerToken({ email: novoCadastro.email, password: novoCadastro.password, db: env.DB, apiSecret: env.API_SECRET })
+
+    return Response.json({ bearerToken })
   }
   catch (err) {
     if (err instanceof ZodError) {
@@ -43,10 +46,4 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     }
     else { throw err }
   }
-}
-
-export const onRequestGet: PagesFunction<Env, any, ContextData> = async (context) => {
-  const db = drizzle(context.env.DB, { schema })
-  const cadastros = await db.query.cadastro.findMany()
-  return Response.json(cadastros)
 }

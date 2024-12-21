@@ -32,6 +32,11 @@ const router = createRouter({
       component: async () => import('@/views/MeusDados.vue') as Component
     },
     {
+      path: '/alterar-senha',
+      name: 'alterar-senha',
+      component: async () => import('@/views/AlterarSenha.vue') as Component
+    },
+    {
       path: '/institucional',
       name: 'institucional',
       component: async () => import('@/views/Institucional.vue') as Component

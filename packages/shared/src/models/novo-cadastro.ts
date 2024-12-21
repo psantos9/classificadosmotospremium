@@ -5,17 +5,17 @@ const requiredError = 'Obrigatório'
 
 export const novoCadastroSchema = z.object({
   cpfCnpj: z.string({ required_error: requiredError }).transform(val => val.replace(/\D+/g, '')).refine(val => cpf.isValid(val, true) || cnpj.isValid(val, true), { message: 'CPF ou CNPJ inválido' }),
-  nomeRazaoSocial: z.string({ required_error: requiredError }),
+  nomeRazaoSocial: z.string({ required_error: requiredError }).nonempty(requiredError),
   dataNascimento: z.string({ required_error: requiredError }).date('Data inválida').optional(),
   nomeFantasia: z.string({ required_error: requiredError }).optional(),
-  email: z.string({ required_error: requiredError }).email(),
-  celular: z.string({ required_error: requiredError }),
+  email: z.string({ required_error: requiredError }).email('E-mail inválido'),
+  celular: z.string({ required_error: requiredError }).nonempty(requiredError).transform(val => val.replace(/\D+/g, '')),
   cep: z.string({ required_error: requiredError }).transform(val => val.replace(/\D+/g, '')).refine(val => val.length === 8, { message: 'CEP inválido' }),
-  logradouro: z.string({ required_error: requiredError }),
+  logradouro: z.string({ required_error: requiredError }).nonempty(requiredError),
   complemento: z.string({ required_error: requiredError }),
   numero: z.string().optional(),
-  bairro: z.string({ required_error: requiredError }),
-  localidade: z.string({ required_error: requiredError }),
+  bairro: z.string({ required_error: requiredError }).nonempty(requiredError),
+  localidade: z.string({ required_error: requiredError }).nonempty(requiredError),
   uf: z.string({ required_error: requiredError }).length(2),
   password: z.string({ required_error: requiredError }).superRefine((val, ctx) => {
     const minLength = 10

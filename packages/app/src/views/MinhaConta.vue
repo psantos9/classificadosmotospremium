@@ -21,7 +21,7 @@
 
 <script lang="ts" setup>
 import { useApp } from '@/composables/useApp'
-import { faSignOut, faUser } from '@fortawesome/free-solid-svg-icons'
+import { faLock, faSignOut, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { useRouter } from 'vue-router'
 
@@ -30,6 +30,7 @@ const router = useRouter()
 
 const sections = [
   { icon: faUser, title: 'Meus Dados', description: 'Atualize seus dados cadastrais', action: async () => await router.push({ name: 'meus-dados' }) },
+  { icon: faLock, title: 'Alterar Senha', description: 'Atualize a sua senha com frequência para garantir a segurança da sua conta', action: async () => await router.push({ name: 'alterar-senha' }) },
   { icon: faSignOut, title: 'Sair', description: 'Encerre a sessão da sua conta com segurança', action: async () => await api.logout() }
 ]
 </script>

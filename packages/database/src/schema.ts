@@ -23,6 +23,7 @@ export const cadastro = sqliteTable('cadastro', {
 }, _t => [])
 
 export type Cadastro = typeof cadastro.$inferSelect
+export type SelectCadastro = Omit<Cadastro, 'passoword'>
 export type NovoCadastro = typeof cadastro.$inferInsert
 
 export const schema = { cadastro }

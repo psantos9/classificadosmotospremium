@@ -1,3 +1,5 @@
+import type { Cadastro } from '@cmp/database/schema'
+import type { AtualizaCadastro } from '@cmp/shared/models/atualiza-cadastro'
 import type { NovoCadastro } from '@cmp/shared/models/novo-cadastro'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
 import axios, { type Axios, AxiosError } from 'axios'
@@ -41,7 +43,8 @@ export interface IAPIClient {
   logout: () => Promise<void>
   validateEmail: (email: string) => Promise<boolean>
   validateCEP: (cep: string) => Promise<OpenCEP | null>
-  criaNovoCadastro: (cadastro: NovoCadastro) => Promise<{ userId: string }>
+  criaNovoCadastro: (cadastro: NovoCadastro) => Promise<void>
+  fetchCadastro: () => Promise<Omit<Cadastro, 'password' | 'confirmPassword'>>
 }
 
 const getAxiosInstance = (params: { baseURL: string, ctx: APIClient }) => {
@@ -60,6 +63,7 @@ const getAxiosInstance = (params: { baseURL: string, ctx: APIClient }) => {
 export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient {
   private axios: Axios
   private _signedIn: boolean = false
+  private _authInterceptor: number | null = null
 
   constructor(params: { baseURL: string }) {
     super()
@@ -72,38 +76,47 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
   }
 
   private _setAuthorizationHeader(bearerToken: string | null) {
-    this.axios.interceptors.request.use((config) => {
-      if (bearerToken === null) {
-        delete config.headers.Authorization
-      }
-      else {
+    if (this._authInterceptor !== null) {
+      this.axios.interceptors.request.eject(this._authInterceptor)
+      this._authInterceptor = null
+    }
+    if (bearerToken !== null) {
+      this._authInterceptor = this.axios.interceptors.request.use((config) => {
         config.headers.Authorization = `Bearer ${bearerToken}`
-      }
-      return config
-    })
+        return config
+      })
+    }
+  }
+
+  private getTokenExpirationDeltaSeconds(exp: null | number) {
+    const delta = exp === null ? -1 : exp - (Math.round(new Date().getTime() / 1e3))
+    return delta
   }
 
   private _persistToken(bearerToken: string) {
     const claims = decodeJwt(bearerToken)
     const { exp = null } = claims
-    if (exp !== null && exp > new Date().getTime()) {
-      window.sessionStorage.setItem(API_PERSISTENCE_KEY, JSON.stringify({ bearerToken, exp }))
+    if (this.getTokenExpirationDeltaSeconds(exp) > 0) {
+      window.sessionStorage.setItem(API_PERSISTENCE_KEY, bearerToken)
     }
+  }
+
+  private _deleteToken() {
+    window.sessionStorage.removeItem(API_PERSISTENCE_KEY)
   }
 
   private _fetchToken() {
     const bearerToken = window.sessionStorage.getItem(API_PERSISTENCE_KEY)
     if (bearerToken !== null) {
       const claims = decodeJwt(bearerToken)
-      const now = new Date().getTime()
-      const { exp = now } = claims
-      const delta = exp - now
-      if (delta > 10 * 60 * 1e3) {
+      const { exp = null } = claims
+      if (this.getTokenExpirationDeltaSeconds(exp) > 10 * 60) {
         this._setAuthorizationHeader(bearerToken)
         void this.emit(APIClientEvent.SIGNED_IN, true)
       }
       else {
-        window.sessionStorage.removeItem(API_PERSISTENCE_KEY)
+        this._setAuthorizationHeader(null)
+        this._deleteToken()
         void this.emit(APIClientEvent.SIGNED_IN, false)
       }
     }
@@ -123,7 +136,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
 
   async logout() {
     this._setAuthorizationHeader(null)
-    window.sessionStorage.removeItem(API_PERSISTENCE_KEY)
+    this._deleteToken()
     await this.emit(APIClientEvent.SIGNED_IN, false)
   }
 
@@ -146,8 +159,8 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
   }
 
   async criaNovoCadastro(cadastro: NovoCadastro) {
-    const userId = await this.axios.post<{ userId: string }>('/api/v1/cadastro', cadastro)
-      .then(({ data: { userId } }) => userId)
+    const bearerToken = await this.axios.post<{ bearerToken: string }>('/api/v1/cadastro', cadastro)
+      .then(({ data: { bearerToken } }) => bearerToken)
       .catch((err) => {
         if (err instanceof AxiosError && err.status === 409) {
           const errorMessage = (err?.response?.data as { error: string }).error ?? null
@@ -160,6 +173,34 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
         }
         throw err
       })
-    return { userId }
+    this._setAuthorizationHeader(bearerToken)
+    this._persistToken(bearerToken)
+    await this.emit(APIClientEvent.SIGNED_IN, true)
+  }
+
+  async atualizaCadastro(params: { id: string, cadastro: AtualizaCadastro }) {
+    const { id, cadastro } = params
+    const cadastroAtualizado = await this.axios.put<Omit<Cadastro, 'password'>>(`/api/v1/cadastro/${btoa(id)}`, cadastro)
+      .then(({ data }) => data)
+      .catch((err) => {
+        if (err instanceof AxiosError && err.status === 409) {
+          const errorMessage = (err?.response?.data as { error: string }).error ?? null
+          if (errorMessage.includes('conflito:email')) {
+            throw new EmailConflictError()
+          }
+          else if (errorMessage.includes('conflito:cpfCnpj')) {
+            throw new CpfCnpjConflictError()
+          }
+        }
+        throw err
+      })
+    return cadastroAtualizado
+  }
+
+  async fetchCadastro() {
+    this._fetchToken()
+    const cadastro = await this.axios.get<Omit<Cadastro, 'password'>>(`/api/v1/cadastro/usuario`)
+      .then(({ data }) => data)
+    return cadastro
   }
 }

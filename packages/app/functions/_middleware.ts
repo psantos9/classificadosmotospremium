@@ -2,6 +2,7 @@ import type { ContextData, Env } from '@/types'
 import type { PagesFunction } from '@cloudflare/workers-types'
 import { jwtVerify } from 'jose'
 import { JWSSignatureVerificationFailed } from 'jose/errors'
+import { MAX_TOKEN_AGE, TOKEN_ISSUER } from './helpers/getBearerToken'
 
 const bearerRegex = /Bearer\s(\w.+)/
 const unauthenticatedURLs: Record<string, string[]> = {
@@ -25,6 +26,9 @@ const errorHandling: PagesFunction<Env> = async (context) => {
 
 const authentication: PagesFunction<Env, any, ContextData> = async (context) => {
   const { request, next, env, data } = context
+  if (request.method === 'OPTIONS') {
+    return next()
+  }
   const url = new URL(request.url)
   const parentWildcard = [...url.pathname.split('/').slice(0, -1), '*'].join('/')
   if ((unauthenticatedURLs[url.pathname] ?? unauthenticatedURLs[parentWildcard])?.includes(request.method)) {
@@ -37,14 +41,14 @@ const authentication: PagesFunction<Env, any, ContextData> = async (context) => 
     }
     const [, bearerToken] = match
     try {
-      const claims = await jwtVerify(bearerToken, new TextEncoder().encode(env.API_SECRET))
+      const claims = await jwtVerify(bearerToken, new TextEncoder().encode(env.API_SECRET), { issuer: TOKEN_ISSUER, maxTokenAge: MAX_TOKEN_AGE })
       data.userId = claims.payload.sub
     }
     catch (err) {
-      if (err instanceof JWSSignatureVerificationFailed) {
-        return new Response(null, { status: 401 })
+      if (err instanceof Error) {
+        console.error(err.message)
       }
-      throw err
+      return new Response(null, { status: 401 })
     }
   }
   return next()
@@ -64,8 +68,8 @@ export const onRequestOptions: PagesFunction<Env, any, ContextData> = async () =
     status: 204,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+      'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
       'Access-Control-Max-Age': '86400'
     }
   })
