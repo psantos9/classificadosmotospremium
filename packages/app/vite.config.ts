@@ -28,6 +28,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     define: {
+      __API_BASE_URL: mode === 'production' ? 'https://backend.classificadosmotospremium.com.br' : mode === 'preview' ? 'https://backend.preview.classificadosmotospremium.com.br' : 'http://localhost:8088',
       __COMMIT_HASH__: JSON.stringify(commitHash),
       __APP_BUILD_TIMESTAMP__: releaseTimestamp,
       __APP_RELEASE__: JSON.stringify(releaseName)
