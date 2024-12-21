@@ -4,10 +4,15 @@
   "private": true,
   "scripts": {
     "deploy": "wrangler deploy",
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --env dev",
+    "migrations:commit:dev": "npx wrangler@latest d1 migrations apply cmp --local",
     "start": "wrangler dev",
     "test": "vitest",
     "cf-typegen": "wrangler types"
+  },
+  "dependencies": {
+    "itty-router": "^5.0.18",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.5.2",
@@ -15,8 +20,5 @@
     "typescript": "^5.5.2",
     "vitest": "2.1.8",
     "wrangler": "^3.99.0"
-  },
-  "dependencies": {
-    "itty-router": "^5.0.18"
   }
 }

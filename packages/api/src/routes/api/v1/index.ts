@@ -1,13 +1,59 @@
 import type { Env } from '@/types'
-import { AutoRouter, error, type IRequest, json } from 'itty-router'
+import { getBearerToken } from '@/helpers/getBearerToken'
+import { cadastro, type NovoCadastro, schema } from '@cmp/database/schema'
+import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
+import bcrypt from 'bcryptjs'
+import { drizzle } from 'drizzle-orm/d1'
+import { AutoRouter, error, type IRequest, json, StatusError } from 'itty-router'
+import { z, ZodError } from 'zod'
 
-const router = AutoRouter<IRequest, [Env, ExecutionContext]>({
-  base: '/api/v1',
-  catch: (err) => {
-    return error(500, err.message)
-  }
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string()
 })
+
+const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' })
   .get<IRequest, [Env, ExecutionContext]>('/healthcheck', () => {
     return json({ ok: true })
+  })
+  .post<IRequest, [Env, ExecutionContext]>('/login', async (req, env) => {
+    try {
+      const { email, password } = loginSchema.parse(await req.json())
+      const bearerToken = await getBearerToken({ email, password, db: env.DB, apiSecret: env.API_SECRET })
+      if (bearerToken === null) {
+        throw new StatusError(401)
+      }
+      return json({ bearerToken })
+    }
+    catch (err) {
+      if (err instanceof ZodError) {
+        throw new StatusError(400, err.issues)
+      }
+      throw err
+    }
+  })
+  .post<IRequest, [Env, ExecutionContext]>('/signup', async (req, env) => {
+    const db = drizzle(env.DB, { schema })
+    try {
+      const novoCadastro = novoCadastroSchema.parse(await req.json())
+      const password: string = bcrypt.hashSync(novoCadastro.password, 10)
+
+      const _cadastro: NovoCadastro = {
+        id: crypto.randomUUID(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ...novoCadastro,
+        password
+      }
+      await db.insert(cadastro).values(_cadastro).returning({ userId: cadastro.id })
+      const bearerToken = await getBearerToken({ email: novoCadastro.email, password: novoCadastro.password, db: env.DB, apiSecret: env.API_SECRET })
+      return json({ bearerToken })
+    }
+    catch (err) {
+      if (err instanceof ZodError) {
+        throw new StatusError(400, err.issues)
+      }
+      throw err
+    }
   })
 export default router
