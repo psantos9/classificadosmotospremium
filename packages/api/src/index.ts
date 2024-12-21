@@ -1,5 +1,5 @@
 export default {
   async fetch(request, env, ctx): Promise<Response> {
-    return new Response('Hello World!')
+    return new Response('hi there!')
   }
 } satisfies ExportedHandler<Env>
