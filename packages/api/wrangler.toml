@@ -11,6 +11,9 @@ account_id = "32fd818651196edff39528b23343042d"
 [observability]
 enabled = true
 
+[dev]
+port = 8088
+
 [env.dev]
 name = "cmp-api-dev"
 
@@ -26,7 +29,7 @@ binding = "DB"
 database_name = "cmp"
 database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 preview_database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
-migrations_dir = "../database/migrations"
+migrations_dir = "../shared/migrations"
 
 [env.preview]
 name = "cmp-api-preview"
@@ -36,7 +39,7 @@ binding = "DB"
 database_name = "cmp"
 database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 preview_database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
-migrations_dir = "../database/migrations"
+migrations_dir = "../shared/migrations"
 
 
 [[env.production.d1_databases]]
@@ -44,7 +47,7 @@ binding = "DB"
 database_name = "cmp"
 database_id = "04e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 preview_database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
-migrations_dir = "../database/migrations"
+migrations_dir = "../shared/migrations"
 
 
 

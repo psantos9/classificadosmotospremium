@@ -5,9 +5,12 @@
     "./*": "./src/*.ts"
   },
   "scripts": {
+    "migrations:generate": "npx drizzle-kit generate"
   },
   "dependencies": {
+    "drizzle-zod": "^0.6.0"
   },
   "devDependencies": {
+    "drizzle-kit": "^0.30.1"
   }
 }
