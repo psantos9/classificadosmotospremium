@@ -1,5 +1,5 @@
 import type { D1Database } from '@cloudflare/workers-types'
-import { schema } from '@cmp/database/schema'
+import { schema } from '@cmp/shared/models/database/schema'
 import bcrypt from 'bcryptjs'
 import { drizzle } from 'drizzle-orm/d1'
 import { SignJWT } from 'jose'
