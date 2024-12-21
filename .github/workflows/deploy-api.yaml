@@ -2,14 +2,21 @@ name: Deploy
 
 on:
   push:
+    paths:
+      - packages/api/**
+      - packages/shared/**
     branches:
       - main
       - develop
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  deploy-api:
+  deploy-api-preview:
     runs-on: ubuntu-latest
-    name: Deploy API
+    name: Deploy API Preview
+    if: github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v4
       - name: Build & Deploy Worker
