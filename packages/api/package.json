@@ -5,7 +5,8 @@
   "scripts": {
     "deploy": "wrangler deploy",
     "dev": "wrangler dev --env dev",
-    "migrations:commit:dev": "wrangler@latest d1 migrations apply cmp --local",
+    "migrations:commit:dev": "npx wrangler@latest d1 migrations apply cmp --local",
+    "migrations:commit:preview": "npx wrangler@latest d1 migrations apply cmp --remote --env preview",
     "start": "wrangler dev",
     "test": "vitest",
     "cf-typegen": "wrangler types"
