@@ -1,12 +1,14 @@
+import { execSync } from 'node:child_process'
 import { fileURLToPath, URL } from 'node:url'
 import vue from '@vitejs/plugin-vue'
 import { adjectives, animals, uniqueNamesGenerator } from 'unique-names-generator'
 import { defineConfig, type UserConfig } from 'vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
+const commitHash = execSync('git rev-parse --short HEAD').toString()
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  const releaseVersion = process.env.npm_package_version
 
   const releaseName = uniqueNamesGenerator({
     dictionaries: [adjectives, animals],
@@ -27,7 +29,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     define: {
-      __APP_VERSION__: JSON.stringify(releaseVersion),
+      __COMMIT_HASH__: commitHash,
       __APP_BUILD_TIMESTAMP__: releaseTimestamp,
       __APP_RELEASE__: JSON.stringify(releaseName)
     },
