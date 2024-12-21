@@ -9,7 +9,7 @@ compatibility_flags = ["nodejs_compat"]
 binding = "DB"
 database_name = "cmp-preview"
 database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
-migrations_dir = "../database/migrations"
+migrations_dir = "packages/database/migrations"
 
 [[env.preview.kv_namespaces]]
 binding = "CEP"
