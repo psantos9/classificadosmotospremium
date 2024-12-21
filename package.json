@@ -2,7 +2,8 @@
   "name": "classificadosmotospremium",
   "license": "MIT",
   "scripts": {
-    "dev:landing-page": "npm run dev -w landing-page"
+    "dev:landing-page": "npm run dev -w landing-page",
+    "build:app": "npm run build -w @cmp/app"
   },
   "workspaces": [
     "./packages/*"
