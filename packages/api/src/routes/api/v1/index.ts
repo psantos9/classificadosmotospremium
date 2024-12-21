@@ -51,9 +51,18 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     }
     catch (err) {
       if (err instanceof ZodError) {
-        throw new StatusError(400, err.issues)
+        return Response.json({ status: 400, error: err.issues }, { status: 400 })
       }
-      throw err
+      else if (err instanceof Error && err.message.includes('D1_ERROR')) {
+        if (err.message.includes('UNIQUE constraint failed: cadastro.email')) {
+          return Response.json({ status: 409, error: 'conflito:email' }, { status: 409 })
+        }
+        else if (err.message.includes('UNIQUE constraint failed: cadastro.cpfCnpj')) {
+          return Response.json({ status: 409, error: 'conflito:cpfCnpj' }, { status: 409 })
+        }
+        throw err
+      }
+      else { throw err }
     }
   })
 export default router
