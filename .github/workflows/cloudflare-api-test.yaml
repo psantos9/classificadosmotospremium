@@ -24,4 +24,4 @@ jobs:
       - name: Install
         run: npm ci
       - name: Deploy
-        run: npx wrangler deploy --env preview
+        run: cd packages/api && npx wrangler deploy --env preview
