@@ -261,7 +261,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Cadastro } from '@cmp/database/schema'
+import type { Cadastro } from '@cmp/shared/models/database/schema'
 import { CpfCnpjConflictError, EmailConflictError } from '@/composables/api-client'
 import { useApp } from '@/composables/useApp'
 import { atualizaCadastroSchema } from '@cmp/shared/models/atualiza-cadastro'
