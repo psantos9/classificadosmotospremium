@@ -141,7 +141,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
   }
 
   async validateEmail(email: string) {
-    const exists = await this.axios.post<{ exists: boolean }>('/api/v1/cadastro/verificar', { email })
+    const exists = await this.axios.post<{ exists: boolean }>('/api/v1/login/check', { email })
       .then(({ data: { exists } }) => exists)
     return exists
   }

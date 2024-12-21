@@ -3,6 +3,7 @@ import { getBearerToken } from '@/helpers/getBearerToken'
 import { cadastro, type NovoCadastro, schema } from '@cmp/shared/models/database/schema'
 import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
 import bcrypt from 'bcryptjs'
+import { sql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/d1'
 import { AutoRouter, type IRequest, json, StatusError } from 'itty-router'
 import { z, ZodError } from 'zod'
@@ -15,6 +16,22 @@ const loginSchema = z.object({
 const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' })
   .get<IRequest, [Env, ExecutionContext]>('/healthcheck', () => {
     return json({ ok: true })
+  })
+  .post<IRequest, [Env, ExecutionContext]>('/login/check', async (req, env) => {
+    const db = drizzle(env.DB, { schema })
+
+    const bodySchema = z.object({ email: z.string().email() })
+    try {
+      const { email } = bodySchema.parse(await req.json())
+      const { isExist } = await db.get<{ isExist: number }>(sql`SELECT EXISTS (SELECT 1 from ${cadastro} where ${cadastro.email} = ${email}) as isExist`)
+      return json({ exists: isExist === 1 })
+    }
+    catch (err) {
+      if (err instanceof ZodError) {
+        throw new StatusError(400, err.issues)
+      }
+      else { throw err }
+    }
   })
   .post<IRequest, [Env, ExecutionContext]>('/login', async (req, env) => {
     try {
