@@ -4,7 +4,7 @@ import { cadastro, type NovoCadastro, schema } from '@cmp/database/schema'
 import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
 import bcrypt from 'bcryptjs'
 import { drizzle } from 'drizzle-orm/d1'
-import { AutoRouter, error, type IRequest, json, StatusError } from 'itty-router'
+import { AutoRouter, type IRequest, json, StatusError } from 'itty-router'
 import { z, ZodError } from 'zod'
 
 const loginSchema = z.object({
