@@ -1,8 +1,9 @@
-name: Deploy
+name: Deploy API
 
 on:
   push:
     paths:
+      - .github/workflows/cloudflare-api.yaml
       - packages/api/**
       - packages/shared/**
     branches:
