@@ -25,7 +25,7 @@ jobs:
       - name: Install
         run: npm ci
       - name: Build
-        run: npm run build:app
+        run: npm run build:app:preview
       - name: Deploy
         working-directory: ./packages/app
         env:

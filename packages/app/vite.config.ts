@@ -7,7 +7,6 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 const commitHash = execSync('git rev-parse --short HEAD').toString('utf-8')
 
-console.log(commitHash)
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const releaseName = uniqueNamesGenerator({
