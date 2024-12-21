@@ -5,11 +5,11 @@ import { adjectives, animals, uniqueNamesGenerator } from 'unique-names-generato
 import { defineConfig, type UserConfig } from 'vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
-const commitHash = execSync('git rev-parse --short HEAD').toString()
+const commitHash = execSync('git rev-parse --short HEAD').toString('utf-8')
 
+console.log(commitHash)
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-
   const releaseName = uniqueNamesGenerator({
     dictionaries: [adjectives, animals],
     separator: '-',
@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     define: {
-      __COMMIT_HASH__: commitHash,
+      __COMMIT_HASH__: JSON.stringify(commitHash),
       __APP_BUILD_TIMESTAMP__: releaseTimestamp,
       __APP_RELEASE__: JSON.stringify(releaseName)
     },
