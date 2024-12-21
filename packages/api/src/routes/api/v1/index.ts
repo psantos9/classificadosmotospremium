@@ -1,11 +1,11 @@
 import type { Env } from '@/types'
 import { getBearerToken } from '@/helpers/getBearerToken'
-import { cadastro, type NovoCadastro, schema } from '@cmp/database/schema'
-import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
 import bcrypt from 'bcryptjs'
 import { drizzle } from 'drizzle-orm/d1'
 import { AutoRouter, type IRequest, json, StatusError } from 'itty-router'
 import { z, ZodError } from 'zod'
+import { cadastro, type NovoCadastro, schema } from '../../../../../database/src/schema'
+import { novoCadastroSchema } from '../../../../../shared/src/models/novo-cadastro'
 
 const loginSchema = z.object({
   email: z.string().email(),
