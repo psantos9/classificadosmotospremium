@@ -24,6 +24,8 @@ jobs:
       - uses: actions/setup-node@v4
       - name: Install
         run: npm ci
+      - name: Build
+        run: npm run build:app
       - name: Deploy
         working-directory: ./packages/app
         env:
