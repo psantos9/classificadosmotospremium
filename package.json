@@ -3,7 +3,8 @@
   "license": "MIT",
   "scripts": {
     "dev:landing-page": "npm run dev -w landing-page",
-    "build:app": "npm run build -w @cmp/app"
+    "build:app": "npm run build -w @cmp/app",
+    "commit:migrations:preview": "npx wrangler d1 migrations apply cmp-preview -c wrangler.toml -e preview --remote"
   },
   "workspaces": [
     "./packages/*"
