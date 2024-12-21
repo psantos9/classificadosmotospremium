@@ -11,6 +11,7 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
+    "drizzle-orm": "^0.38.2",
     "itty-router": "^5.0.18",
     "zod": "^3.24.1"
   },
