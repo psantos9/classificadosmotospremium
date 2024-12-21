@@ -1,10 +1,11 @@
-name: Deploy API
+name: Deploy API Test
 
 on:
   push:
     paths:
       - .github/workflows/cloudflare-api.yaml
       - packages/api/**
+      - packages/database/**
       - packages/shared/**
     branches:
       - main
@@ -17,13 +18,15 @@ jobs:
   deploy-api-preview:
     runs-on: ubuntu-latest
     name: Deploy API Preview
-    if: github.ref == 'refs/heads/developx'
+    if: github.ref == 'refs/heads/develop'
+
     steps:
       - uses: actions/checkout@v4
-      - name: Build & Deploy Worker
-        uses: cloudflare/wrangler-action@v3
-        with:
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: "packages/api"
-          environment: preview
+      - uses: actions/setup-node@v4
+      - name: Install
+        run: npm ci
+      - name: Deploy
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: cd packages/api && npx wrangler deploy --env preview
