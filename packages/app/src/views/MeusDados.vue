@@ -7,7 +7,7 @@
       <div class="flex flex-col gap-4">
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-6">
           <div class="sm:col-span-4">
-            <label for="name" class="block text-sm/6 font-medium">{{ tipoEntidade === EntityType.PF ? 'Nome' : tipoEntidade === EntityType.PJ ? 'Razão Social' : 'Nome ou Razão Social' }}</label>
+            <label for="name" class="block text-sm/6 font-medium">{{ cpf.isValid(cpfCnpj ?? '') ? 'Nome' : 'Razão Social' }}</label>
             <div class="mt-2 relative">
               <input
                 id="name"
@@ -24,7 +24,7 @@
           </div>
 
           <div class="sm:col-span-2">
-            <label for="cpfCnpj" class="block text-sm/6 font-medium">{{ tipoEntidade === EntityType.PF ? 'CPF' : tipoEntidade === EntityType.PJ ? 'CNPJ' : 'CPF ou CNPJ' }}</label>
+            <label for="cpfCnpj" class="block text-sm/6 font-medium">{{ cpf.isValid(cpfCnpj ?? '') ? 'CPF' : 'CNPJ' }}</label>
             <div class="mt-2 relative">
               <input
                 id="cpfCnpj"
@@ -284,6 +284,7 @@ const $toast = useToast()
 const { api } = useApp()
 const cadastroId = ref('')
 const originalHash = ref('')
+const skipCepCheck = ref(true)
 const tipoEntidade = ref<EntityType | null>(null)
 const validationSchema = toTypedSchema(atualizaCadastroSchema)
 const { errors, defineField, values, setFieldError, validate, setFieldValue, meta } = useForm({ validationSchema })
@@ -322,6 +323,9 @@ const syncCadastro = async (_cadastro?: Omit<Cadastro, 'password'>) => {
   nextTick(() => {
     originalHash.value = sha256(JSON.stringify(unref(values)))
   })
+  setTimeout(() => {
+    skipCepCheck.value = false
+  }, 1000)
 }
 
 const hasChanges = computed(() => unref(originalHash) !== sha256(JSON.stringify(unref(values))))
@@ -349,6 +353,9 @@ const submit = async () => {
 }
 
 const debouncedValidateCEP = debounce(async (cep: string) => {
+  if (unref(skipCepCheck)) {
+    return
+  }
   const cepOk = unref(errors).cep === undefined
   if (!cepOk) {
     return

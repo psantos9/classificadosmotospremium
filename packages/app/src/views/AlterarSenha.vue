@@ -11,15 +11,15 @@
             <div class="mt-2 relative">
               <input
                 id="password"
-                v-model="password"
-                v-bind="passwordAttrs"
+                v-model="currentPassword"
+                v-bind="currentPasswordAttrs"
                 type="password"
                 autocomplete="off"
                 class="form-input"
                 hidden
               >
               <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
-                {{ errors.password }}
+                {{ errors.currentPassword }}
               </p>
             </div>
           </div>
@@ -73,9 +73,9 @@
           type="button"
           class="w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold shadow-sm transition-opacity"
           :class="{
-            'opacity-40': !hasChanges || !meta.valid,
+            'opacity-40': loading || !meta.valid,
           }"
-          :disabled="!hasChanges"
+          :disabled="loading || !meta.valid"
           @click="submit"
         >
           Enviar
@@ -87,110 +87,55 @@
 </template>
 
 <script lang="ts" setup>
-import type { Cadastro } from '@cmp/database/schema'
-import { CpfCnpjConflictError, EmailConflictError } from '@/composables/api-client'
+import { UnauthorizedError } from '@/composables/api-client'
 import { useApp } from '@/composables/useApp'
-import { atualizaCadastroSchema } from '@cmp/shared/models/atualiza-cadastro'
+import { confirmPasswordSchema, passwordSchema } from '@cmp/shared/models/novo-cadastro'
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
-import { sha256 } from 'js-sha256'
-import debounce from 'lodash.debounce'
 import { useForm } from 'vee-validate'
-import { computed, nextTick, ref, unref, watch } from 'vue'
+import { ref, unref } from 'vue'
 import { useToast } from 'vue-toast-notification'
+import { z } from 'zod'
 
-enum EntityType {
-  PF = 'pf',
-  PJ = 'pj'
-}
-const $toast = useToast()
-const { api } = useApp()
-const cadastroId = ref('')
-const originalHash = ref('')
-const tipoEntidade = ref<EntityType | null>(null)
-const validationSchema = toTypedSchema(atualizaCadastroSchema)
-const { errors, defineField, values, setFieldError, validate, setFieldValue, meta } = useForm({ validationSchema })
-const [cpfCnpj, cpfCnpjAttrs] = defineField('cpfCnpj')
-const [nomeRazaoSocial, nomeRazaoSocialAttrs] = defineField('nomeRazaoSocial')
-const [nomeFantasia, nomeFantasiaAttrs] = defineField('nomeFantasia')
-const [dataNascimento, dataNascimentoAttrs] = defineField('dataNascimento')
-const [email, emailAttrs] = defineField('email')
-const [celular, celularAttrs] = defineField('celular')
-const [cep, cepAttrs] = defineField('cep')
-const [logradouro, logradouroAttrs] = defineField('logradouro')
-const [complemento, complementoAttrs] = defineField('complemento')
-const [numero, numeroAttrs] = defineField('numero')
-const [bairro, bairroAttrs] = defineField('bairro')
-const [localidade, localidadeAttrs] = defineField('localidade')
-const [uf, ufAttrs] = defineField('uf')
-
-const syncCadastro = async (_cadastro?: Omit<Cadastro, 'password'>) => {
-  if (!_cadastro) {
-    _cadastro = await api.fetchCadastro()
+const schema = z.object({
+  currentPassword: z.string().nonempty('Obrigatório'),
+  password: passwordSchema,
+  confirmPassword: confirmPasswordSchema
+}).superRefine((val, ctx) => {
+  let hasIssues = false
+  if (val.password !== val.confirmPassword) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['password', 'confirmPassword'], message: 'As senhas são diferentes' })
+    hasIssues = true
   }
-  const { id, cpfCnpj, nomeRazaoSocial, email, celular, cep, logradouro, numero, complemento, bairro, localidade, uf, dataNascimento } = _cadastro
-  cadastroId.value = id
-  setFieldValue('nomeRazaoSocial', nomeRazaoSocial)
-  setFieldValue('cpfCnpj', cpfCnpj)
-  setFieldValue('email', email)
-  setFieldValue('dataNascimento', dataNascimento ?? '')
-  setFieldValue('celular', celular)
-  setFieldValue('cep', cep)
-  setFieldValue('logradouro', logradouro)
-  setFieldValue('numero', numero ?? '')
-  setFieldValue('complemento', complemento)
-  setFieldValue('bairro', bairro)
-  setFieldValue('localidade', localidade)
-  setFieldValue('uf', uf)
-  nextTick(() => {
-    originalHash.value = sha256(JSON.stringify(unref(values)))
-  })
-}
+  return !hasIssues
+})
 
-const hasChanges = computed(() => unref(originalHash) !== sha256(JSON.stringify(unref(values))))
+const toast = useToast()
+const { api } = useApp()
 
-syncCadastro()
+const loading = ref(false)
+const validationSchema = toTypedSchema(schema)
+const { errors, defineField, values, validate, meta } = useForm({ validationSchema })
+const [currentPassword, currentPasswordAttrs] = defineField('currentPassword')
+const [password, passwordAttrs] = defineField('password')
+const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword')
 
 const submit = async () => {
   const { valid } = await validate()
   if (valid) {
-    const cadastro = JSON.parse(JSON.stringify(unref(values)))
+    const { password = '', currentPassword = '' } = unref(values)
+
     try {
-      const cadastroAtualizado = await api.atualizaCadastro({ id: unref(cadastroId), cadastro })
-      await syncCadastro(cadastroAtualizado)
-      $toast.success('Dados atualizados com sucesso')
+      await api.atualizaSenha({ currentPassword, password })
+      toast.success('Senha atualizada com sucesso')
+      await api.logout()
     }
     catch (err) {
-      if (err instanceof CpfCnpjConflictError) {
-        setFieldError('cpfCnpj', `Já existe uma conta com este ${tipoEntidade.value === EntityType.PF ? 'CPF' : 'CNPj'}`)
-      }
-      else if (err instanceof EmailConflictError) {
-        setFieldError('email', 'Já existe uma conta com este e-mail')
+      if (err instanceof UnauthorizedError) {
+        toast.error('Senha atual inválida')
       }
     }
   }
 }
-
-const debouncedValidateCEP = debounce(async (cep: string) => {
-  const cepOk = unref(errors).cep === undefined
-  if (!cepOk) {
-    return
-  }
-  const openCEP = await api.validateCEP(cep)
-  if (openCEP !== null) {
-    logradouro.value = openCEP.logradouro
-    complemento.value = openCEP.complemento
-    bairro.value = openCEP.bairro
-    localidade.value = openCEP.localidade
-    uf.value = openCEP.uf
-  }
-  else {
-    setFieldError('cep', 'CEP inválido')
-  }
-}, 500)
-
-watch(cep, async () => {
-  await debouncedValidateCEP(unref(cep)?.toString() as string)
-})
 </script>

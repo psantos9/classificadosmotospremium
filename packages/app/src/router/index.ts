@@ -1,7 +1,18 @@
 import type { Component } from 'vue'
+import type { NavigationGuardWithThis } from 'vue-router'
+import { useApp } from '@/composables/useApp'
 import HomeView from '@/views/HomeView.vue'
 import Identificacao from '@/views/Identificacao.vue'
+import { unref } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
+
+const isSignedIn: NavigationGuardWithThis<any> = (to, from, next) => {
+  const { signedIn } = useApp()
+  if (!unref(signedIn)) {
+    next({ name: 'identificacao' })
+  }
+  else { next() }
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,16 +35,19 @@ const router = createRouter({
     {
       path: '/minha-conta',
       name: 'minha-conta',
+      beforeEnter: [isSignedIn],
       component: async () => import('@/views/MinhaConta.vue') as Component
     },
     {
       path: '/meus-dados',
       name: 'meus-dados',
+      beforeEnter: [isSignedIn],
       component: async () => import('@/views/MeusDados.vue') as Component
     },
     {
       path: '/alterar-senha',
       name: 'alterar-senha',
+      beforeEnter: [isSignedIn],
       component: async () => import('@/views/AlterarSenha.vue') as Component
     },
     {

@@ -21,8 +21,13 @@ api.on(APIClientEvent.SIGNED_IN, (_signedIn) => {
 export const useApp = () => {
   if (signedInWatcher === null) {
     const router = useRouter()
-    signedInWatcher = watch(signedIn, async () => {
-      await router.push({ name: 'home' })
+    signedInWatcher = watch(signedIn, async (signedIn) => {
+      if (!signedIn) {
+        await router.push({ name: 'identificacao' })
+      }
+      else {
+        await router.push({ name: 'home' })
+      }
     })
     void nextTick(() => {
       signedIn.value = api.signedIn

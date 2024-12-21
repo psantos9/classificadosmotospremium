@@ -5,6 +5,16 @@ compatibility_date = "2024-12-17"
 account_id = "32fd818651196edff39528b23343042d"
 compatibility_flags = ["nodejs_compat"]
 
-d1_databases = [
-  { binding = "DB", database_name = "cmp-dev", database_id = "2d1d8ed4-a86a-4fd3-9587-3f754b010d5a", migrations_dir="../database/migrations" }
-]
+
+[[env.preview.d1_databases]]
+binding = "DB"
+database_name = "cmp-preview"
+database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
+migrations_dir = "../database/migrations"
+
+[[env.preview.kv_namespaces]]
+binding = "CEP"
+id = "98be910dd2ea46c8a65657864c208bf7"
+
+[env.preview.vars]
+API_SECRET = "ceb9cf82-e516-44f8-8c61-3207a4f7c7ae-f8fdd7e1-4a0d-4542-8931-eb0c744c8995"

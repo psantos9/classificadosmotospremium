@@ -197,6 +197,20 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return cadastroAtualizado
   }
 
+  async atualizaSenha(params: { currentPassword: string, password: string }) {
+    try {
+      await this.axios.put<void>('/api/v1/cadastro/senha', params)
+    }
+    catch (err) {
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 401) {
+          throw new UnauthorizedError()
+        }
+      }
+      throw err
+    }
+  }
+
   async fetchCadastro() {
     this._fetchToken()
     const cadastro = await this.axios.get<Omit<Cadastro, 'password'>>(`/api/v1/cadastro/usuario`)
