@@ -1,5 +1,5 @@
-import type { Cadastro } from '@cmp/database/schema'
 import type { AtualizaCadastro } from '@cmp/shared/models/atualiza-cadastro'
+import type { Cadastro } from '@cmp/shared/models/database/schema'
 import type { NovoCadastro } from '@cmp/shared/models/novo-cadastro'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
 import axios, { type Axios, AxiosError } from 'axios'
