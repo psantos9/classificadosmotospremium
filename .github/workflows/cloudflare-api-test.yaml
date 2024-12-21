@@ -17,13 +17,11 @@ jobs:
   deploy-api-preview:
     runs-on: ubuntu-latest
     name: Deploy API Preview
-    if: github.ref == 'refs/heads/developx'
+    if: github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v4
-      - name: Build & Deploy Worker
-        uses: cloudflare/wrangler-action@v3
-        with:
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: "packages/api"
-          environment: preview
+      - uses: actions/setup-node@v4
+      - name: Install
+        run: npm ci
+      - name: Deploy
+        run: npx wrangler deploy --env preview
