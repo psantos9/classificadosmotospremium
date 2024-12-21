@@ -12,7 +12,7 @@ const sidebarOpen = ref(false)
 const signedIn = ref(false)
 
 let signedInWatcher: null | ReturnType<typeof watch> = null
-const api = new APIClient({ baseURL: '/' })
+const api = new APIClient({ baseURL: __API_BASE_URL__ })
 
 api.on(APIClientEvent.SIGNED_IN, (_signedIn) => {
   signedIn.value = _signedIn

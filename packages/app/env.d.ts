@@ -8,7 +8,7 @@ interface ImportMeta {
   readonly env: ImportMetaEnv
 }
 
-declare const __API_BASE_URL: string
+declare const __API_BASE_URL__: string
 declare const __COMMIT_HASH__: string
 declare const __APP_BUILD_TIMESTAMP__: string
 declare const __APP_RELEASE__: string
