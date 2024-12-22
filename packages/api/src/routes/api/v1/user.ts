@@ -6,7 +6,7 @@ import { passwordSchema } from '@cmp/shared/models/novo-cadastro'
 import bcrypt from 'bcryptjs'
 import { eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/d1'
-import { AutoRouter, error, type IRequest, json, type RequestHandler, StatusError } from 'itty-router'
+import { AutoRouter, error, json, StatusError } from 'itty-router'
 import { z } from 'zod'
 
 const bodyPasswordSchema = z.object({
