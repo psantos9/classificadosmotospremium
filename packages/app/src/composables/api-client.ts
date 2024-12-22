@@ -159,7 +159,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
   }
 
   async criaNovoCadastro(cadastro: NovoCadastro) {
-    const bearerToken = await this.axios.post<{ bearerToken: string }>('/api/v1/cadastro', cadastro)
+    const bearerToken = await this.axios.post<{ bearerToken: string }>('/api/v1/user', cadastro)
       .then(({ data: { bearerToken } }) => bearerToken)
       .catch((err) => {
         if (err instanceof AxiosError && err.status === 409) {
@@ -180,7 +180,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
 
   async atualizaCadastro(params: { id: string, cadastro: AtualizaCadastro }) {
     const { id, cadastro } = params
-    const cadastroAtualizado = await this.axios.put<Omit<Cadastro, 'password'>>(`/api/v1/cadastro/${btoa(id)}`, cadastro)
+    const cadastroAtualizado = await this.axios.put<Omit<Cadastro, 'password'>>(`/api/v1/user/${btoa(id)}`, cadastro)
       .then(({ data }) => data)
       .catch((err) => {
         if (err instanceof AxiosError && err.status === 409) {
@@ -199,7 +199,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
 
   async atualizaSenha(params: { currentPassword: string, password: string }) {
     try {
-      await this.axios.put<void>('/api/v1/cadastro/senha', params)
+      await this.axios.put<void>('/api/v1/user/password', params)
     }
     catch (err) {
       if (err instanceof AxiosError) {
@@ -213,7 +213,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
 
   async fetchCadastro() {
     this._fetchToken()
-    const cadastro = await this.axios.get<Omit<Cadastro, 'password'>>(`/api/v1/cadastro/usuario`)
+    const cadastro = await this.axios.get<Omit<Cadastro, 'password'>>(`/api/v1/user`)
       .then(({ data }) => data)
     return cadastro
   }

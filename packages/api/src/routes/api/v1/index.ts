@@ -1,5 +1,6 @@
-import type { Env } from '@/types'
+import type { CF, Env } from '@/types'
 import { getBearerToken } from '@/helpers/getBearerToken'
+import { authenticateRequest } from '@/middleware/authenticate-request'
 import { cadastro, type NovoCadastro, schema } from '@cmp/shared/models/database/schema'
 import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
 import bcrypt from 'bcryptjs'
@@ -7,6 +8,7 @@ import { sql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/d1'
 import { AutoRouter, type IRequest, json, StatusError } from 'itty-router'
 import { z, ZodError } from 'zod'
+import { router as userRouter } from './user'
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -82,4 +84,6 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
       else { throw err }
     }
   })
+  .all<IRequest, CF>('*', authenticateRequest)
+  .all<IRequest, [Env, ExecutionContext]>('/user/*', userRouter.fetch)
 export default router
