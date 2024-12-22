@@ -1,6 +1,5 @@
 <template>
-  {{ selectedOption }}
-  <Combobox v-model="selectedOption" as="div" @update:model-value="query = ''">
+  <Combobox v-model="model" as="div" @update:model-value="query = ''">
     <ComboboxLabel class="block text-sm/6 font-medium">
       {{ label }}
     </ComboboxLabel>
@@ -47,18 +46,17 @@ import {
 import { computed, ref, toRefs, unref } from 'vue'
 
 const props = defineProps<{
-  value: string
   label: string
   data: Array<{ key: string, value: string }>
   filteringFn?: (query: string, data: Array<{ key: string, value: string }>) => Array<{ key: string, value: string }>
 }>()
-
 defineEmits<{ (e: 'input', value: string): void }>()
 
+const model = defineModel<null | { key: string, value: string }>()
 const { filteringFn, data } = toRefs(props)
 
 const query = ref('')
-const selectedOption = ref(null)
+
 const filteredOptions = computed(() => {
   const _query = unref(query)
   const dataset = unref(data)

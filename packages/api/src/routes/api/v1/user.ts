@@ -1,4 +1,4 @@
-import type { CF, Env, IAppAuthenticatedRequest } from '@/types'
+import type { Env, IAppAuthenticatedRequest } from '@/types'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
 import { atualizaCadastroSchema } from '@cmp/shared/models/atualiza-cadastro'
 import { cadastro, schema } from '@cmp/shared/models/database/schema'

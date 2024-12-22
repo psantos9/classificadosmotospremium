@@ -2,6 +2,7 @@
   "name": "classificadosmotospremium",
   "license": "MIT",
   "scripts": {
+    "test": "jest",
     "dev": "npm run dev:api & npm run dev:app",
     "dev:api": "npm run dev -w @cmp/api",
     "dev:app": "npm run dev -w @cmp/app",
@@ -22,5 +23,13 @@
     "drizzle-orm": "^0.38.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-typescript": "^7.26.0",
+    "@types/jest": "^29.5.14",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2"
   }
 }
