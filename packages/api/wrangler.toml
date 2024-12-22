@@ -36,6 +36,10 @@ name = "cmp-api-preview"
 logpush = true # https://developers.cloudflare.com/workers/observability/logpush/
 route = { pattern = "backend.preview.classificadosmotospremium.com.br", custom_domain = true, zone_name = "classificadosmotospremium.com.br" }
 
+[[env.preview.kv_namespaces]]
+binding = "CEP"
+id = "98be910dd2ea46c8a65657864c208bf7"
+
 [[env.preview.d1_databases]]
 binding = "DB"
 database_name = "cmp"
@@ -43,6 +47,10 @@ database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 preview_database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 migrations_dir = "../shared/migrations"
 
+
+[[env.production.kv_namespaces]]
+binding = "CEP"
+id = "98be910dd2ea46c8a65657864c208bf7"
 
 [[env.production.d1_databases]]
 binding = "DB"
