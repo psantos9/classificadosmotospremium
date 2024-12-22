@@ -51,6 +51,18 @@ const router = createRouter({
       component: async () => import('@/views/AlterarSenha.vue') as Component
     },
     {
+      path: '/anuncie',
+      beforeEnter: [isSignedIn],
+      component: async () => import('@/layouts/CadastroAnuncio.vue') as Component,
+      children: [
+        {
+          path: '',
+          name: 'anuncie',
+          component: async () => import('@/views/FormularioCadastroAnuncio.vue') as Component
+        }
+      ]
+    },
+    {
       path: '/institucional',
       name: 'institucional',
       component: async () => import('@/views/Institucional.vue') as Component

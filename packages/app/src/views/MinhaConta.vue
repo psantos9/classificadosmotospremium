@@ -1,19 +1,21 @@
 <template>
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-    <div
-      v-for="(section, i) in sections"
-      :key="i"
-      class="bg-white rounded-md shadow p-4 flex flex-col gap-2 cursor-pointer hover:bg-[var(--primary)] transition-colors"
-      @click="section.action"
-    >
-      <div class="mb-2">
-        <FontAwesomeIcon :icon="section.icon" size="xl" />
-      </div>
-      <div class="font-bold uppercase">
-        {{ section.title }}
-      </div>
-      <div class="font-extralight text-sm">
-        {{ section.description }}
+  <div class="view-container">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div
+        v-for="(section, i) in sections"
+        :key="i"
+        class="bg-white rounded-md shadow p-4 flex flex-col gap-2 cursor-pointer hover:bg-[var(--primary)] transition-colors"
+        @click="section.action"
+      >
+        <div class="mb-2">
+          <FontAwesomeIcon :icon="section.icon" size="xl" />
+        </div>
+        <div class="font-bold uppercase">
+          {{ section.title }}
+        </div>
+        <div class="font-extralight text-sm">
+          {{ section.description }}
+        </div>
       </div>
     </div>
   </div>

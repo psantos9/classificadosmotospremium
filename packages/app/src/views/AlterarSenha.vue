@@ -1,86 +1,88 @@
 <template>
-  <div class="card max-w-screen-md mx-auto">
-    <div class="card-header">
-      Alterar Senha
-    </div>
-    <div class="card-section !gap-12">
-      <div class="flex flex-col gap-4">
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-6">
-          <div class="sm:col-span-3">
-            <label for="password" class="block text-sm/6 font-medium">Senha Atual</label>
-            <div class="mt-2 relative">
-              <input
-                id="password"
-                v-model="currentPassword"
-                v-bind="currentPasswordAttrs"
-                type="password"
-                autocomplete="off"
-                class="form-input"
-                hidden
-              >
-              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
-                {{ errors.currentPassword }}
-              </p>
+  <div class="view-container">
+    <div class="card max-w-screen-md mx-auto">
+      <div class="card-header">
+        Alterar Senha
+      </div>
+      <div class="card-section !gap-12">
+        <div class="flex flex-col gap-4">
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-6">
+            <div class="sm:col-span-3">
+              <label for="password" class="block text-sm/6 font-medium">Senha Atual</label>
+              <div class="mt-2 relative">
+                <input
+                  id="password"
+                  v-model="currentPassword"
+                  v-bind="currentPasswordAttrs"
+                  type="password"
+                  autocomplete="off"
+                  class="form-input"
+                  hidden
+                >
+                <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                  {{ errors.currentPassword }}
+                </p>
+              </div>
             </div>
-          </div>
-          <div class="hidden sm:block sm:col-span-3" />
+            <div class="hidden sm:block sm:col-span-3" />
 
-          <div class="sm:col-span-3">
-            <label for="password" class="block text-sm/6 font-medium">Senha</label>
-            <div class="mt-2 relative">
-              <input
-                id="password"
-                v-model="password"
-                v-bind="passwordAttrs"
-                type="password"
-                autocomplete="off"
-                class="form-input"
-                hidden
-              >
-              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
-                {{ errors.password }}
-              </p>
+            <div class="sm:col-span-3">
+              <label for="password" class="block text-sm/6 font-medium">Senha</label>
+              <div class="mt-2 relative">
+                <input
+                  id="password"
+                  v-model="password"
+                  v-bind="passwordAttrs"
+                  type="password"
+                  autocomplete="off"
+                  class="form-input"
+                  hidden
+                >
+                <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                  {{ errors.password }}
+                </p>
+              </div>
             </div>
-          </div>
-          <div class="sm:col-span-3">
-            <label for="confirm_password" class="block text-sm/6 font-medium">Confirmar Senha</label>
-            <div class="mt-2 relative">
-              <input
-                id="confirm_password"
-                v-model="confirmPassword"
-                v-bind="confirmPasswordAttrs"
-                type="password"
-                autocomplete="off"
-                class="form-input"
-              >
-              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
-                {{ errors.confirmPassword }}
-              </p>
+            <div class="sm:col-span-3">
+              <label for="confirm_password" class="block text-sm/6 font-medium">Confirmar Senha</label>
+              <div class="mt-2 relative">
+                <input
+                  id="confirm_password"
+                  v-model="confirmPassword"
+                  v-bind="confirmPasswordAttrs"
+                  type="password"
+                  autocomplete="off"
+                  class="form-input"
+                >
+                <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                  {{ errors.confirmPassword }}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="mt-4 md:mt-8 flex justify-between">
-        <button
-          type="button"
-          class="w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md text-[var(--secondary)] border border-[var(--secondary)] px-3.5 py-2.5 text-sm font-semibold shadow-sm"
-          @click="$router.push({ name: 'minha-conta' })"
-        >
-          <FontAwesomeIcon :icon="faArrowLeft" size="lg" />
-          Voltar
-        </button>
-        <button
-          type="button"
-          class="w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold shadow-sm transition-opacity"
-          :class="{
-            'opacity-40': loading || !meta.valid,
-          }"
-          :disabled="loading || !meta.valid"
-          @click="submit"
-        >
-          Enviar
-          <FontAwesomeIcon :icon="faArrowRight" size="lg" />
-        </button>
+        <div class="mt-4 md:mt-8 flex justify-between">
+          <button
+            type="button"
+            class="w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md text-[var(--secondary)] border border-[var(--secondary)] px-3.5 py-2.5 text-sm font-semibold shadow-sm"
+            @click="$router.push({ name: 'minha-conta' })"
+          >
+            <FontAwesomeIcon :icon="faArrowLeft" size="lg" />
+            Voltar
+          </button>
+          <button
+            type="button"
+            class="w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold shadow-sm transition-opacity"
+            :class="{
+              'opacity-40': loading || !meta.valid,
+            }"
+            :disabled="loading || !meta.valid"
+            @click="submit"
+          >
+            Enviar
+            <FontAwesomeIcon :icon="faArrowRight" size="lg" />
+          </button>
+        </div>
       </div>
     </div>
   </div>

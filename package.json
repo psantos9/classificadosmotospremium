@@ -2,6 +2,7 @@
   "name": "classificadosmotospremium",
   "license": "MIT",
   "scripts": {
+    "dev": "npm run dev:api & npm run dev:app",
     "dev:api": "npm run dev -w @cmp/api",
     "dev:app": "npm run dev -w @cmp/app",
     "dev:landing-page": "npm run dev -w landing-page",
