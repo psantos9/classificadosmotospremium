@@ -147,7 +147,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
   }
 
   async validateCEP(cep: string) {
-    const openCEP = await this.axios.get<OpenCEP>(`/api/v1/cadastro/cep/${cep}`)
+    const openCEP = await this.axios.get<OpenCEP>(`/api/v1/cep/${cep}`)
       .then(({ data }) => data)
       .catch((err) => {
         if (err instanceof AxiosError && err.status === 404) {

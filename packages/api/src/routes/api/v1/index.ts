@@ -3,6 +3,7 @@ import { getBearerToken } from '@/helpers/getBearerToken'
 import { authenticateRequest } from '@/middleware/authenticate-request'
 import { cadastro, type NovoCadastro, schema } from '@cmp/shared/models/database/schema'
 import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
+import { type OpenCEP, openCEPSchema } from '@cmp/shared/models/open-cep'
 import bcrypt from 'bcryptjs'
 import { sql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/d1'
@@ -15,9 +16,36 @@ const loginSchema = z.object({
   password: z.string()
 })
 
+const cepSchema = z.string().transform(val => Number.parseInt(val.replace(/\D+/g, ''))).refine(val => val.toString().length === 8)
+
 const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' })
   .get<IRequest, [Env, ExecutionContext]>('/healthcheck', () => {
     return json({ ok: true })
+  })
+  .get<IRequest, [Env, ExecutionContext]>('/cep/:cep', async (req, env) => {
+    try {
+      const cep = cepSchema.parse(req.params.cep as string)
+      const cached = await env.CEP.get<OpenCEP>(cep.toString(), 'json')
+      if (cached !== null) {
+        return Response.json(cached)
+      }
+      const response = await fetch(`https://opencep.com/v1/${cep}`)
+      if (response.status === 404) {
+        throw new StatusError(404, 'CEP inválido')
+      }
+      else if (!response.ok) {
+        throw new StatusError(500, 'Erro ao buscar o CEP')
+      }
+      const cepResult = openCEPSchema.parse(await response.json())
+      await env.CEP.put(cep.toString(), JSON.stringify(cepResult))
+      return json(cepResult)
+    }
+    catch (err) {
+      if (err instanceof ZodError) {
+        throw new StatusError(404, 'CEP inválido')
+      }
+      else { throw err }
+    }
   })
   .post<IRequest, [Env, ExecutionContext]>('/login/check', async (req, env) => {
     const db = drizzle(env.DB, { schema })
