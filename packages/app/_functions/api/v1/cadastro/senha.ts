@@ -1,6 +1,6 @@
 import type { ContextData, Env } from '@/types'
 import { getBearerToken } from '@/helpers/getBearerToken'
-import { cadastro, type NovoCadastro, schema } from '@cmp/database/schema'
+import { cadastro, type NovoCadastro, schema } from '@cmp/shared/models/database/schema'
 import { passwordSchema } from '@cmp/shared/models/novo-cadastro'
 import bcrypt from 'bcryptjs'
 import { eq } from 'drizzle-orm'
