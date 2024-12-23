@@ -1,8 +1,10 @@
 import type { Env } from '@/types'
+import { FipeClient } from '@/durable-objects/fipe'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
 import api from '@/routes/api'
 import { AutoRouter, cors, error, type IRequest } from 'itty-router'
 
+export { FipeClient }
 const { preflight, corsify } = cors()
 
 const router = AutoRouter<IRequest, [Env, ExecutionContext]>({

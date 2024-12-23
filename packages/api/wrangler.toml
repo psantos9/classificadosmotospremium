@@ -14,6 +14,10 @@ enabled = true
 [dev]
 port = 8088
 
+[[migrations]]
+tag = "v1"
+new_classes = [ "FipeClient" ]
+
 [env.dev]
 name = "cmp-api-dev"
 
@@ -23,6 +27,11 @@ API_SECRET = "ceb9cf82-e516-44f8-8c61-3207a4f7c7ae-f8fdd7e1-4a0d-4542-8931-eb0c7
 [[env.dev.kv_namespaces]]
 binding = "CEP"
 id = "98be910dd2ea46c8a65657864c208bf7"
+
+[[env.dev.durable_objects.bindings]]
+name = "FIPE_DO"
+class_name = "FipeClient"
+
 
 [[env.dev.d1_databases]]
 binding = "DB"
@@ -40,6 +49,11 @@ route = { pattern = "backend.preview.classificadosmotospremium.com.br", custom_d
 binding = "CEP"
 id = "98be910dd2ea46c8a65657864c208bf7"
 
+[[env.preview.durable_objects.bindings]]
+name = "FIPE_DO"
+class_name = "FipeClient"
+
+
 [[env.preview.d1_databases]]
 binding = "DB"
 database_name = "cmp"
@@ -51,6 +65,10 @@ migrations_dir = "../shared/migrations"
 [[env.production.kv_namespaces]]
 binding = "CEP"
 id = "98be910dd2ea46c8a65657864c208bf7"
+
+[[env.production.durable_objects.bindings]]
+name = "FIPE_DO"
+class_name = "FipeClient"
 
 [[env.production.d1_databases]]
 binding = "DB"

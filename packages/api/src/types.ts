@@ -1,8 +1,10 @@
 import type { IRequest } from 'itty-router'
+import type { FipeClient } from './durable-objects/fipe'
 
 export interface Env {
   DB: D1Database
   CEP: KVNamespace
+  FIPE_DO: DurableObjectNamespace<FipeClient>
   API_SECRET: string
 }
 

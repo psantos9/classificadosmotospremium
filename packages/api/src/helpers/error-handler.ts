@@ -1,36 +1,37 @@
-export class ErrorHandler {
+const AsyncFunction = async function () {}.constructor
+export abstract class ErrorHandler {
   constructor() {
-    const AsyncFunction = async function () {}.constructor
-    // const Func = function () {}.constructor
-    // const asyncFn = (...args: []) => AsyncFunction(origMethod, args)
+    // eslint-disable-next-line ts/no-this-alias
+    const ctx = this
     return new Proxy(this, {
       get(target, prop: keyof ErrorHandler) {
         const origMethod = target[prop] as any
-        if (origMethod instanceof AsyncFunction) {
-          return async function (...args: []) {
+        if (prop === 'defaultErrorHandler' || typeof origMethod !== 'function') {
+          return origMethod
+        }
+        const fn = origMethod instanceof AsyncFunction
+          ? async (...args: []) => {
             try {
               const result = await (origMethod as typeof AsyncFunction).apply(target, args)
               return result
             }
             catch (err) {
-              console.log(err)
-              throw err
+              await ctx.defaultErrorHandler(err, origMethod as typeof AsyncFunction)
             }
           }
-        }
-        else if (typeof origMethod === 'function') {
-          return function (...args: []) {
-            try {
-              const result = origMethod.apply(target, args)
-              return result
+          : (...args: []) => {
+              try {
+                const result = origMethod.apply(target, args)
+                return result
+              }
+              catch (err) {
+                ctx.defaultErrorHandler(err, origMethod)
+              }
             }
-            catch (err) {
-              console.log(err)
-              throw err
-            }
-          }
-        }
+        return fn
       }
     })
   }
+
+  abstract defaultErrorHandler(err: unknown, fn: typeof Function | typeof AsyncFunction): void | Promise<void>
 }
