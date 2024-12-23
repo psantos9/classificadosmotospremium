@@ -124,7 +124,7 @@ const validationSchema = toTypedSchema(schema)
 const { errors, defineField, values, validate, meta } = useForm({ validationSchema })
 const [currentPassword, currentPasswordAttrs] = defineField('currentPassword', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
 const [password, passwordAttrs] = defineField('password', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
-const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
+const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword')
 
 const submit = async () => {
   const { valid } = await validate()
