@@ -11,7 +11,7 @@
         @blur="query = ''"
       />
       <ComboboxButton v-slot="{ open }" ref="buttonEl" class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-        <FontAwesomeIcon :icon="loading ? faRotate : open ? faChevronUp : faChevronDown" :spin="loading" />
+        <FontAwesomeIcon :icon="loading ? faSpinner : open ? faChevronUp : faChevronDown" :spin="loading" />
       </ComboboxButton>
 
       <ComboboxOptions v-if="filteredOptions.length > 0" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts" setup generic="T extends object | string | number">
-import { faCheck, faChevronDown, faChevronUp, faRotate } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faChevronDown, faChevronUp, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {
   Combobox,
