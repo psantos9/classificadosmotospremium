@@ -338,6 +338,7 @@ const submit = async () => {
   const { valid } = await validate()
   if (valid) {
     const cadastro = JSON.parse(JSON.stringify(unref(values))) as NovoCadastro
+    cadastro.email = cadastro.email.toLowerCase()
     try {
       await api.criaNovoCadastro(cadastro)
       router.push({ name: 'home' })
