@@ -1,8 +1,8 @@
 import type { Env, IAppAuthenticatedRequest } from '@/types'
-import { CodigoTipoVeiculo, FipeApiClient } from '@/clients/fipe-api-client'
+import { CodigoTipoVeiculo } from '@/clients/fipe-api-client'
 import { FipeClient } from '@/durable-objects/fipe'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
-import { AutoRouter, error, StatusError } from 'itty-router'
+import { AutoRouter, error } from 'itty-router'
 
 export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContext]>({
   base: '/api/v1/fipe',

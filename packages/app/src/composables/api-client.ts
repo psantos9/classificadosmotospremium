@@ -1,3 +1,4 @@
+import type { AnoModelo, CodigoTipoCombustivel, Marca, Modelo, Preco } from '@cmp/api/clients/fipe-api-client'
 import type { AtualizaCadastro } from '@cmp/shared/models/atualiza-cadastro'
 import type { Cadastro } from '@cmp/shared/models/database/schema'
 import type { NovoCadastro } from '@cmp/shared/models/novo-cadastro'
@@ -216,5 +217,31 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     const cadastro = await this.axios.get<Omit<Cadastro, 'password'>>(`/api/v1/user`)
       .then(({ data }) => data)
     return cadastro
+  }
+
+  async fetchMarcas() {
+    const marcas = await this.axios.get<Marca[]>(`/api/v1/fipe/marcas`)
+      .then(({ data }) => data)
+    return marcas
+  }
+
+  async fetchModelos(codigoMarca: number) {
+    const modelos = await this.axios.get<Modelo[]>(`/api/v1/fipe/marcas/${codigoMarca}/modelos`)
+      .then(({ data }) => data)
+    return modelos
+  }
+
+  async fetchAnosModelos(params: { codigoMarca: number, codigoModelo: number }) {
+    const { codigoMarca, codigoModelo } = params
+    const anosModelo = await this.axios.get<AnoModelo[]>(`/api/v1/fipe/marcas/${codigoMarca}/modelos/${codigoModelo}/anos`)
+      .then(({ data }) => data)
+    return anosModelo
+  }
+
+  async fetchPreco(params: { codigoMarca: number, codigoModelo: number, anoModelo: number }) {
+    const { codigoMarca, codigoModelo, anoModelo } = params
+    const preco = await this.axios.get<Preco>(`/api/v1/fipe/marcas/${codigoMarca}/modelos/${codigoModelo}/1/${anoModelo}/preco`)
+      .then(({ data }) => data)
+    return preco
   }
 }
