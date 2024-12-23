@@ -80,5 +80,4 @@ onBeforeUnmount(() => window.removeEventListener('keydown', keydownEventHandler)
 onMounted(() => {
   unref(passwordEl)?.focus()
 })
-
 </script>
