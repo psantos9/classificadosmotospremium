@@ -38,8 +38,11 @@
                   class="form-input"
                   hidden
                 >
-                <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                <p v-if="password && errors.password" class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                   {{ errors.password }}
+                </p>
+                <p v-if="!password" class="absolute text-xs text-gray-400 -bottom-4 right-0">
+                  Pelo menos 10 caracteres, maíscula, minúscula, dígito e símbolo.
                 </p>
               </div>
             </div>
@@ -101,7 +104,7 @@ import { useToast } from 'vue-toast-notification'
 import { z } from 'zod'
 
 const schema = z.object({
-  currentPassword: z.string().nonempty('Obrigatório'),
+  currentPassword: z.string({ required_error: 'Obrigatório' }).nonempty('Obrigatório'),
   password: passwordSchema,
   confirmPassword: confirmPasswordSchema
 }).superRefine((val, ctx) => {
@@ -119,9 +122,9 @@ const { api } = useApp()
 const loading = ref(false)
 const validationSchema = toTypedSchema(schema)
 const { errors, defineField, values, validate, meta } = useForm({ validationSchema })
-const [currentPassword, currentPasswordAttrs] = defineField('currentPassword')
-const [password, passwordAttrs] = defineField('password')
-const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword')
+const [currentPassword, currentPasswordAttrs] = defineField('currentPassword', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
+const [password, passwordAttrs] = defineField('password', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
+const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
 
 const submit = async () => {
   const { valid } = await validate()

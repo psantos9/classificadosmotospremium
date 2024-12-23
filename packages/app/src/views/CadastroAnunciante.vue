@@ -16,6 +16,7 @@
             <div class="mt-2 relative">
               <input
                 id="name"
+                ref="nomeEl"
                 v-model="nomeRazaoSocial"
                 v-bind="nomeRazaoSocialAttrs"
                 type="text"
@@ -303,7 +304,7 @@ import { cnpj, cpf } from 'cpf-cnpj-validator'
 import debounce from 'lodash.debounce'
 import { vMaska } from 'maska/vue'
 import { useForm } from 'vee-validate'
-import { ref, unref, watch } from 'vue'
+import { onMounted, ref, unref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
 
@@ -316,6 +317,7 @@ const router = useRouter()
 const { api, cadastraEmail } = useApp()
 const tipoEntidade = ref<EntityType | null>(null)
 
+const nomeEl = ref<any>(null)
 const initalEmail = unref(cadastraEmail)
 if (unref(cadastraEmail)) {
   cadastraEmail.value = undefined
@@ -398,5 +400,8 @@ watch(cpfCnpj, (cpfCnpj = '') => {
 
 watch(cep, async () => {
   await debouncedValidateCEP(unref(cep)?.toString() as string)
+})
+onMounted(() => {
+  unref(nomeEl)?.focus?.()
 })
 </script>

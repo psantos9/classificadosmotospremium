@@ -11,9 +11,6 @@
     <div class="absolute top-1/2 -translate-y-1/2 right-3 text-gray-400 cursor-pointer" @click="showPassword = !showPassword">
       <FontAwesomeIcon :icon="showPassword ? faEyeSlash : faEye" size="sm" />
     </div>
-    <p v-if="invalidPassword" class="absolute text-xs text-red-600 -bottom-4 right-0">
-      Senha inválida
-    </p>
   </div>
   <button
     :disabled="!password"
@@ -34,6 +31,7 @@ import { faArrowRight, faEye, faEyeSlash, faKey, faSpinner } from '@fortawesome/
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { onBeforeUnmount, onMounted, ref, toRefs, unref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toast-notification'
 
 const props = defineProps<{ email: string }>()
 
@@ -44,12 +42,12 @@ defineEmits<{
 const router = useRouter()
 const { email } = toRefs(props)
 const { api } = useApp()
+const toast = useToast()
 
 const passwordEl = ref<HTMLInputElement | null>(null)
 const loading = ref(false)
 const password = ref('')
 const showPassword = ref(false)
-const invalidPassword = ref(false)
 
 const submit = async () => {
   loading.value = true
@@ -59,7 +57,8 @@ const submit = async () => {
   }
   catch (err) {
     if (err instanceof UnauthorizedError) {
-      invalidPassword.value = true
+      password.value = ''
+      toast.error('Senha inválida', { duration: 1000 })
     }
     else { throw err }
   }
@@ -82,7 +81,4 @@ onMounted(() => {
   unref(passwordEl)?.focus()
 })
 
-watch(password, () => {
-  invalidPassword.value = false
-})
 </script>
