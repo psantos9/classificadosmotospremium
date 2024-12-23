@@ -1,5 +1,8 @@
 <template>
-  <header class="main-header">
+  <header class="main-header relative">
+    <div v-if="signature" class="hidden md:block absolute bottom-0 right-0 text-xs text-gray-500">
+      {{ signature }}
+    </div>
     <div class="flex items-center gap-4">
       <SidebarButton class="block md:hidden" />
       <RouterLink :to="{ name: 'home' }" class="w-36 md:w-52 md:pl-4">
@@ -38,6 +41,7 @@ import SignInButton from '@/components/SignInButton.vue'
 import { useApp } from '@/composables/useApp'
 
 const { menuItems } = useApp()
+const signature = import.meta.env.MODE !== 'production' ? `release: ${__GIT_COMMIT_BRANCH__} #${__GIT_COMMIT_HASH__} / mode: ${import.meta.env.MODE}` : undefined
 </script>
 
 <style lang="sass" scoped>
