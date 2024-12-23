@@ -16,7 +16,7 @@ export const passwordSchema = z.string({ required_error: requiredError }).superR
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['password'],
-      message: `a password deve ter pelo menos ${minLength} caracteres`
+      message: `A password deve ter pelo menos ${minLength} caracteres`
     })
     hasIssues = true
   }
@@ -24,7 +24,7 @@ export const passwordSchema = z.string({ required_error: requiredError }).superR
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['password'],
-      message: `a password deve conter caracteres maísculos`
+      message: `A password deve conter caracteres maísculos`
     })
     hasIssues = true
   }
@@ -32,7 +32,7 @@ export const passwordSchema = z.string({ required_error: requiredError }).superR
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['password'],
-      message: `a password deve conter caracteres minúsculos`
+      message: `A password deve conter caracteres minúsculos`
     })
     hasIssues = true
   }
@@ -40,7 +40,7 @@ export const passwordSchema = z.string({ required_error: requiredError }).superR
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['password'],
-      message: `a password deve conter números`
+      message: `A password deve conter números`
     })
     hasIssues = true
   }
@@ -48,7 +48,7 @@ export const passwordSchema = z.string({ required_error: requiredError }).superR
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['password'],
-      message: `a password deve conter caracteres especiais \`!@#$%^&*()_\-+=[\]{};':"\\|,.<>/?~`
+      message: `A password deve conter 1 símbolo \`!@#$%^&*()_\-+=[\]{};':"\\|,.<>/?~`
     })
     hasIssues = true
   }

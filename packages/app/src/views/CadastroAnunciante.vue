@@ -130,8 +130,12 @@
                 class="form-input"
                 hidden
               >
-              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+
+              <p v-if="password && errors.password" class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
                 {{ errors.password }}
+              </p>
+              <p v-if="!password" class="absolute text-xs text-gray-400 -bottom-4 right-0">
+                Pelo menos 10 caracteres, maíscula, minúscula, dígito e símbolo.
               </p>
             </div>
           </div>
@@ -281,7 +285,7 @@
           @click="submit"
         >
           Enviar
-          <FontAwesomeIcon :icon="faArrowRight" size="lg" />
+          <FontAwesomeIcon :icon="submitting ? faSpinner : faArrowRight" size="lg" :spin="submitting" fixed-width />
         </button>
       </div>
     </div>
@@ -292,7 +296,7 @@
 import { CpfCnpjConflictError, EmailConflictError } from '@/composables/api-client'
 import { useApp } from '@/composables/useApp'
 import { type NovoCadastro, novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { cnpj, cpf } from 'cpf-cnpj-validator'
@@ -334,12 +338,14 @@ const [uf, ufAttrs] = defineField('uf')
 const [password, passwordAttrs] = defineField('password')
 const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword')
 
+const submitting = ref(false)
 const submit = async () => {
   const { valid } = await validate()
   if (valid) {
     const cadastro = JSON.parse(JSON.stringify(unref(values))) as NovoCadastro
     cadastro.email = cadastro.email.toLowerCase()
     try {
+      submitting.value = true
       await api.criaNovoCadastro(cadastro)
       router.push({ name: 'home' })
       $toast.success('Conta criada com sucesso')
@@ -351,6 +357,12 @@ const submit = async () => {
       else if (err instanceof EmailConflictError) {
         setFieldError('email', 'Já existe uma conta com este e-mail')
       }
+      else {
+        throw err
+      }
+    }
+    finally {
+      submitting.value = false
     }
   }
 }
