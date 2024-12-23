@@ -77,13 +77,13 @@
             type="button"
             class="w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold shadow-sm transition-opacity"
             :class="{
-              'opacity-40': loading || !meta.valid,
+              'opacity-40': submitting || !meta.valid,
             }"
-            :disabled="loading || !meta.valid"
+            :disabled="submitting || !meta.valid"
             @click="submit"
           >
             Enviar
-            <FontAwesomeIcon :icon="faArrowRight" size="lg" />
+            <FontAwesomeIcon :icon="submitting ? faSpinner : faArrowRight" size="lg" :spin="submitting" fixed-width />
           </button>
         </div>
       </div>
@@ -95,7 +95,7 @@
 import { UnauthorizedError } from '@/composables/api-client'
 import { useApp } from '@/composables/useApp'
 import { confirmPasswordSchema, passwordSchema } from '@cmp/shared/models/novo-cadastro'
-import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
@@ -119,7 +119,7 @@ const schema = z.object({
 const toast = useToast()
 const { api } = useApp()
 
-const loading = ref(false)
+const submitting = ref(false)
 const validationSchema = toTypedSchema(schema)
 const { errors, defineField, values, validate, meta } = useForm({ validationSchema })
 const [currentPassword, currentPasswordAttrs] = defineField('currentPassword', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
@@ -132,6 +132,7 @@ const submit = async () => {
     const { password = '', currentPassword = '' } = unref(values)
 
     try {
+      submitting.value = true
       await api.atualizaSenha({ currentPassword, password })
       toast.success('Senha atualizada com sucesso')
       await api.logout()
@@ -140,6 +141,12 @@ const submit = async () => {
       if (err instanceof UnauthorizedError) {
         toast.error('Senha atual inválida')
       }
+      else {
+        throw err
+      }
+    }
+    finally {
+      submitting.value = false
     }
   }
 }
