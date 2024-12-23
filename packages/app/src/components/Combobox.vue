@@ -43,7 +43,7 @@ import {
   ComboboxOptions
 } from '@headlessui/vue'
 
-import { computed, ref, toRefs, unref, type VNode } from 'vue'
+import { computed, ref, toRefs, unref } from 'vue'
 
 const props = defineProps<{
   label: string
