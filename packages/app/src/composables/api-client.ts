@@ -160,7 +160,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
   }
 
   async criaNovoCadastro(cadastro: NovoCadastro) {
-    const bearerToken = await this.axios.post<{ bearerToken: string }>('/api/v1/user', cadastro)
+    const bearerToken = await this.axios.post<{ bearerToken: string }>('/api/v1/signup', cadastro)
       .then(({ data: { bearerToken } }) => bearerToken)
       .catch((err) => {
         if (err instanceof AxiosError && err.status === 409) {
