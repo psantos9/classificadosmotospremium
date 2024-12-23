@@ -1,5 +1,5 @@
 <template>
-  <Combobox v-model="model" as="div" :disabled="loading" @update:model-value="query = ''">
+  <Combobox v-model="model" as="div" :disabled="loading" @update:model-value="query = ''" @click="clickHandler">
     <ComboboxLabel class="block text-sm/6 font-medium">
       {{ label }}
     </ComboboxLabel>
@@ -10,7 +10,7 @@
         @change="query = $event.target.value"
         @blur="query = ''"
       />
-      <ComboboxButton v-slot="{ open }" class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+      <ComboboxButton v-slot="{ open }" ref="buttonEl" class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
         <FontAwesomeIcon :icon="loading ? faRotate : open ? faChevronUp : faChevronDown" :spin="loading" />
       </ComboboxButton>
 
@@ -43,7 +43,7 @@ import {
   ComboboxOptions
 } from '@headlessui/vue'
 
-import { computed, ref, toRefs, unref } from 'vue'
+import { computed, ref, toRefs, unref, type VNode } from 'vue'
 
 const props = defineProps<{
   label: string
@@ -58,6 +58,7 @@ const model = defineModel<null | T>()
 const { filteringFn, data, labelKey } = toRefs(props)
 
 const query = ref('')
+const buttonEl = ref<any>(null)
 
 const filteredOptions = computed(() => {
   const _query = unref(query)
@@ -67,4 +68,8 @@ const filteredOptions = computed(() => {
   const filteredDataset = (_filterinfFn ?? defaultFilteringFn)(_query, dataset)
   return filteredDataset
 })
+
+const clickHandler = () => {
+  unref(buttonEl)?.$el?.click()
+}
 </script>

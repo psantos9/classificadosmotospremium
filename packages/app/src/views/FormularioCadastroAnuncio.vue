@@ -48,8 +48,11 @@
           <div class="sm:col-span-3">
             <label for="name" class="block text-sm/6 font-medium">Valor FIPE</label>
             <div class="mt-2 relative">
-              <div class="form-input bg-gray-100">
-                {{ precoFIPE ?? '&zwnj;' }}
+              <div class="form-input bg-gray-100 relative">
+                <span>{{ precoFIPE ?? '&zwnj;' }}</span>
+                <span v-if="loadingPreco" class="absolute top-1/2 -translate-y-1/2 right-3">
+                  <FontAwesomeIcon :icon="faSpinner" :spin="true" />
+                </span>
               </div>
             </div>
           </div>
@@ -70,9 +73,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { Marca, Modelo, Preco } from '@cmp/api/clients/fipe-api-client'
+import type { Marca, Modelo } from '@cmp/api/clients/fipe-api-client'
 import Combobox from '@/components/Combobox.vue'
 import { useApp } from '@/composables/useApp'
+import { faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { vMaska } from 'maska/vue'
 import { ref, unref, watch } from 'vue'
 
