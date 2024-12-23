@@ -287,7 +287,13 @@ const [uf, ufAttrs] = defineField('uf')
 
 const syncCadastro = async (_cadastro?: Omit<Cadastro, 'password'>) => {
   if (!_cadastro) {
-    _cadastro = await api.fetchCadastro()
+    try {
+      submitting.value = true
+      _cadastro = await api.fetchCadastro()
+    }
+    finally {
+      submitting.value = false
+    }
   }
   const { id, cpfCnpj, nomeRazaoSocial, nomeFantasia, email, celular, cep, logradouro, numero, complemento, bairro, localidade, uf } = _cadastro
   cadastroId.value = id
