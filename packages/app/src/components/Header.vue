@@ -1,6 +1,6 @@
 <template>
   <header class="main-header relative">
-    <div v-if="signature" class="hidden md:block absolute bottom-0 right-0 text-xs text-gray-500">
+    <div v-if="signature" class="hidden md:block absolute bottom-0 right-1 text-xs text-gray-500">
       {{ signature }}
     </div>
     <div class="flex items-center gap-4">
