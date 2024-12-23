@@ -89,8 +89,8 @@
                   id="data_nascimento"
                   v-model="dataNascimento"
                   v-bind="dataNascimentoAttrs"
-                  v-maska="{ mask: '####-##-##' }"
-                  placeholder="AAAA-MM-DD"
+                  v-maska="{ mask: '##/##/####' }"
+                  placeholder="dd/mm/aaaa"
                   type="text"
                   autocomplete="off"
                   class="form-input"
@@ -322,11 +322,11 @@ if (unref(cadastraEmail)) {
 }
 const validationSchema = toTypedSchema(novoCadastroSchema)
 const { errors, defineField, values, setFieldError, validate } = useForm({ validationSchema, initialValues: { email: initalEmail } })
-const [cpfCnpj, cpfCnpjAttrs] = defineField('cpfCnpj')
+const [cpfCnpj, cpfCnpjAttrs] = defineField('cpfCnpj', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
 const [nomeRazaoSocial, nomeRazaoSocialAttrs] = defineField('nomeRazaoSocial')
 const [nomeFantasia, nomeFantasiaAttrs] = defineField('nomeFantasia')
-const [dataNascimento, dataNascimentoAttrs] = defineField('dataNascimento')
-const [email, emailAttrs] = defineField('email', { })
+const [dataNascimento, dataNascimentoAttrs] = defineField('dataNascimento', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
+const [email, emailAttrs] = defineField('email', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
 const [celular, celularAttrs] = defineField('celular')
 const [cep, cepAttrs] = defineField('cep')
 const [logradouro, logradouroAttrs] = defineField('logradouro')
@@ -335,15 +335,14 @@ const [numero, numeroAttrs] = defineField('numero')
 const [bairro, bairroAttrs] = defineField('bairro')
 const [localidade, localidadeAttrs] = defineField('localidade')
 const [uf, ufAttrs] = defineField('uf')
-const [password, passwordAttrs] = defineField('password')
-const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword')
+const [password, passwordAttrs] = defineField('password', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
+const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
 
 const submitting = ref(false)
 const submit = async () => {
   const { valid } = await validate()
   if (valid) {
-    const cadastro = JSON.parse(JSON.stringify(unref(values))) as NovoCadastro
-    cadastro.email = cadastro.email.toLowerCase()
+    const cadastro = novoCadastroSchema.parse(unref(values))
     try {
       submitting.value = true
       await api.criaNovoCadastro(cadastro)
