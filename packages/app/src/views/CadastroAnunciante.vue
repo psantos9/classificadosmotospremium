@@ -11,7 +11,7 @@
         </div>
 
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-6">
-          <div class="sm:col-span-4">
+          <div class="sm:col-span-3">
             <label for="name" class="block text-sm/6 font-medium">{{ tipoEntidade === EntityType.PF ? 'Nome' : tipoEntidade === EntityType.PJ ? 'Razão Social' : 'Nome ou Razão Social' }}</label>
             <div class="mt-2 relative">
               <input
@@ -28,7 +28,7 @@
             </div>
           </div>
 
-          <div class="sm:col-span-2">
+          <div class="sm:col-span-3">
             <label for="cpfCnpj" class="block text-sm/6 font-medium">{{ tipoEntidade === EntityType.PF ? 'CPF' : tipoEntidade === EntityType.PJ ? 'CNPJ' : 'CPF ou CNPJ' }}</label>
             <div class="mt-2 relative">
               <input

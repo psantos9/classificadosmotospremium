@@ -7,7 +7,7 @@
       <div class="card-section !gap-12">
         <div class="flex flex-col gap-4">
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-6">
-            <div class="sm:col-span-4">
+            <div class="sm:col-span-3">
               <label for="name" class="block text-sm/6 font-medium">{{ cpf.isValid(cpfCnpj ?? '') ? 'Nome' : 'Razão Social' }}</label>
               <div class="mt-2 relative">
                 <input
@@ -24,7 +24,7 @@
               </div>
             </div>
 
-            <div class="sm:col-span-2">
+            <div class="sm:col-span-3">
               <label for="cpfCnpj" class="block text-sm/6 font-medium">{{ cpf.isValid(cpfCnpj ?? '') ? 'CPF' : 'CNPJ' }}</label>
               <div class="mt-2 relative">
                 <input
@@ -74,28 +74,6 @@
                 </p>
               </div>
             </div>
-
-            <template v-if="tipoEntidade === EntityType.PF">
-              <div class="sm:col-span-3">
-                <label for="data_nascimento" class="block text-sm/6 font-medium">Data de Nascimento</label>
-                <div class="mt-2 relative">
-                  <input
-                    id="data_nascimento"
-                    v-model="dataNascimento"
-                    v-bind="dataNascimentoAttrs"
-                    v-maska="{ mask: '####-##-##' }"
-                    placeholder="AAAA-MM-DD"
-                    type="text"
-                    autocomplete="off"
-                    class="form-input"
-                  >
-                  <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
-                    {{ errors.dataNascimento }}
-                  </p>
-                </div>
-              </div>
-              <div class="sm:col-span-3" />
-            </template>
             <div v-if="tipoEntidade === EntityType.PJ" class="sm:col-span-6">
               <label for="nome_fantasia" class="block text-sm/6 font-medium">Nome Fantasia</label>
               <div class="mt-2 relative">
@@ -254,7 +232,7 @@
             @click="submit"
           >
             Enviar
-            <FontAwesomeIcon :icon="faArrowRight" size="lg" />
+            <FontAwesomeIcon :icon="submitting ? faSpinner : faArrowRight" size="lg" :spin="submitting" fixed-width />
           </button>
         </div>
       </div>
@@ -267,7 +245,7 @@ import type { Cadastro } from '@cmp/shared/models/database/schema'
 import { CpfCnpjConflictError, EmailConflictError } from '@/composables/api-client'
 import { useApp } from '@/composables/useApp'
 import { atualizaCadastroSchema } from '@cmp/shared/models/atualiza-cadastro'
-import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { cnpj, cpf } from 'cpf-cnpj-validator'
@@ -276,6 +254,7 @@ import debounce from 'lodash.debounce'
 import { vMaska } from 'maska/vue'
 import { useForm } from 'vee-validate'
 import { computed, nextTick, ref, unref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
 
 enum EntityType {
@@ -284,16 +263,18 @@ enum EntityType {
 }
 const $toast = useToast()
 const { api } = useApp()
+const router = useRouter()
+
 const cadastroId = ref('')
 const originalHash = ref('')
 const skipCepCheck = ref(true)
-const tipoEntidade = ref<EntityType | null>(null)
+const submitting = ref(false)
+
 const validationSchema = toTypedSchema(atualizaCadastroSchema)
 const { errors, defineField, values, setFieldError, validate, setFieldValue, meta } = useForm({ validationSchema })
 const [cpfCnpj, cpfCnpjAttrs] = defineField('cpfCnpj')
 const [nomeRazaoSocial, nomeRazaoSocialAttrs] = defineField('nomeRazaoSocial')
 const [nomeFantasia, nomeFantasiaAttrs] = defineField('nomeFantasia')
-const [dataNascimento, dataNascimentoAttrs] = defineField('dataNascimento')
 const [email, emailAttrs] = defineField('email')
 const [celular, celularAttrs] = defineField('celular')
 const [cep, cepAttrs] = defineField('cep')
@@ -308,12 +289,12 @@ const syncCadastro = async (_cadastro?: Omit<Cadastro, 'password'>) => {
   if (!_cadastro) {
     _cadastro = await api.fetchCadastro()
   }
-  const { id, cpfCnpj, nomeRazaoSocial, email, celular, cep, logradouro, numero, complemento, bairro, localidade, uf, dataNascimento } = _cadastro
+  const { id, cpfCnpj, nomeRazaoSocial, nomeFantasia, email, celular, cep, logradouro, numero, complemento, bairro, localidade, uf } = _cadastro
   cadastroId.value = id
   setFieldValue('nomeRazaoSocial', nomeRazaoSocial)
+  setFieldValue('nomeFantasia', nomeFantasia ?? '')
   setFieldValue('cpfCnpj', cpfCnpj)
   setFieldValue('email', email)
-  setFieldValue('dataNascimento', dataNascimento ?? '')
   setFieldValue('celular', celular)
   setFieldValue('cep', cep)
   setFieldValue('logradouro', logradouro)
@@ -331,17 +312,22 @@ const syncCadastro = async (_cadastro?: Omit<Cadastro, 'password'>) => {
 }
 
 const hasChanges = computed(() => unref(originalHash) !== sha256(JSON.stringify(unref(values))))
-
-syncCadastro()
+const tipoEntidade = computed(() => {
+  const isCpf = cpf.isValid(unref(cpfCnpj) ?? '')
+  const isCnpj = cnpj.isValid(unref(cpfCnpj) ?? '')
+  return isCpf ? EntityType.PF : isCnpj ? EntityType.PJ : null
+})
 
 const submit = async () => {
   const { valid } = await validate()
   if (valid) {
     const cadastro = JSON.parse(JSON.stringify(unref(values)))
     try {
+      submitting.value = true
       const cadastroAtualizado = await api.atualizaCadastro({ id: unref(cadastroId), cadastro })
       await syncCadastro(cadastroAtualizado)
       $toast.success('Dados atualizados com sucesso')
+      router.push({ name: 'minha-conta' })
     }
     catch (err) {
       if (err instanceof CpfCnpjConflictError) {
@@ -350,7 +336,11 @@ const submit = async () => {
       else if (err instanceof EmailConflictError) {
         setFieldError('email', 'Já existe uma conta com este e-mail')
       }
+      else {
+        throw err
+      }
     }
+    finally { submitting.value = false }
   }
 }
 
@@ -378,4 +368,6 @@ const debouncedValidateCEP = debounce(async (cep: string) => {
 watch(cep, async () => {
   await debouncedValidateCEP(unref(cep)?.toString() as string)
 })
+
+syncCadastro()
 </script>

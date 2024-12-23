@@ -78,6 +78,9 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
 
     try {
       const atualizacao = atualizaCadastroSchema.parse(await req.json())
+      console.log(atualizacao)
+      // data de nascimento não será atualizada por razões de segurança, será considerada a data de referencia para verificações
+      // o valor inserido durante a criação do cadastro
       const [cadastroDB = null] = await db.update(cadastro).set(atualizacao).where(eq(cadastro.id, userId)).returning()
       if (cadastroDB === null) {
         throw new StatusError(500, 'não foi poossivel encontrar o cadastro do usuario')
