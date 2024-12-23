@@ -53,6 +53,7 @@
 import SignInMethodForm from '@/components/SignInMethodForm.vue'
 import SignInPasswordForm from '@/components/SignInPasswordForm.vue'
 import ValidateEmailForm from '@/components/ValidateEmailForm.vue'
+import { useApp } from '@/composables/useApp'
 import { faArrowLeft, faArrowRight, faCircle, faEnvelope, faTh, faUserCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref } from 'vue'
@@ -67,6 +68,7 @@ enum SignInPhase {
 }
 
 const router = useRouter()
+const { cadastraEmail } = useApp()
 const phase = ref<SignInPhase>(SignInPhase.Username)
 const email = ref('')
 
@@ -76,6 +78,7 @@ const emailVerifiedHandler = (payload: { email: string, exists: boolean }) => {
     phase.value = SignInPhase.Method
   }
   else {
+    cadastraEmail.value = payload.email
     router.push({ name: 'cadastro-anunciante' })
   }
 }

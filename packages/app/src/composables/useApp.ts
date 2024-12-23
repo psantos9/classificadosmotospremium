@@ -11,6 +11,8 @@ const menuItems = [
 const sidebarOpen = ref(false)
 const signedIn = ref(false)
 
+const cadastraEmail = ref<string | undefined>(undefined)
+
 let signedInWatcher: null | ReturnType<typeof watch> = null
 const api = new APIClient({ baseURL: __API_BASE_URL__ })
 
@@ -35,6 +37,7 @@ export const useApp = () => {
   }
   return {
     api,
+    cadastraEmail,
     signedIn: computed(() => unref(signedIn)),
     menuItems: computed(() => menuItems),
     sidebarOpen: computed(() => unref(sidebarOpen)),

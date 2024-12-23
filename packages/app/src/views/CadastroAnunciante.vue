@@ -309,16 +309,20 @@ enum EntityType {
 }
 const $toast = useToast()
 const router = useRouter()
-const { api } = useApp()
+const { api, cadastraEmail } = useApp()
 const tipoEntidade = ref<EntityType | null>(null)
 
+const initalEmail = unref(cadastraEmail)
+if (unref(cadastraEmail)) {
+  cadastraEmail.value = undefined
+}
 const validationSchema = toTypedSchema(novoCadastroSchema)
-const { errors, defineField, values, setFieldError, validate } = useForm({ validationSchema })
+const { errors, defineField, values, setFieldError, validate } = useForm({ validationSchema, initialValues: { email: initalEmail } })
 const [cpfCnpj, cpfCnpjAttrs] = defineField('cpfCnpj')
 const [nomeRazaoSocial, nomeRazaoSocialAttrs] = defineField('nomeRazaoSocial')
 const [nomeFantasia, nomeFantasiaAttrs] = defineField('nomeFantasia')
 const [dataNascimento, dataNascimentoAttrs] = defineField('dataNascimento')
-const [email, emailAttrs] = defineField('email')
+const [email, emailAttrs] = defineField('email', { })
 const [celular, celularAttrs] = defineField('celular')
 const [cep, cepAttrs] = defineField('cep')
 const [logradouro, logradouroAttrs] = defineField('logradouro')
