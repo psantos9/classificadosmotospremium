@@ -1,4 +1,5 @@
 <template>
+  <!-- @vue-expect-error -->
   <Combobox v-model="model" as="div" :disabled="loading" @update:model-value="query = ''" @click="clickHandler">
     <ComboboxLabel class="block text-sm/6 font-medium">
       {{ label }}
@@ -63,7 +64,7 @@ const buttonEl = ref<any>(null)
 const filteredOptions = computed(() => {
   const _query = unref(query)
   const dataset = unref(data)
-  const defaultFilteringFn = (query: string) => query.length === 0 ? dataset : dataset.filter((option: T) => (option[unref(labelKey)] as string)?.toLowerCase?.()?.includes(query.toLowerCase()))
+  const defaultFilteringFn = (query: string) => query.length === 0 ? dataset : dataset.filter((option: T) => typeof option === 'string' ? option.toLowerCase().includes(query.toLowerCase()) : (option[unref(labelKey)] as string)?.toLowerCase?.()?.includes(query.toLowerCase()))
   const _filterinfFn = unref(filteringFn)
   const filteredDataset = (_filterinfFn ?? defaultFilteringFn)(_query, dataset)
   return filteredDataset

@@ -1,5 +1,10 @@
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
+export const cor = sqliteTable('cor', {
+  key: text().primaryKey(),
+  value: text()
+}, _t => [])
+
 export const cadastro = sqliteTable('cadastro', {
   id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
   createdAt: integer({ mode: 'timestamp_ms' }).notNull(),
@@ -23,7 +28,7 @@ export const cadastro = sqliteTable('cadastro', {
 }, _t => [])
 
 export type Cadastro = typeof cadastro.$inferSelect
-export type SelectCadastro = Omit<Cadastro, 'passoword'>
+export type SelectCadastro = Omit<Cadastro, 'password'>
 export type NovoCadastro = typeof cadastro.$inferInsert
 
 export const schema = { cadastro }

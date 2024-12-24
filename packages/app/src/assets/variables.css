@@ -23,12 +23,12 @@
 
   --main-header-size: 5.625rem;
   --main-header-bg: var(--secondary);
-  --main-header-size: 3.125rem;
+  --main-header-size: 4rem;
 }
 
 @media screen and (min-width:960px) {
   :root {
     --breakpoint: 960px;
-    --main-header-size: 5.625rem;
+    --main-header-size: 6rem;
   }
 }

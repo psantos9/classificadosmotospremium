@@ -32,7 +32,7 @@ onUnmounted(() => window.removeEventListener('resize', onResizeHandler))
 
 <style lang="sass" scoped>
 .sidebar
-  @apply fixed top-0 right-0 h-screen bg-[var(--main-header-bg)] text-white transition-all ease-in-out duration-500
+  @apply fixed top-0 right-0 h-screen bg-[var(--main-header-bg)] text-white transition-all ease-in-out duration-500 z-50
   width: calc(100% - var(--main-header-size))
   &[open="false"]
     @apply translate-x-full
