@@ -1,5 +1,4 @@
 <template>
-  <!-- @vue-expect-error -->
   <Combobox v-model="model" as="div" :disabled="loading" @update:model-value="query = ''" @click="clickHandler">
     <ComboboxLabel class="block text-sm/6 font-medium">
       {{ label }}
