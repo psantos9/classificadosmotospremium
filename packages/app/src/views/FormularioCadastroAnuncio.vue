@@ -108,7 +108,7 @@
         <div class="flex flex-wrap gap-2">
           <div
             v-for="(item, i) in listaAcessorios" :key="i"
-            class="text-sm bg-white text-gray-800 border border-gray-300 rounded-md px-2 py-1 cursor-pointer hover:border-gray-600 transition-colors data-[selected=true]:bg-[var(--primary)]"
+            class="text-sm bg-white border border-gray-300 hover:border-[var(--primary)]  rounded-md px-2 py-1 cursor-pointer transition-colors data-[selected=true]:bg-[var(--primary-lighter)] data-[selected=true]:border-[var(--primary-lighter)]"
             :data-selected="acessorios.includes(item)"
             @click="toggleItem(item, acessorios)"
           >
@@ -122,7 +122,7 @@
         <div class="flex flex-wrap gap-2">
           <div
             v-for="(item, i) in listaInformacoesAdicionais" :key="i"
-            class="text-sm bg-white text-gray-800 border border-gray-300 rounded-md px-2 py-1 cursor-pointer hover:border-gray-600 transition-colors data-[selected=true]:bg-[var(--primary)]"
+            class="text-sm bg-white border border-gray-300 hover:border-[var(--primary)] rounded-md px-2 py-1 cursor-pointer transition-colors data-[selected=true]:bg-[var(--primary-lighter)] data-[selected=true]:border-[var(--primary-lighter)]"
             :data-selected="informacoesAdicionais.includes(item)"
             @click="toggleItem(item, informacoesAdicionais)"
           >

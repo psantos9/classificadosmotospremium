@@ -21,6 +21,9 @@
   --std-gap: 1rem;
   --body-bg: #f2f2f2;
 
+  --primary-lighter: hsl(from var(--primary) h s calc(l + 20));
+  --primary-lightest: hsl(from var(--primary) h s calc(l + 40));
+
   --main-header-size: 5.625rem;
   --main-header-bg: var(--secondary);
   --main-header-size: 4rem;
