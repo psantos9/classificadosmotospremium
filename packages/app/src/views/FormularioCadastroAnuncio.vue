@@ -133,22 +133,22 @@
       <div class="card-section">
         <span class="title">Fotos</span>
         <div class="grid grid-cols-1 gap-8 sm:grid-cols-6">
-          <div class="flex flex-col gap-4 md:col-span-3">
+          <div class="flex flex-col gap-4 col-span-full md:col-span-3">
             <ImageUpload class="md:col-span-3" />
             <div class="rounded-md border min-h-[100px] p-4 bg-white">
               Lista de fotos
             </div>
           </div>
 
-          <div class="border rounded-md md:col-span-3 p-4 bg-white">
+          <div class="border rounded-md col-span-full md:col-span-3 p-4 bg-white">
             Regras
           </div>
         </div>
 
-        <div class="mt-4 md:mt-14 flex justify-between">
+        <div class="mt-4 md:mt-14 flex flex-col md:flex-row gap-4 justify-between">
           <button
             type="button"
-            class="w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md text-[var(--secondary)] border border-[var(--secondary)] px-3.5 py-2.5 text-sm font-semibold shadow-sm"
+            class="w-full md:w-40 hidden md:flex items-center justify-center gap-x-2 rounded-md text-[var(--secondary)] border border-[var(--secondary)] px-3.5 py-2.5 text-sm font-semibold shadow-sm"
             @click="$router.push({ name: 'minha-conta' })"
           >
             <FontAwesomeIcon :icon="faArrowLeft" size="lg" />
