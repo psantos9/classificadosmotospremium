@@ -1,9 +1,9 @@
 import type { AnoModelo, CodigoTipoCombustivel, Marca, Modelo, Preco } from '@cmp/api/clients/fipe-api-client'
 import type { AtualizaCadastro } from '@cmp/shared/models/atualiza-cadastro'
-import type { Cadastro } from '@cmp/shared/models/database/schema'
 import type { NovoCadastro } from '@cmp/shared/models/novo-cadastro'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
-import axios, { type Axios, AxiosError } from 'axios'
+import { type Acessorio, type Cadastro, type Cor, informacaoAdicional, type InformacaoAdicional } from '@cmp/shared/models/database/schema'
+import axios, { type Axios, AxiosError, type AxiosProgressEvent } from 'axios'
 import Emittery from 'emittery'
 import { decodeJwt } from 'jose'
 
@@ -181,7 +181,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
 
   async atualizaCadastro(params: { id: string, cadastro: AtualizaCadastro }) {
     const { id, cadastro } = params
-    const cadastroAtualizado = await this.axios.put<Omit<Cadastro, 'password'>>(`/api/v1/user/${btoa(id)}`, cadastro)
+    const cadastroAtualizado = await this.axios.put<Omit<Cadastro, 'password'>>(`/api/v1/users/${btoa(id)}`, cadastro)
       .then(({ data }) => data)
       .catch((err) => {
         if (err instanceof AxiosError && err.status === 409) {
@@ -200,7 +200,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
 
   async atualizaSenha(params: { currentPassword: string, password: string }) {
     try {
-      await this.axios.put<void>('/api/v1/user/password', params)
+      await this.axios.put<void>('/api/v1/users/password', params)
     }
     catch (err) {
       if (err instanceof AxiosError) {
@@ -214,7 +214,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
 
   async fetchCadastro() {
     this._fetchToken()
-    const cadastro = await this.axios.get<Omit<Cadastro, 'password'>>(`/api/v1/user`)
+    const cadastro = await this.axios.get<Omit<Cadastro, 'password'>>('/api/v1/users')
       .then(({ data }) => data)
     return cadastro
   }
@@ -244,4 +244,114 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
       .then(({ data }) => data)
     return preco
   }
+
+  async fetchCores(): Promise<Cor[]> {
+    const cores: Cor[] = [
+      { id: 1, label: 'Amarelo' },
+      { id: 2, label: 'Azul' },
+      { id: 3, label: 'Branco' },
+      { id: 4, label: 'Cinza' },
+      { id: 5, label: 'Laranja' },
+      { id: 6, label: 'Outra' },
+      { id: 7, label: 'Prata' },
+      { id: 8, label: 'Preto' },
+      { id: 9, label: 'Verde' }
+    ]
+    return cores
+  }
+
+  async fetchAcessorios(): Promise<Acessorio[]> {
+    const acessorios: Acessorio[] = [
+      { id: 1, label: 'ABS' },
+      { id: 2, label: 'Amortecedor de direção' },
+      { id: 3, label: 'Bolsa / Baú / Bauleto' },
+      { id: 4, label: 'Computador de bordo' },
+      { id: 5, label: 'Contrapeso no guidon' },
+      { id: 6, label: 'Escapamento esportivo' },
+      { id: 7, label: 'Faróis de neblina' },
+      { id: 8, label: 'GPS' },
+      { id: 9, label: 'Som' }
+    ]
+    return acessorios
+  }
+
+  async fetchInformacoesAdicionais(): Promise<InformacaoAdicional[]> {
+    const informacaoAdicional: InformacaoAdicional[] = [
+      { id: 1, label: 'Com multas' },
+      { id: 2, label: 'De leilão' },
+      { id: 3, label: 'IPVA pago' },
+      { id: 4, label: 'Único dono' },
+      { id: 5, label: 'Veículo em financiamento' },
+      { id: 6, label: 'Veículo quitado' }
+    ]
+    return informacaoAdicional
+  }
+
+  async uploadImages(params: { adId: string, files: FileList }) {
+    const { adId, files } = params
+    const onUploadProgress = (file: File, event: AxiosProgressEvent) => {
+      console.log('uploading', file, event)
+    }
+    await Promise.all(Array.from(files).map(async file => this.uploadImage({ adId, file, onUploadProgress })))
+  }
+
+  private async uploadImage(params: { adId: string, file: File, onUploadProgress?: (file: File, progressEvent: AxiosProgressEvent) => void }) {
+    const { adId, file, onUploadProgress } = params
+    const formData = new FormData()
+    formData.append(`file[0]`, file)
+    const response = await this.axios.post(
+      `/api/v1/ads/${btoa(adId)}/images`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: event => onUploadProgress?.(file, event)
+      }
+    )
+    console.log('UPLOADING FILE', response)
+  }
 }
+
+/*
+const uploadFile = async (params: {
+  file: File
+  onUploadProgress?: (file: File, progressEvent: AxiosProgressEvent) => void
+}): Promise<IAssetRecord | null> => {
+  const { file, onUploadProgress } = params
+  const tenantId = unref(selectedPermission)?.tenantId ?? null
+  if (tenantId === null) { throw new Error('invalid permission') }
+  const formData = new FormData()
+  formData.append(`file[0]`, file)
+  const metadata = await generateThumbnailMetadata(file)
+  if (metadata !== null) {
+    const { width, height } = metadata
+    formData.append(`thumbnail[0]`, metadata.thumbnail)
+    formData.append(`metadata[0]`, JSON.stringify({ width, height }))
+  }
+
+  const bearerToken = await getAccessTokenSilently()
+
+  const response = await axios({
+    method: 'POST',
+    url: '/app/assets',
+    data: formData,
+    timeout: 120000,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'Authorization': `Bearer ${bearerToken}`,
+      'X-Tenant-Id': tenantId
+    },
+    onUploadProgress: event => onUploadProgress?.(file, event)
+  })
+    .then(({ data }) => data as IAssetRecord[])
+    .catch((err) => {
+      if (err instanceof AxiosError) {
+        const data = err.response?.data
+        if (typeof data === 'object' && 'error' in data && typeof data.error === 'string') {
+          if (data.error === 'storage quota exceeded') { throw new AssetsStorageQuotaExceededError() }
+        }
+      }
+      throw err
+    })
+  return Array.isArray(response) && response.length > 0 ? response[0] : null
+}
+*/

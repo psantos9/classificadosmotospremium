@@ -18,6 +18,7 @@ port = 8088
 tag = "v1"
 new_classes = [ "FipeClient" ]
 
+# DEV
 [env.dev]
 name = "cmp-api-dev"
 
@@ -40,6 +41,12 @@ database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 preview_database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 migrations_dir = "../shared/migrations"
 
+[[env.dev.r2_buckets]]
+binding = "AD_IMAGES_BUCKET"
+bucket_name = "cmp-ad-images-preview"
+preview_bucket_name = "cmp-ad-images-preview"
+
+# PREVIEW
 [env.preview]
 name = "cmp-api-preview"
 logpush = true # https://developers.cloudflare.com/workers/observability/logpush/
@@ -53,7 +60,6 @@ id = "98be910dd2ea46c8a65657864c208bf7"
 name = "FIPE_DO"
 class_name = "FipeClient"
 
-
 [[env.preview.d1_databases]]
 binding = "DB"
 database_name = "cmp"
@@ -61,6 +67,16 @@ database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 preview_database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 migrations_dir = "../shared/migrations"
 
+[[env.preview.r2_buckets]]
+binding = "AD_IMAGES_BUCKET"
+bucket_name = "cmp-ad-images-preview"
+preview_bucket_name = "cmp-ad-images-preview"
+
+# PRODUCTION
+[env.production]
+name = "cmp-api"
+logpush = true # https://developers.cloudflare.com/workers/observability/logpush/
+route = { pattern = "backend.classificadosmotospremium.com.br", custom_domain = true, zone_name = "classificadosmotospremium.com.br" }
 
 [[env.production.kv_namespaces]]
 binding = "CEP"
@@ -76,6 +92,11 @@ database_name = "cmp"
 database_id = "04e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 preview_database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 migrations_dir = "../shared/migrations"
+
+[[env.production.r2_buckets]]
+binding = "AD_IMAGES_BUCKET"
+bucket_name = "cmp-ad-images"
+preview_bucket_name = "cmp-ad-images-preview"
 
 
 

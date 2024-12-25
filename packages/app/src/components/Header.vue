@@ -18,9 +18,9 @@
             v-for="(item, i) in menuItems" :key="i" v-slot="{ isExactActive, navigate }" :to="item.to" custom
           >
             <span
-              class="px-2 py-1 text-sm font-medium cursor-pointer uppercase hover:text-[var(--primary)] transition-color"
+              class="px-2 py-1 text-sm font-medium cursor-pointer uppercase transition-color"
               :class="[
-                isExactActive ? 'text-[var(--primary)]' : '',
+                isExactActive ? 'text-[var(--primary)]' : 'hover:text-[var(--primary-lighter)]',
               ]"
               @click="navigate"
             >

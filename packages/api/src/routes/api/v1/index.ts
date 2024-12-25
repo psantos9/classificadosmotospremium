@@ -1,6 +1,10 @@
 import type { CF, Env, IAppAuthenticatedRequest } from '@/types'
 import { getBearerToken } from '@/helpers/getBearerToken'
 import { authenticateRequest } from '@/middleware/authenticate-request'
+import { router as adsRouter } from '@cmp/api/routes/api/v1/ads'
+import { router as fipeRouter } from '@cmp/api/routes/api/v1/fipe'
+import { router as imagesRouter } from '@cmp/api/routes/api/v1/images'
+import { router as usersRouter } from '@cmp/api/routes/api/v1/users'
 import { cadastro, type NovoCadastro, schema } from '@cmp/shared/models/database/schema'
 import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
 import { type OpenCEP, openCEPSchema } from '@cmp/shared/models/open-cep'
@@ -9,8 +13,6 @@ import { sql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/d1'
 import { AutoRouter, type IRequest, json, StatusError } from 'itty-router'
 import { z, ZodError } from 'zod'
-import { router as fipeRouter } from './fipe'
-import { router as userRouter } from './user'
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -113,7 +115,9 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
       else { throw err }
     }
   })
+  .all<IRequest, [Env, IAppAuthenticatedRequest]>('/images/*', imagesRouter.fetch)
   .all<IRequest, CF>('*', authenticateRequest)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/fipe/*', fipeRouter.fetch)
-  .all<IRequest, [Env, IAppAuthenticatedRequest]>('/user/*', userRouter.fetch)
+  .all<IRequest, [Env, IAppAuthenticatedRequest]>('/users/*', usersRouter.fetch)
+  .all<IRequest, [Env, IAppAuthenticatedRequest]>('/ads/*', adsRouter.fetch)
 export default router

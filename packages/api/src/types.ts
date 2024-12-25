@@ -6,6 +6,7 @@ export interface Env {
   CEP: KVNamespace
   FIPE_DO: DurableObjectNamespace<FipeClient>
   API_SECRET: string
+  AD_IMAGES_BUCKET: R2Bucket
 }
 
 export type CF = [env: Env, context: ExecutionContext]

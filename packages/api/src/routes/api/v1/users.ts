@@ -15,7 +15,7 @@ const bodyPasswordSchema = z.object({
 })
 
 export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContext]>({
-  base: '/api/v1/user',
+  base: '/api/v1/users',
   catch: defaultErrorHandler
 })
   .get('/:userId?', async (req, env) => {

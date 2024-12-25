@@ -6,7 +6,7 @@
       :to="{ name: signedIn ? 'minha-conta' : 'identificacao' }"
     >
       <div
-        class="flex items-center gap-3 hover:text-[var(--primary)] transition-colors cursor-pointer"
+        class="flex items-center gap-3 hover:text-[var(--primary-lighter)] transition-colors cursor-pointer"
         @click="navigate"
       >
         <FontAwesomeIcon :icon="faUserCircle" size="2x" />

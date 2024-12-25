@@ -4,6 +4,12 @@
       <div class="card-header">
         Cadastro do Anúncio
       </div>
+      {{ meta.valid }} {{ values.quilometragem }}
+      <br>
+      {{ errors }}
+      <button @click="validate()">
+        Validate
+      </button>
       <div class="card-section">
         <span class="title">Dados do Veículo</span>
         <div class="grid grid-cols-1 gap-8 sm:grid-cols-6">
@@ -41,6 +47,9 @@
                 autocomplete="off"
                 class="form-input"
               >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.ano }}
+              </p>
             </div>
           </div>
           <div class="sm:col-span-3">
@@ -49,9 +58,7 @@
               <input
                 v-model="quilometragem"
                 v-bind="quilometragemAttrs"
-                v-maska="{
-                  reversed: true,
-                }"
+                v-maska="{ reversed: true }"
                 data-maska-tokens="9:[0-9]:repeated"
                 data-maska="9.99#"
                 type="text"
@@ -65,7 +72,8 @@
             class="sm:col-span-3"
             label="Cor"
             :data="cores"
-            :loading="loadingMarcas"
+            label-key="label"
+            :loading="loadingCores"
           />
         </div>
       </div>
@@ -107,12 +115,12 @@
         <span class="text-xs text-gray-500 mb-2">Selecione os itens de série e opcionais do seu veículo para atrair a atenção dos compradores.</span>
         <div class="flex flex-wrap gap-2">
           <div
-            v-for="(item, i) in listaAcessorios" :key="i"
+            v-for="(item) in listaAcessorios" :key="item.id"
             class="select-none text-sm bg-white border border-gray-300 hover:border-[var(--primary-lighter)]  rounded-md px-2 py-1 cursor-pointer transition-colors data-[selected=true]:bg-[var(--primary-lighter)] data-[selected=true]:border-[var(--primary-lighter)]"
-            :data-selected="acessorios.includes(item)"
-            @click="toggleItem(item, acessorios)"
+            :data-selected="acessorios.includes(item.id)"
+            @click="toggleItem(item.id, acessorios)"
           >
-            {{ item }}
+            {{ item.label }}
           </div>
         </div>
       </div>
@@ -121,14 +129,25 @@
         <span class="text-xs text-gray-500 mb-2">Selecione os itens que representam detalhes do seu veículo para atrair a atenção dos compradores.</span>
         <div class="flex flex-wrap gap-2">
           <div
-            v-for="(item, i) in listaInformacoesAdicionais" :key="i"
+            v-for="(item) in listaInformacoesAdicionais" :key="item.id"
             class="select-none text-sm bg-white border border-gray-300 hover:border-[var(--primary-lighter)] rounded-md px-2 py-1 cursor-pointer transition-colors data-[selected=true]:bg-[var(--primary-lighter)] data-[selected=true]:border-[var(--primary-lighter)]"
-            :data-selected="informacoesAdicionais.includes(item)"
-            @click="toggleItem(item, informacoesAdicionais)"
+            :data-selected="informacoesAdicionais.includes(item.id)"
+            @click="toggleItem(item.id, informacoesAdicionais)"
           >
-            {{ item }}
+            {{ item.label }}
           </div>
         </div>
+      </div>
+      <div class="card-section">
+        <span class="title">Descrição</span>
+        <span class="text-xs text-gray-500">Selecione os itens que representam detalhes do seu veículo para atrair a atenção dos compradores.</span>
+        <textarea
+          id="descricao"
+          v-model="descricao"
+          v-bind="descricaoAttrs"
+          rows="4"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-[var(--primary)] sm:text-sm/6"
+        />
       </div>
       <div class="card-section">
         <span class="title">Fotos</span>
@@ -174,6 +193,7 @@
 
 <script lang="ts" setup>
 import type { Marca, Modelo } from '@cmp/api/clients/fipe-api-client'
+import type { Acessorio, Cor, InformacaoAdicional } from '@cmp/shared/models/database/schema'
 import Combobox from '@/components/Combobox.vue'
 import ImageUpload from '@/components/ImageUpload.vue'
 import { useApp } from '@/composables/useApp'
@@ -189,31 +209,42 @@ import { z } from 'zod'
 const { api } = useApp()
 const toast = useToast()
 
-const cores = ['Amarelo', 'Azul', 'Branco', 'Cinza', 'Laranja', 'Outra', 'Prata', 'Preto', 'Verde', 'Vermelho']
+const cores = ref<Cor[]>([])
 
-const listaAcessorios = ['ABS', 'Alarme', 'Amortecedor de direção', 'Bolsa / Baú / Bauleto', 'Computador de bordo', 'Contrapeso no guidon', 'Escapamento esportivo', 'Faróis de neblina', 'GPS', 'Som']
-const listaInformacoesAdicionais = ['Com multas', 'De leilão', 'IPVA pago', 'Único dono', 'Veículo em financiamento', 'Veículo quitado']
+const listaAcessorios = ref<Acessorio[]>([])
+const listaInformacoesAdicionais = ref<InformacaoAdicional[]>([])
 
-const anuncioSchema = toTypedSchema(z.object({
+const anuncioSchema = z.object({
   codigoFipe: z.string(),
-  anoModelo: z.number(),
-  ano: z.number().gt(1900).lte(new Date().getFullYear()),
-  precoAnuncio: z.number(),
-  quilometragem: z.number(),
-  cor: z.string().transform(value => value.toLowerCase())
-}))
+  anoModelo: z.number().int().gt(1900).lte(new Date().getFullYear() + 1, `Menor ou igual a ${new Date().getFullYear() + 1}`),
+  ano: z.coerce.number().int().gt(1900, 'Maior do que 1900').lte(new Date().getFullYear() + 1, `Menor ou igual a ${new Date().getFullYear() + 1}`),
+  quilometragem: z.string().transform(value => Number.parseInt(value.replace(/\./g, ''))),
+  preco: z.number(),
+  cor: z.object({ id: z.number(), label: z.string() }).transform(({ id }) => id),
+  descricao: z.string(),
+  acessorios: z.array(z.number()),
+  informacoesAdicionais: z.array(z.number()),
+  fotos: z.array(z.string())
+})
 
-const { errors, defineField, values, setFieldError, validate, setFieldValue, meta } = useForm({ validationSchema: anuncioSchema })
+const anuncioFormSchema = toTypedSchema(anuncioSchema)
+
+const { errors, defineField, values, setFieldValue, meta, validate } = useForm({
+  validationSchema: anuncioFormSchema,
+  initialValues: { fotos: [], informacoesAdicionais: [], acessorios: [], descricao: '' }
+})
 
 const [ano, anoAttrs] = defineField('ano')
 const [cor] = defineField('cor')
 const [quilometragem, quilometragemAttrs] = defineField('quilometragem')
+const [descricao, descricaoAttrs] = defineField('descricao')
 
 const submitting = ref(false)
 const loadingMarcas = ref(false)
 const loadingModelos = ref(false)
 const loadingAnosModelo = ref(false)
 const loadingPreco = ref(false)
+const loadingCores = ref(false)
 
 const marca = ref<Marca | null>(null)
 const modelo = ref<Modelo | null>(null)
@@ -228,8 +259,10 @@ const anosModelo = ref<number[]>([])
 const precoFIPE = ref<string | null>(null)
 const preco = ref<string | null>(null)
 
-const acessorios = ref<string[]>([])
-const informacoesAdicionais = ref<string[]>([])
+const acessorios = ref<number[]>([])
+const informacoesAdicionais = ref<number[]>([])
+
+const fotos = ref<string[]>([])
 
 const atualizaMarcas = async () => {
   try {
@@ -331,10 +364,10 @@ const autalizaPreco = async () => {
   }
 }
 
-const toggleItem = (item: string, items: string[]) => {
-  const idx = items.findIndex(informacaoAdicional => informacaoAdicional === item)
+const toggleItem = (id: number, items: number[]) => {
+  const idx = items.findIndex(itemId => itemId === id)
   if (idx < 0) {
-    items.push(item)
+    items.push(id)
   }
   else {
     items.splice(idx, 1)
@@ -353,6 +386,19 @@ const submit = async () => {
 
 watch(marca, () => atualizaModelos())
 watch(modelo, () => atualizaAnosModelo())
+
+watch(acessorios, (acessorios) => {
+  setFieldValue('acessorios', acessorios)
+}, { deep: true })
+
+watch(informacoesAdicionais, (informacoesAdicionais) => {
+  setFieldValue('informacoesAdicionais', informacoesAdicionais)
+}, { deep: true })
+
+watch(fotos, (fotos) => {
+  setFieldValue('fotos', fotos)
+}, { deep: true })
+
 watch(anoModelo, (anoModelo) => {
   setFieldValue('ano', anoModelo ?? undefined)
   autalizaPreco()
@@ -360,10 +406,23 @@ watch(anoModelo, (anoModelo) => {
 
 watch([anoModelo, ano, preco], ([anoModelo, ano, precoFormatted]) => {
   const preco = precoFormatted === null ? undefined : Number(precoFormatted.replace(/[.,]+/g, ''))
-  setFieldValue('precoAnuncio', preco)
+  setFieldValue('preco', preco)
   setFieldValue('anoModelo', anoModelo ?? undefined)
   setFieldValue('ano', ano ?? undefined)
 })
+
+watch(meta, (meta) => {
+  if (meta.valid) {
+    const anuncio = anuncioSchema.parse(unref(values))
+    console.log('ANUNCIO', anuncio)
+  }
+})
+
+;(async () => {
+  cores.value = await api.fetchCores()
+  listaAcessorios.value = await api.fetchAcessorios()
+  listaInformacoesAdicionais.value = await api.fetchInformacoesAdicionais()
+})()
 
 atualizaMarcas()
 </script>
