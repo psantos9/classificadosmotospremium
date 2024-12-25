@@ -25,38 +25,29 @@
 </template>
 
 <script lang="ts" setup>
+import type { Anuncio } from '@cmp/shared/models/database/schema'
 import { useApp } from '@/composables/useApp'
 import { ALLOWED_IMAGE_MIME_TYPES as allowedMimeTypes } from '@cmp/shared/constants'
 import { faImage } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { ref } from 'vue'
+import { ref, toRefs, unref } from 'vue'
+
+const props = defineProps<{ anuncio: Anuncio }>()
+
+const emit = defineEmits<{ (e: 'update', anuncio: Anuncio): void }>()
 
 const fileUpload = ref<HTMLElement | null>(null)
 
+const { anuncio } = toRefs(props)
 const { api } = useApp()
 
 const handleFileUpload = async (evt: Event) => {
-  const adId = crypto.randomUUID()
+  const adId = unref(anuncio).id
   const files = (evt.target as HTMLInputElement).files ?? null
   if (files === null) {
     return
   }
-  await api.uploadImages({ adId, files })
+  const anuncioAtualizado = await api.uploadImages({ adId, files })
+  emit('update', anuncioAtualizado)
 }
-/*
-  await uploadFiles((evt.target as HTMLInputElement).files ?? null).catch((err) => {
-    const files = (evt.target as HTMLInputElement).files ?? []
-    if (err instanceof AssetsStorageQuotaExceededError) {
-      toast.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: `Could not upload asset${
-          files.length === 1 ? '' : 's'
-        }, asset storage quota exceeded`,
-        life: 3000
-      })
-    }
-    else { throw err }
-  })
-    */
 </script>

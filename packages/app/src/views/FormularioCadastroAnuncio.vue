@@ -4,12 +4,6 @@
       <div class="card-header">
         Cadastro do Anúncio
       </div>
-      {{ meta.valid }} {{ values.quilometragem }}
-      <br>
-      {{ errors }}
-      <button @click="validate()">
-        Validate
-      </button>
       <div class="card-section">
         <span class="title">Dados do Veículo</span>
         <div class="grid grid-cols-1 gap-8 sm:grid-cols-6">
@@ -42,9 +36,7 @@
               <input
                 v-model="ano"
                 v-bind="anoAttrs"
-                v-maska="{ mask: '####' }"
-                type="text"
-                autocomplete="off"
+                type="number"
                 class="form-input"
               >
               <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
@@ -58,13 +50,12 @@
               <input
                 v-model="quilometragem"
                 v-bind="quilometragemAttrs"
-                v-maska="{ reversed: true }"
-                data-maska-tokens="9:[0-9]:repeated"
-                data-maska="9.99#"
-                type="text"
-                autocomplete="off"
                 class="form-input"
+                type="number"
               >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.quilometragem }}
+              </p>
             </div>
           </div>
           <Combobox
@@ -149,11 +140,11 @@
           class="block w-full rounded-md bg-white px-3 py-1.5 text-base outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-[var(--primary)] sm:text-sm/6"
         />
       </div>
-      <div class="card-section">
+      <div v-if="anuncio !== null" class="card-section">
         <span class="title">Fotos</span>
         <div class="grid grid-cols-1 gap-8 sm:grid-cols-6">
           <div class="flex flex-col gap-4 col-span-full md:col-span-3">
-            <ImageUpload class="md:col-span-3" />
+            <ImageUpload class="md:col-span-3" :anuncio="anuncio" @update="anuncio = $event" />
             <div class="rounded-md border min-h-[100px] p-4 bg-white">
               Lista de fotos
             </div>
@@ -193,49 +184,37 @@
 
 <script lang="ts" setup>
 import type { Marca, Modelo } from '@cmp/api/clients/fipe-api-client'
-import type { Acessorio, Cor, InformacaoAdicional } from '@cmp/shared/models/database/schema'
+import type { Acessorio, Anuncio, Cor, InformacaoAdicional } from '@cmp/shared/models/database/schema'
 import Combobox from '@/components/Combobox.vue'
 import ImageUpload from '@/components/ImageUpload.vue'
 import { useApp } from '@/composables/useApp'
+import { type AtualizaAnuncio, atualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
 import { faArrowLeft, faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
+import debounce from 'lodash.debounce'
 import { vMaska } from 'maska/vue'
 import { useForm } from 'vee-validate'
 import { ref, unref, watch } from 'vue'
 import { useToast } from 'vue-toast-notification'
-import { z } from 'zod'
 
 const { api } = useApp()
 const toast = useToast()
 
-const cores = ref<Cor[]>([])
+const anuncio = ref<Anuncio | null>(null)
 
+const cores = ref<Cor[]>([])
 const listaAcessorios = ref<Acessorio[]>([])
 const listaInformacoesAdicionais = ref<InformacaoAdicional[]>([])
 
-const anuncioSchema = z.object({
-  codigoFipe: z.string(),
-  anoModelo: z.number().int().gt(1900).lte(new Date().getFullYear() + 1, `Menor ou igual a ${new Date().getFullYear() + 1}`),
-  ano: z.coerce.number().int().gt(1900, 'Maior do que 1900').lte(new Date().getFullYear() + 1, `Menor ou igual a ${new Date().getFullYear() + 1}`),
-  quilometragem: z.string().transform(value => Number.parseInt(value.replace(/\./g, ''))),
-  preco: z.number(),
-  cor: z.object({ id: z.number(), label: z.string() }).transform(({ id }) => id),
-  descricao: z.string(),
-  acessorios: z.array(z.number()),
-  informacoesAdicionais: z.array(z.number()),
-  fotos: z.array(z.string())
-})
+const anuncioFormSchema = toTypedSchema(atualizaAnuncioSchema)
 
-const anuncioFormSchema = toTypedSchema(anuncioSchema)
-
-const { errors, defineField, values, setFieldValue, meta, validate } = useForm({
+const { errors, defineField, values, setFieldValue, meta } = useForm({
   validationSchema: anuncioFormSchema,
   initialValues: { fotos: [], informacoesAdicionais: [], acessorios: [], descricao: '' }
 })
 
-const [ano, anoAttrs] = defineField('ano')
-const [cor] = defineField('cor')
+const [ano, anoAttrs] = defineField('ano', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
 const [quilometragem, quilometragemAttrs] = defineField('quilometragem')
 const [descricao, descricaoAttrs] = defineField('descricao')
 
@@ -259,6 +238,7 @@ const anosModelo = ref<number[]>([])
 const precoFIPE = ref<string | null>(null)
 const preco = ref<string | null>(null)
 
+const cor = ref<Cor | null>(null)
 const acessorios = ref<number[]>([])
 const informacoesAdicionais = ref<number[]>([])
 
@@ -325,14 +305,13 @@ const atualizaAnosModelo = async () => {
         }
         return accumulator
       }, [] as number[]))
+      .then(anosModelo => anosModelo.sort((A, B) => A > B ? -1 : A < B ? 1 : 0))
     const _anoModelo = unref(anoModelo)
     if (_anoModelo === null || !unref(anosModelo).includes(_anoModelo)) {
-      anoModelo.value = null
-      setFieldValue('ano', undefined)
+      anoModelo.value = unref(anosModelo)[0] ?? null
     }
   }
   catch (err) {
-    setFieldValue('ano', undefined)
     anoModelo.value = null
     anosModelo.value = []
     throw err
@@ -384,8 +363,22 @@ const submit = async () => {
   }, 5000)
 }
 
+const atualizaAnuncio = debounce(async (atualizacao: AtualizaAnuncio) => {
+  const _anuncio = unref(anuncio)
+  if (_anuncio === null) {
+    anuncio.value = await api.criaAnuncio(atualizacao)
+  }
+  else {
+    await api.atualizaAnuncio(_anuncio.id, atualizacao)
+  }
+}, 1000)
+
 watch(marca, () => atualizaModelos())
 watch(modelo, () => atualizaAnosModelo())
+
+watch(cor, (cor) => {
+  setFieldValue('cor', cor?.id)
+}, { deep: true })
 
 watch(acessorios, (acessorios) => {
   setFieldValue('acessorios', acessorios)
@@ -413,8 +406,8 @@ watch([anoModelo, ano, preco], ([anoModelo, ano, precoFormatted]) => {
 
 watch(meta, (meta) => {
   if (meta.valid) {
-    const anuncio = anuncioSchema.parse(unref(values))
-    console.log('ANUNCIO', anuncio)
+    const anuncio = atualizaAnuncioSchema.parse(unref(values))
+    atualizaAnuncio(anuncio)
   }
 })
 

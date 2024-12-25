@@ -1,8 +1,13 @@
 import type { Env, IAppAuthenticatedRequest } from '@/types'
+import type { Anuncio } from '@cmp/shared/models/database/schema'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
-import { getImageStorageKey, getParamsFromImageStorageKey, InvalidImageKey } from '@/helpers/get-image-storage-key'
+import { getImageStorageKey } from '@/helpers/get-image-storage-key'
 import { sha256 } from '@cmp/api/helpers/shsa256'
 import { ALLOWED_IMAGE_MIME_TYPES as allowedImageMimeTypes } from '@cmp/shared/constants'
+import { atualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
+import { AnuncioStatus, schema } from '@cmp/shared/models/database/schema'
+import { and, eq, is, sql } from 'drizzle-orm'
+import { drizzle } from 'drizzle-orm/d1'
 import { AutoRouter, error, StatusError } from 'itty-router'
 import { z } from 'zod'
 
@@ -10,12 +15,35 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   base: '/api/v1/ads',
   catch: defaultErrorHandler
 })
-  .post('/:b64AdId/images', async (req, env) => {
+  .post('/', async (req, env) => {
+    const userId = req.userId
+    const anuncio = atualizaAnuncioSchema.parse(await req.json())
+    const db = drizzle(env.DB, { schema })
+    const [row] = await db.insert(schema.anuncio).values({ ...anuncio, userId }).returning()
+    const novoAnuncio: Anuncio = row
+    return novoAnuncio
+  })
+  .put('/:b64AdId', async (req, env) => {
     const userId = req.userId
     const adId = z.string().uuid().parse(atob(req.params.b64AdId))
+    const atualizacao = atualizaAnuncioSchema.parse(await req.json())
+    const db = drizzle(env.DB, { schema })
+    const [row = null] = await db.update(schema.anuncio).set({ ...atualizacao, updatedAt: sql`CURRENT_TIMESTAMP` }).where(and(eq(schema.anuncio.id, adId), eq(schema.anuncio.userId, userId))).limit(1).returning()
+    const novoAnuncio: Anuncio | null = row
+    return novoAnuncio === null ? error(404, 'anúncio não encontrado') : novoAnuncio
+  })
+  .post('/:b64AdId/images', async (req, env) => {
+    const userId = req.userId
+    const adId = z.string().uuid('bad adId').parse(atob(req.params.b64AdId))
     const contentType = req.headers.get('Content-Type')
     if (!contentType?.match(/multipart\/form-data/)) {
       throw new StatusError(415)
+    }
+    const db = drizzle(env.DB, { schema })
+    const { isExist } = await db.get<{ isExist: number }>(sql`SELECT EXISTS (SELECT 1 FROM ${schema.anuncio} WHERE ${schema.anuncio.id} = ${adId} AND ${schema.anuncio.userId} = ${userId} AND ${schema.anuncio.status} = ${AnuncioStatus.DRAFT}) as isExist`)
+
+    if (isExist === 0) {
+      return error(404, 'não é possivel adicionar imagens ao anuncio')
     }
     const formData = (await req.formData()) as FormData
     const r2Keys: string[] = []
@@ -41,31 +69,13 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
         }
       }
     }
-    return r2Keys
-  })
-  /*
-  .delete('/:b64AdId/images/:b64ImageKey', async (req, env) => {
-    const authenticatedUserId = req.userId
-    const imageKey = atob(req.params.b64ImageKey)
-    const adId = atob(req.params.b64AdId)
-    try {
-      const params = getParamsFromImageStorageKey(imageKey)
-      if (params.userId !== authenticatedUserId) {
-        return error(403, 'Unauthorized')
-      }
-      else if (adId !== params.adId) {
-        return error(400, 'invalid ad id')
-      }
+
+    const [row = null] = await db.select({ fotos: schema.anuncio.fotos }).from(schema.anuncio).where(and(eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId))).limit(1)
+    if (row === null) {
+      return error(500, 'nao foi possivel armazenar as fotos')
     }
-    catch (err) {
-      if (err instanceof InvalidImageKey) {
-        return error(400, 'invalid image key')
-      }
-      else {
-        throw err
-      }
-    }
-    console.log('DELETING', imageKey)
-    return { ok: true }
+    const { fotos } = row
+    const novasFotos = Array.from(new Set([...fotos, ...r2Keys]))
+    const [anuncio = null] = await db.update(schema.anuncio).set({ fotos: novasFotos }).where(and(eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId))).limit(1).returning()
+    return anuncio
   })
-    */

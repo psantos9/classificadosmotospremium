@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "08eec0b0-774d-456b-9563-621c478d9a4b",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "ea1cffdd-4f2a-4112-bed4-482baf41cbf9",
+  "prevId": "08eec0b0-774d-456b-9563-621c478d9a4b",
   "tables": {
     "acessorio": {
       "name": "acessorio",
@@ -44,7 +44,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "default": "(CURRENT_TIMESTAMP)"
         },
         "updatedAt": {
           "name": "updatedAt",

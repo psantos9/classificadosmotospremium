@@ -1,8 +1,9 @@
 import type { AnoModelo, CodigoTipoCombustivel, Marca, Modelo, Preco } from '@cmp/api/clients/fipe-api-client'
+import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
 import type { AtualizaCadastro } from '@cmp/shared/models/atualiza-cadastro'
+import type { Acessorio, Anuncio, Cadastro, Cor, InformacaoAdicional } from '@cmp/shared/models/database/schema'
 import type { NovoCadastro } from '@cmp/shared/models/novo-cadastro'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
-import { type Acessorio, type Cadastro, type Cor, informacaoAdicional, type InformacaoAdicional } from '@cmp/shared/models/database/schema'
 import axios, { type Axios, AxiosError, type AxiosProgressEvent } from 'axios'
 import Emittery from 'emittery'
 import { decodeJwt } from 'jose'
@@ -287,27 +288,46 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return informacaoAdicional
   }
 
-  async uploadImages(params: { adId: string, files: FileList }) {
+  async criaAnuncio(anuncio: AtualizaAnuncio) {
+    const novoAnuncio = await this.axios.post<Anuncio>('/api/v1/ads', anuncio)
+      .then(({ data }) => data)
+    return novoAnuncio
+  }
+
+  async atualizaAnuncio(id: string, anuncio: AtualizaAnuncio) {
+    const anuncioAtualizado = await this.axios.put<unknown>(`/api/v1/ads/${btoa(id)}`, anuncio)
+      .then(({ data }) => data)
+    return anuncioAtualizado
+  }
+
+  async uploadImages(params: { adId: string, files: FileList }): Promise<Anuncio> {
     const { adId, files } = params
     const onUploadProgress = (file: File, event: AxiosProgressEvent) => {
       console.log('uploading', file, event)
     }
-    await Promise.all(Array.from(files).map(async file => this.uploadImage({ adId, file, onUploadProgress })))
+    let anuncio: Anuncio | null = null
+    for (const file of files) {
+      anuncio = await this.uploadImage({ adId, file, onUploadProgress })
+    }
+    if (anuncio === null) {
+      throw new Error('nao foi possivel carregar a imagem')
+    }
+    return anuncio
   }
 
   private async uploadImage(params: { adId: string, file: File, onUploadProgress?: (file: File, progressEvent: AxiosProgressEvent) => void }) {
     const { adId, file, onUploadProgress } = params
     const formData = new FormData()
     formData.append(`file[0]`, file)
-    const response = await this.axios.post(
+    const anuncio = await this.axios.post<Anuncio>(
       `/api/v1/ads/${btoa(adId)}/images`,
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: event => onUploadProgress?.(file, event)
       }
-    )
-    console.log('UPLOADING FILE', response)
+    ).then(({ data }) => data)
+    return anuncio
   }
 }
 
