@@ -178,9 +178,10 @@
 
         <div class="mt-4 md:mt-14 flex flex-col md:flex-row gap-4 justify-between">
           <button
+            v-if="adId !== null"
             type="button"
             class="w-full md:w-40 hidden md:flex items-center justify-center gap-x-2 rounded-md bg-[var(--danger)] hover:bg-[var(--danger-lighter)] text-[var(--danger-text)] border border-[var(--danger)] px-3.5 py-2.5 text-sm font-semibold shadow-sm transition-all"
-            @click="$router.push({ name: 'minha-conta' })"
+            @click="removeAnuncio"
           >
             <FontAwesomeIcon :icon="faTrash" size="lg" />
             Remover
@@ -414,6 +415,13 @@ const setAdState = async (ad: Anuncio) => {
   descricao.value = ad.descricao ?? undefined
   anuncio.value = ad
   fotos.value = ad.fotos
+}
+
+const removeAnuncio = async () => {
+  if (adId !== null) {
+    await api.removeAnuncio(adId)
+    router.back()
+  }
 }
 
 const submit = async () => {

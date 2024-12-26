@@ -11,7 +11,7 @@ import { schema } from '@cmp/shared/models/database/schema'
 import { and, eq, sql, type SQL } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/d1'
 
-import { AutoRouter, error, StatusError } from 'itty-router'
+import { AutoRouter, error, status, StatusError } from 'itty-router'
 import { z } from 'zod'
 
 export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContext]>({
@@ -54,6 +54,21 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const [row = null] = await db.update(schema.anuncio).set({ ...atualizacao }).where(and(eq(schema.anuncio.id, adId), eq(schema.anuncio.userId, userId))).limit(1).returning()
     const novoAnuncio: Anuncio | null = row
     return novoAnuncio === null ? error(404, 'anúncio não encontrado') : novoAnuncio
+  })
+  .delete('/:b64AdId', async (req, env) => {
+    const userId = req.userId
+    const adId = z.string().uuid().parse(atob(req.params.b64AdId))
+    const db = drizzle(env.DB, { schema })
+    const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
+    const [anuncio = null] = await db.select().from(schema.anuncio).where(and(...filters)).limit(1)
+    if (anuncio === null) {
+      return error(404, 'anúncio não encontrado')
+    }
+    else if (anuncio.status !== anuncioStatusSchema.enum.draft) {
+      return error(400, 'só é possível deletar anúncios com o status draft')
+    }
+    await db.delete(schema.anuncio).where(and(...filters))
+    return status(204)
   })
   .post('/:b64AdId/images', async (req, env) => {
     const userId = req.userId

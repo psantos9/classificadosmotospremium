@@ -307,6 +307,11 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncio
   }
 
+  async removeAnuncio(id: string) {
+    await this.axios.delete<Anuncio | null>(`/api/v1/ads/${btoa(id)}`)
+      .then(({ data }) => data)
+  }
+
   async fetchAnuncios(params?: { status?: AnuncioStatus }) {
     let pathname = '/api/v1/ads'
     if (params?.status) {

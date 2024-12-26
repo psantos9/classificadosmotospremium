@@ -40,13 +40,19 @@ import type { Anuncio } from '@cmp/shared/models/database/schema'
 import { useApp } from '@/composables/useApp'
 import { NOVO_ANUNCIO_ID } from '@/router'
 import { format } from 'date-fns'
-import { ref } from 'vue'
+import { ref, unref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const { api } = useApp()
+const router = useRouter()
+
 const draftAds = ref<Anuncio[]>([])
 
 const fetchDraftAds = async () => {
   draftAds.value = await api.fetchAnuncios({ status: 'draft' })
+  if (unref(draftAds).length === 0) {
+    router.push({ name: 'anuncie' })
+  }
 }
 
 fetchDraftAds()
