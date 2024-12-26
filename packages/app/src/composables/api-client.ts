@@ -300,11 +300,21 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncioAtualizado
   }
 
-  async uploadImages(params: { adId: string, files: FileList }): Promise<Anuncio> {
+  async uploadImages(params: { adId: string, files: FileList, onUploadProgress?: (params: { total: number, loaded: number, done: number }) => Promise<void> | void }): Promise<Anuncio> {
     const { adId, files } = params
+    const fileIndex = Array.from(files).reduce((accumulator: Record<string, number>, file) => {
+      accumulator[file.name] = file.size
+      return accumulator
+    }, {})
+    let loaded = 0
+
     const onUploadProgress = (file: File, event: AxiosProgressEvent) => {
-      console.log('uploading', file, event)
+      fileIndex[file.name] = event.total ?? 0
+      loaded += event.loaded
+      const totalUploadSize = Object.values(fileIndex).reduce((accumulator, size) => accumulator += size, 0)
+      void params.onUploadProgress?.({ total: totalUploadSize, loaded, done: loaded / totalUploadSize })
     }
+
     let anuncio: Anuncio | null = null
     for (const file of files) {
       anuncio = await this.uploadImage({ adId, file, onUploadProgress })
@@ -329,49 +339,8 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     ).then(({ data }) => data)
     return anuncio
   }
-}
 
-/*
-const uploadFile = async (params: {
-  file: File
-  onUploadProgress?: (file: File, progressEvent: AxiosProgressEvent) => void
-}): Promise<IAssetRecord | null> => {
-  const { file, onUploadProgress } = params
-  const tenantId = unref(selectedPermission)?.tenantId ?? null
-  if (tenantId === null) { throw new Error('invalid permission') }
-  const formData = new FormData()
-  formData.append(`file[0]`, file)
-  const metadata = await generateThumbnailMetadata(file)
-  if (metadata !== null) {
-    const { width, height } = metadata
-    formData.append(`thumbnail[0]`, metadata.thumbnail)
-    formData.append(`metadata[0]`, JSON.stringify({ width, height }))
+  getImageUrl(b64ImageKey: string) {
+    return `${this.axios.defaults.baseURL}/api/v1/images/${b64ImageKey}`
   }
-
-  const bearerToken = await getAccessTokenSilently()
-
-  const response = await axios({
-    method: 'POST',
-    url: '/app/assets',
-    data: formData,
-    timeout: 120000,
-    headers: {
-      'Content-Type': 'multipart/form-data',
-      'Authorization': `Bearer ${bearerToken}`,
-      'X-Tenant-Id': tenantId
-    },
-    onUploadProgress: event => onUploadProgress?.(file, event)
-  })
-    .then(({ data }) => data as IAssetRecord[])
-    .catch((err) => {
-      if (err instanceof AxiosError) {
-        const data = err.response?.data
-        if (typeof data === 'object' && 'error' in data && typeof data.error === 'string') {
-          if (data.error === 'storage quota exceeded') { throw new AssetsStorageQuotaExceededError() }
-        }
-      }
-      throw err
-    })
-  return Array.isArray(response) && response.length > 0 ? response[0] : null
 }
-*/

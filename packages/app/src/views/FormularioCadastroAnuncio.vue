@@ -102,6 +102,23 @@
         </div>
       </div>
       <div class="card-section">
+        <span class="title">Placa</span>
+        <span class="text-xs text-gray-500 mb-2">A placa é obrigatória, mas fique tranquilo, pois não será exibida no seu anúncio. Utilizamos a placa do veículo apenas para verificações de segurança.</span>
+        <div class="relative md:max-w-xs">
+          <input
+            v-model="placa"
+            v-bind="placaAttrs"
+            v-maska="{ mask: '*** ****', preProcess: val => val.toUpperCase() }"
+            type="text"
+            autocomplete="off"
+            class="form-input"
+          >
+          <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+            {{ errors.placa }}
+          </p>
+        </div>
+      </div>
+      <div class="card-section">
         <span class="title">Acessórios</span>
         <span class="text-xs text-gray-500 mb-2">Selecione os itens de série e opcionais do seu veículo para atrair a atenção dos compradores.</span>
         <div class="flex flex-wrap gap-2">
@@ -145,8 +162,10 @@
         <div class="grid grid-cols-1 gap-8 sm:grid-cols-6">
           <div class="flex flex-col gap-4 col-span-full md:col-span-3">
             <ImageUpload class="md:col-span-3" :anuncio="anuncio" @update="anuncio = $event" />
-            <div class="rounded-md border min-h-[100px] p-4 bg-white">
-              Lista de fotos
+            <div class="rounded-md border min-h-[100px] p-4 bg-white grid grid-cols-3 items-center gap-2">
+              <div v-for="foto in anuncio.fotos" :key="foto" class="rounded-md shadow overflow-hidden">
+                <img :src="api.getImageUrl(foto)" class="aspect-video">
+              </div>
             </div>
           </div>
 
@@ -215,6 +234,7 @@ const { errors, defineField, values, setFieldValue, meta } = useForm({
 })
 
 const [ano, anoAttrs] = defineField('ano', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
+const [placa, placaAttrs] = defineField('placa', { validateOnBlur: true, validateOnChange: false, validateOnInput: false })
 const [quilometragem, quilometragemAttrs] = defineField('quilometragem')
 const [descricao, descricaoAttrs] = defineField('descricao')
 

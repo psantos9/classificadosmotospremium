@@ -6,7 +6,8 @@ export enum AnuncioStatus {
   TO_REVIEW = 'to_review',
   REJECTED = 'rejected',
   PUBLISHED = 'published',
-  FINALIZED = 'finalized'
+  PAUSED = 'paused',
+  EXPIRED = 'expired'
 }
 
 export const anuncioStatus = customType<{ data: AnuncioStatus, notNull: true, default: true }>({
@@ -62,11 +63,13 @@ export const anuncio = sqliteTable('anuncio', {
   id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
   createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   updatedAt: integer({ mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`).$onUpdateFn(() => new Date()),
+  publishedAt: integer({ mode: 'timestamp' }),
   userId: text().references(() => cadastro.id, { onDelete: 'cascade' }).notNull(),
   status: anuncioStatus().notNull().default(AnuncioStatus.DRAFT),
   codigoFipe: text().notNull(),
   anoModelo: integer().notNull(),
   ano: integer().notNull(),
+  placa: text().notNull(),
   quilometragem: integer().notNull(),
   preco: integer().notNull(),
   cor: integer().notNull(),

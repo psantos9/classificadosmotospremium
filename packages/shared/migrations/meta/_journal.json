@@ -15,6 +15,13 @@
       "when": 1735166285756,
       "tag": "0001_empty_terrax",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1735173684946,
+      "tag": "0002_nervous_toad_men",
+      "breakpoints": true
     }
   ]
 }
