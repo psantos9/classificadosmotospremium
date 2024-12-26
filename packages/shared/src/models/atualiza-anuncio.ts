@@ -15,4 +15,6 @@ export const atualizaAnuncioSchema = z.object({
   fotos: z.array(z.string())
 })
 
+export const getAtualizaAnuncioSchema = () => atualizaAnuncioSchema
+
 export type AtualizaAnuncio = z.infer<typeof atualizaAnuncioSchema>
