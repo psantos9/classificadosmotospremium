@@ -1,4 +1,4 @@
-import { schema } from '@cmp/shared/models/database/schema'
+import { getSchema } from '@cmp/shared/models/database/schema'
 import bcrypt from 'bcryptjs'
 import { drizzle } from 'drizzle-orm/d1'
 import { SignJWT } from 'jose'
@@ -8,6 +8,7 @@ export const MAX_TOKEN_AGE = '1 hour'
 
 export const getBearerToken = async (params: { email: string, password: string, db: D1Database, apiSecret: string }): Promise<string | null> => {
   const { email, password, apiSecret } = params
+  const schema = getSchema()
   const db = drizzle(params.db, { schema })
   const cadastro = await db.query.cadastro.findFirst({ columns: { id: true, password: true }, where: (cadastro, { eq }) => eq(cadastro.email, email) }) ?? null
   if (cadastro === null || await bcrypt.compare(password, cadastro.password) === false) {
