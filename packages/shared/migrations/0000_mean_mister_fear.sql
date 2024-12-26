@@ -5,13 +5,15 @@ CREATE TABLE `acessorio` (
 --> statement-breakpoint
 CREATE TABLE `anuncio` (
 	`id` text PRIMARY KEY NOT NULL,
-	`createdAt` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	`createdAt` integer NOT NULL,
 	`updatedAt` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	`publishedAt` integer,
 	`userId` text NOT NULL,
 	`status` text DEFAULT 'draft' NOT NULL,
 	`codigoFipe` text NOT NULL,
 	`anoModelo` integer NOT NULL,
 	`ano` integer NOT NULL,
+	`placa` text NOT NULL,
 	`quilometragem` integer NOT NULL,
 	`preco` integer NOT NULL,
 	`cor` integer NOT NULL,
@@ -19,12 +21,12 @@ CREATE TABLE `anuncio` (
 	`acessorios` text NOT NULL,
 	`fotos` text NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `cadastro`(`id`) ON UPDATE no action ON DELETE cascade,
-	CONSTRAINT "anuncioStatus" CHECK(status IN ('draft','to_review','rejected','published','finalized'))
+	CONSTRAINT "anuncioStatus" CHECK(status IN ('draft','to_review','rejected','published','paused','expired'))
 );
 --> statement-breakpoint
 CREATE TABLE `cadastro` (
 	`id` text PRIMARY KEY NOT NULL,
-	`createdAt` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	`createdAt` integer NOT NULL,
 	`updatedAt` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	`cpfCnpj` text NOT NULL,
 	`nomeRazaoSocial` text NOT NULL,

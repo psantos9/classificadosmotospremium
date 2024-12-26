@@ -11,7 +11,7 @@
     "build:app": "npm run build -w @cmp/app",
     "migrations:generate": "npm run migrations:generate -w @cmp/shared",
     "migrations:commit:local": "npx wrangler d1 migrations apply cmp -c ./packages/api/wrangler.toml -e preview --local",
-    "migrations:commit:preview": "npx wrangler d1 migrations apply cmp-preview -c wrangler.toml -e preview --remote"
+    "migrations:commit:preview": "npx wrangler d1 migrations apply cmp -c ./packages/api/wrangler.toml -e preview --remote"
   },
   "workspaces": [
     "./packages/*"
