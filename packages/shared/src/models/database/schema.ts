@@ -69,8 +69,9 @@ export const anuncio = sqliteTable('anuncio', () => ({
   preco: integer().notNull(),
   cor: integer().notNull(),
   descricao: text(),
-  acessorios: text({ mode: 'json' }).notNull().$type<number[]>(),
-  fotos: text({ mode: 'json' }).notNull().$type<string[]>()
+  informacoesAdicionais: text({ mode: 'json' }).notNull().$type<number[]>().$defaultFn(() => []),
+  acessorios: text({ mode: 'json' }).notNull().$type<number[]>().$defaultFn(() => []),
+  fotos: text({ mode: 'json' }).notNull().$type<string[]>().$defaultFn(() => [])
 }), table => [
   check('anuncioStatus', sql.raw(`${table.status.name} IN (${Object.values(anuncioStatusSchema.enum).map(value => `'${value}'`).join(',')})`))
 ])

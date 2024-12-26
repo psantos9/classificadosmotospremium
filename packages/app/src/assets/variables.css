@@ -27,6 +27,10 @@
   --primary-lightest: hsl(from var(--primary) h s calc(l + 20));
   --primary-text: var(--grey-900);
 
+  --secondary-lighter: hsl(from var(--secondary) h s calc(l + 10));
+  --secondary-lightest: hsl(from var(--secondary) h s calc(l + 40));
+  --secondary-text: white;
+
   --main-header-size: 5.625rem;
   --main-header-bg: var(--secondary);
   --main-header-size: 4rem;

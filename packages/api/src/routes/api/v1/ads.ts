@@ -27,8 +27,16 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     if (anuncioStatusSchema.options.includes(statusParam as AnuncioStatus)) {
       filters.push(eq(schema.anuncio.status, statusParam))
     }
-    const anuncios = db.select().from(schema.anuncio).where(and(...filters))
+    const anuncios = await db.select().from(schema.anuncio).where(and(...filters))
     return anuncios
+  })
+  .get('/:b64AdId', async (req, env) => {
+    const userId = req.userId
+    const adId = z.string().uuid().parse(atob(req.params.b64AdId))
+    const db = drizzle(env.DB, { schema })
+    const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
+    const [anuncio = null] = await db.select().from(schema.anuncio).where(and(...filters)).limit(1)
+    return anuncio
   })
   .post('/', async (req, env) => {
     const userId = req.userId

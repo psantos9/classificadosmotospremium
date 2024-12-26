@@ -6,6 +6,8 @@ import Identificacao from '@/views/Identificacao.vue'
 import { unref } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
+export const NOVO_ANUNCIO_ID = 'novo'
+
 const isSignedIn: NavigationGuardWithThis<any> = (to, from, next) => {
   const { signedIn } = useApp()
   if (!unref(signedIn)) {
@@ -16,11 +18,24 @@ const isSignedIn: NavigationGuardWithThis<any> = (to, from, next) => {
 
 const checkIfThereAreDraftAds: NavigationGuardWithThis<any> = async (to, from, next) => {
   const { api } = useApp()
-  const ads = await api.fetchAnuncios({ status: 'draft' })
-  if (ads.length) {
-    next({ name: 'rascunhos' })
+  const adId = to.params.adId
+  if (adId === undefined) {
+    const drafts = await api.fetchAnuncios({ status: 'draft' })
+    if (drafts.length) {
+      next({ name: 'rascunhos' })
+    }
+    else {
+      next()
+    }
+  }
+  else if (adId === NOVO_ANUNCIO_ID) {
+    next()
   }
   else {
+    const ad = await api.fetchAnuncio(adId as string)
+    if (ad == null) {
+      to.params.adId = 'novo'
+    }
     next()
   }
 }
@@ -67,8 +82,8 @@ const router = createRouter({
       component: async () => import('@/layouts/CadastroAnuncio.vue') as Component,
       children: [
         {
-          path: '',
-          // beforeEnter: [checkIfThereAreDraftAds],
+          path: ':adId?',
+          beforeEnter: [checkIfThereAreDraftAds],
           name: 'anuncie',
           component: async () => import('@/views/FormularioCadastroAnuncio.vue') as Component
         },

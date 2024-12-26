@@ -1,5 +1,7 @@
 <template>
-  <div class="view-container">
+  <div
+    class="view-container"
+  >
     <div class="card">
       <div class="card-header">
         Cadastro do Anúncio
@@ -207,6 +209,7 @@ import type { Acessorio, Anuncio, Cor, InformacaoAdicional } from '@cmp/shared/m
 import Combobox from '@/components/Combobox.vue'
 import ImageUpload from '@/components/ImageUpload.vue'
 import { useApp } from '@/composables/useApp'
+import { NOVO_ANUNCIO_ID } from '@/router'
 import { type AtualizaAnuncio, getAtualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
 import { faArrowLeft, faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -214,11 +217,16 @@ import { toTypedSchema } from '@vee-validate/zod'
 import debounce from 'lodash.debounce'
 import { vMaska } from 'maska/vue'
 import { useForm } from 'vee-validate'
-import { ref, unref, watch } from 'vue'
+import { computed, nextTick, ref, unref, watch } from 'vue'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
 
+const router = useRouter()
 const { api } = useApp()
 const toast = useToast()
+
+const adIdParam = unref(router.currentRoute).params.adId ?? NOVO_ANUNCIO_ID
+let adId = typeof adIdParam !== 'string' || adIdParam === NOVO_ANUNCIO_ID ? null : adIdParam
 
 const anuncio = ref<Anuncio | null>(null)
 
@@ -238,7 +246,9 @@ const [placa, placaAttrs] = defineField('placa', { validateOnBlur: true, validat
 const [quilometragem, quilometragemAttrs] = defineField('quilometragem')
 const [descricao, descricaoAttrs] = defineField('descricao')
 
-const submitting = ref(false)
+const requests = ref(0)
+const submitting = computed(() => unref(requests) > 0)
+
 const loadingMarcas = ref(false)
 const loadingModelos = ref(false)
 const loadingAnosModelo = ref(false)
@@ -341,7 +351,7 @@ const atualizaAnosModelo = async () => {
   }
 }
 
-const autalizaPreco = async () => {
+const atualizaPreco = async () => {
   const codigoMarca = unref(marca)?.codigoMarca ?? null
   const codigoModelo = unref(modelo)?.codigoModelo ?? null
   const _anoModelo = unref(anoModelo) ?? null
@@ -358,7 +368,9 @@ const autalizaPreco = async () => {
     setFieldValue('marca', _preco.marca)
     setFieldValue('modelo', _preco.modelo)
     precoFIPE.value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(_preco.precoBRL)
-    preco.value = _preco.precoBRL.toString()
+    if (unref(preco) === null) {
+      preco.value = _preco.precoBRL.toString()
+    }
   }
   finally {
     loadingPreco.value = false
@@ -376,21 +388,44 @@ const toggleItem = (id: number, items: number[]) => {
   items.sort()
 }
 
-const submit = async () => {
-  submitting.value = true
-  setTimeout(() => {
-    toast.info('submitted')
-    submitting.value = false
-  }, 5000)
+const setAdState = async (ad: Anuncio) => {
+  if (unref(marcas).length === 0) {
+    await atualizaMarcas()
+  }
+  else if (unref(modelos).length === 0) {
+    await atualizaModelos()
+  }
+  marca.value = unref(marcas).find(marca => marca.marca === ad.marca) ?? null
+  modelo.value = unref(modelos).find(modelo => modelo.modelo === ad.modelo) ?? null
+  anoModelo.value = ad.anoModelo
+  ano.value = ad.ano
+  quilometragem.value = ad.quilometragem
+  cor.value = unref(cores).find(cor => cor.id === ad.cor) ?? null
+  nextTick(() => {
+    preco.value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ad.preco)
+  })
+
+  placa.value = ad.placa
+  acessorios.value = ad.acessorios
+  informacoesAdicionais.value = ad.informacoesAdicionais
+  descricao.value = ad.descricao ?? undefined
+  anuncio.value = ad
+  fotos.value = ad.fotos
 }
 
 const atualizaAnuncio = debounce(async (atualizacao: AtualizaAnuncio) => {
-  const _anuncio = unref(anuncio)
-  if (_anuncio === null) {
-    anuncio.value = await api.criaAnuncio(atualizacao)
+  try {
+    requests.value++
+    if (adId === null) {
+      anuncio.value = await api.criaAnuncio(atualizacao)
+      adId = unref(anuncio)?.id ?? null
+    }
+    else {
+      await api.atualizaAnuncio(adId, atualizacao)
+    }
   }
-  else {
-    await api.atualizaAnuncio(_anuncio.id, atualizacao)
+  finally {
+    requests.value--
   }
 }, 1000)
 
@@ -415,7 +450,7 @@ watch(fotos, (fotos) => {
 
 watch(anoModelo, (anoModelo) => {
   setFieldValue('ano', anoModelo ?? undefined)
-  autalizaPreco()
+  atualizaPreco()
 })
 
 watch([anoModelo, ano, preco], ([anoModelo, ano, precoFormatted]) => {
@@ -432,11 +467,37 @@ watch(meta, (meta) => {
   }
 })
 
+onBeforeRouteLeave((to, from, next) => {
+  if (!unref(submitting)) {
+    // eslint-disable-next-line no-alert
+    if (confirm('Algumas informações do anúncio poderão ser perdidas, mesmo assim quer sair?')) {
+      next()
+    }
+    else {
+      return next(false)
+    }
+  }
+})
+
 ;(async () => {
+  await atualizaMarcas()
   cores.value = await api.fetchCores()
   listaAcessorios.value = await api.fetchAcessorios()
   listaInformacoesAdicionais.value = await api.fetchInformacoesAdicionais()
-})()
 
-atualizaMarcas()
+  if (adId !== null) {
+    const ad = await api.fetchAnuncio(adId)
+    if (ad === null) {
+      toast.error(`Não foi possível encontrar o anúncio`)
+      router.push({ name: 'anuncie' })
+    }
+    if (ad === null) {
+      toast.error(`Não foi possível encontrar o anúncio`)
+      router.push({ name: 'anuncie' })
+    }
+    else {
+      await setAdState(ad)
+    }
+  }
+})()
 </script>

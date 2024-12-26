@@ -1,3 +1,8 @@
+CREATE TABLE `acessorio` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`label` text NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `anuncio` (
 	`id` text PRIMARY KEY NOT NULL,
 	`createdAt` integer NOT NULL,
@@ -15,6 +20,7 @@ CREATE TABLE `anuncio` (
 	`preco` integer NOT NULL,
 	`cor` integer NOT NULL,
 	`descricao` text,
+	`informacoesAdicionais` text NOT NULL,
 	`acessorios` text NOT NULL,
 	`fotos` text NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `cadastro`(`id`) ON UPDATE no action ON DELETE cascade,
@@ -44,4 +50,13 @@ CREATE TABLE `cadastro` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `cadastro_cpfCnpj_unique` ON `cadastro` (`cpfCnpj`);--> statement-breakpoint
-CREATE UNIQUE INDEX `cadastro_email_unique` ON `cadastro` (`email`);
+CREATE UNIQUE INDEX `cadastro_email_unique` ON `cadastro` (`email`);--> statement-breakpoint
+CREATE TABLE `cor` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`label` text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE `informacao_adicional` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`label` text NOT NULL
+);

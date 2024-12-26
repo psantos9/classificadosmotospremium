@@ -301,6 +301,12 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncioAtualizado
   }
 
+  async fetchAnuncio(id: string) {
+    const anuncio = await this.axios.get<Anuncio | null>(`/api/v1/ads/${btoa(id)}`)
+      .then(({ data }) => data)
+    return anuncio
+  }
+
   async fetchAnuncios(params?: { status?: AnuncioStatus }) {
     let pathname = '/api/v1/ads'
     if (params?.status) {
