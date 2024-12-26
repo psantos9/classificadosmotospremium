@@ -207,7 +207,7 @@ import type { Acessorio, Anuncio, Cor, InformacaoAdicional } from '@cmp/shared/m
 import Combobox from '@/components/Combobox.vue'
 import ImageUpload from '@/components/ImageUpload.vue'
 import { useApp } from '@/composables/useApp'
-import { type AtualizaAnuncio, atualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
+import { type AtualizaAnuncio, getAtualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
 import { faArrowLeft, faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -226,7 +226,7 @@ const cores = ref<Cor[]>([])
 const listaAcessorios = ref<Acessorio[]>([])
 const listaInformacoesAdicionais = ref<InformacaoAdicional[]>([])
 
-const anuncioFormSchema = toTypedSchema(atualizaAnuncioSchema)
+const anuncioFormSchema = toTypedSchema(getAtualizaAnuncioSchema())
 
 const { errors, defineField, values, setFieldValue, meta } = useForm({
   validationSchema: anuncioFormSchema,
@@ -375,7 +375,6 @@ const toggleItem = (id: number, items: number[]) => {
 }
 
 const submit = async () => {
-  console.log('sugmitin')
   submitting.value = true
   setTimeout(() => {
     toast.info('submitted')
@@ -426,7 +425,7 @@ watch([anoModelo, ano, preco], ([anoModelo, ano, precoFormatted]) => {
 
 watch(meta, (meta) => {
   if (meta.valid) {
-    const anuncio = atualizaAnuncioSchema.parse(unref(values))
+    const anuncio = getAtualizaAnuncioSchema().parse(unref(values))
     atualizaAnuncio(anuncio)
   }
 })
