@@ -468,7 +468,7 @@ watch(meta, (meta) => {
 })
 
 onBeforeRouteLeave((to, from, next) => {
-  if (!unref(submitting)) {
+  if (unref(submitting)) {
     // eslint-disable-next-line no-alert
     if (confirm('Algumas informações do anúncio poderão ser perdidas, mesmo assim quer sair?')) {
       next()
