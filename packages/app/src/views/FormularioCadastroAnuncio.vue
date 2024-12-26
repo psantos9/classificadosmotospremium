@@ -355,6 +355,8 @@ const autalizaPreco = async () => {
     loadingPreco.value = true
     const _preco = await api.fetchPreco({ codigoMarca, codigoModelo, anoModelo: _anoModelo })
     setFieldValue('codigoFipe', _preco.codigoFipe)
+    setFieldValue('marca', _preco.marca)
+    setFieldValue('modelo', _preco.modelo)
     precoFIPE.value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(_preco.precoBRL)
     preco.value = _preco.precoBRL.toString()
   }

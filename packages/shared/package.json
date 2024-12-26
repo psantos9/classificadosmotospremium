@@ -5,7 +5,8 @@
     "./*": "./src/*.ts"
   },
   "scripts": {
-    "migrations:generate": "npx drizzle-kit generate"
+    "migrations:generate": "npx drizzle-kit generate",
+    "type-check": "npx tsc --noEmit"
   },
   "dependencies": {
     "drizzle-zod": "^0.6.0"

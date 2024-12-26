@@ -1,7 +1,7 @@
 import type { Env, IAppAuthenticatedRequest } from '@/types'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
 import { atualizaCadastroSchema } from '@cmp/shared/models/atualiza-cadastro'
-import { getSchema } from '@cmp/shared/models/database/schema'
+import { schema } from '@cmp/shared/models/database/schema'
 import { passwordSchema } from '@cmp/shared/models/novo-cadastro'
 import bcrypt from 'bcryptjs'
 import { eq } from 'drizzle-orm'
@@ -20,7 +20,6 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
 })
   .get('/:userId?', async (req, env) => {
     const authenticatedUserId = req.userId
-    const schema = getSchema()
     const db = drizzle(env.DB, { schema })
     const userId = req.params.userId ? z.string().uuid().parse(atob(req.params.userId)) : authenticatedUserId
 
@@ -43,7 +42,6 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   })
   .put('/password', async (req, env) => {
     const authenticatedUserId = req.userId
-    const schema = getSchema()
     const db = drizzle(env.DB, { schema })
 
     const senhas = bodyPasswordSchema.parse(await req.json())
@@ -65,7 +63,6 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   })
   .put('/:userId', async (req, env) => {
     const authenticatedUserId = req.userId
-    const schema = getSchema()
     const db = drizzle(env.DB, { schema })
     const userId = z.string().uuid().parse(atob(req.params.userId))
 

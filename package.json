@@ -3,6 +3,7 @@
   "license": "MIT",
   "scripts": {
     "test": "jest",
+    "type-check": "npm run type-check --ws",
     "dev": "npm run dev:api & npm run dev:app",
     "dev:api": "npm run dev -w @cmp/api",
     "dev:app": "npm run dev -w @cmp/app",

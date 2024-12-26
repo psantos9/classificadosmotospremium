@@ -1,16 +1,13 @@
-CREATE TABLE `acessorio` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`label` text NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE `anuncio` (
 	`id` text PRIMARY KEY NOT NULL,
 	`createdAt` integer NOT NULL,
-	`updatedAt` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	`updatedAt` integer NOT NULL,
 	`publishedAt` integer,
 	`userId` text NOT NULL,
 	`status` text DEFAULT 'draft' NOT NULL,
 	`codigoFipe` text NOT NULL,
+	`marca` text NOT NULL,
+	`modelo` text NOT NULL,
 	`anoModelo` integer NOT NULL,
 	`ano` integer NOT NULL,
 	`placa` text NOT NULL,
@@ -27,7 +24,7 @@ CREATE TABLE `anuncio` (
 CREATE TABLE `cadastro` (
 	`id` text PRIMARY KEY NOT NULL,
 	`createdAt` integer NOT NULL,
-	`updatedAt` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	`updatedAt` integer NOT NULL,
 	`cpfCnpj` text NOT NULL,
 	`nomeRazaoSocial` text NOT NULL,
 	`nomeFantasia` text,
@@ -47,13 +44,4 @@ CREATE TABLE `cadastro` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `cadastro_cpfCnpj_unique` ON `cadastro` (`cpfCnpj`);--> statement-breakpoint
-CREATE UNIQUE INDEX `cadastro_email_unique` ON `cadastro` (`email`);--> statement-breakpoint
-CREATE TABLE `cor` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`label` text NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE `informacao_adicional` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`label` text NOT NULL
-);
+CREATE UNIQUE INDEX `cadastro_email_unique` ON `cadastro` (`email`);

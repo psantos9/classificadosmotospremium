@@ -1,28 +1,21 @@
+import type { AnuncioStatus } from '@cmp/shared/models/anuncio-status'
+import { anuncioStatusSchema } from '@cmp/shared/models/anuncio-status'
 import { relations, sql } from 'drizzle-orm'
 import { check, customType, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
-export enum AnuncioStatus {
-  DRAFT = 'draft',
-  TO_REVIEW = 'to_review',
-  REJECTED = 'rejected',
-  PUBLISHED = 'published',
-  PAUSED = 'paused',
-  EXPIRED = 'expired'
-}
-
-export const anuncioStatus = customType<{ data: AnuncioStatus, notNull: true, default: true }>({
+export const anuncioStatusType = customType<{ data: AnuncioStatus, notNull: true, default: true }>({
   dataType() {
     return 'text'
   },
   fromDriver(value) {
-    if (typeof value === 'string' && Object.values(AnuncioStatus).includes(value as AnuncioStatus)) {
+    if (typeof value === 'string' && Object.values(anuncioStatusSchema.enum).includes(value as AnuncioStatus)) {
       return value as AnuncioStatus
     }
     throw new Error(`Invalid cadastro status value ${value}}`)
   }
 })
 
-export const getCadastro = () => sqliteTable('cadastro', {
+export const cadastro = sqliteTable('cadastro', {
   id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
   createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
@@ -44,29 +37,31 @@ export const getCadastro = () => sqliteTable('cadastro', {
   password: text().notNull()
 }, _t => [])
 
-export const getCor = () => sqliteTable('cor', {
+export const cor = sqliteTable('cor', ({
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
   label: text().notNull()
-}, _t => [])
+}), _t => [])
 
-export const getAcessorio = () => sqliteTable('acessorio', {
+export const acessorio = sqliteTable('acessorio', () => ({
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
   label: text().notNull()
-}, _t => [])
+}), _t => [])
 
-export const getInformacaoAdicional = () => sqliteTable('informacao_adicional', {
+export const informacaoAdicional = sqliteTable('informacao_adicional', () => ({
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
   label: text().notNull()
-}, _t => [])
+}), _t => [])
 
-export const getAnuncio = () => sqliteTable('anuncio', {
+export const anuncio = sqliteTable('anuncio', () => ({
   id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
   createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
   publishedAt: integer({ mode: 'timestamp' }),
-  userId: text().references(() => getCadastro().id, { onDelete: 'cascade' }).notNull(),
-  status: anuncioStatus().notNull().default(AnuncioStatus.DRAFT),
+  userId: text().references(() => cadastro.id, { onDelete: 'cascade' }).notNull(),
+  status: anuncioStatusType().notNull().default(anuncioStatusSchema.enum.draft),
   codigoFipe: text().notNull(),
+  marca: text().notNull(),
+  modelo: text().notNull(),
   anoModelo: integer().notNull(),
   ano: integer().notNull(),
   placa: text().notNull(),
@@ -76,29 +71,20 @@ export const getAnuncio = () => sqliteTable('anuncio', {
   descricao: text(),
   acessorios: text({ mode: 'json' }).notNull().$type<number[]>(),
   fotos: text({ mode: 'json' }).notNull().$type<string[]>()
-}, table => [
-  check('anuncioStatus', sql.raw(`${table.status.name} IN (${Object.values(AnuncioStatus).map(value => `'${value}'`).join(',')})`))
+}), table => [
+  check('anuncioStatus', sql.raw(`${table.status.name} IN (${Object.values(anuncioStatusSchema.enum).map(value => `'${value}'`).join(',')})`))
 ])
 
 // Relations
-export const cadastroRelations = relations(getCadastro(), ({ many }) => ({
-  anuncios: many(getAnuncio())
+export const cadastroRelations = relations(cadastro, ({ many }) => ({
+  anuncios: many(anuncio)
 }))
 
-export const anuncioRelations = relations(getAnuncio(), ({ one }) => ({
-  cadastro: one(getCadastro())
+export const anuncioRelations = relations(anuncio, ({ one }) => ({
+  cadastro: one(cadastro)
 }))
 
-export const getSchema = () => ({
-  cadastro: getCadastro(),
-  cor: getCor(),
-  acessorio: getAcessorio(),
-  informacaoAdicional: getInformacaoAdicional(),
-  anuncio: getAnuncio()
-})
-
-// eslint-disable-next-line unused-imports/no-unused-vars
-const schema = getSchema()
+export const schema = { cadastro, cor, acessorio, informacaoAdicional, anuncio }
 
 // Types
 export type Cadastro = typeof schema.cadastro.$inferSelect

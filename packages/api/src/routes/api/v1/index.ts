@@ -5,7 +5,7 @@ import { router as adsRouter } from '@cmp/api/routes/api/v1/ads'
 import { router as fipeRouter } from '@cmp/api/routes/api/v1/fipe'
 import { router as imagesRouter } from '@cmp/api/routes/api/v1/images'
 import { router as usersRouter } from '@cmp/api/routes/api/v1/users'
-import { getSchema, type NovoCadastro } from '@cmp/shared/models/database/schema'
+import { type NovoCadastro, schema } from '@cmp/shared/models/database/schema'
 import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
 import { type OpenCEP, openCEPSchema } from '@cmp/shared/models/open-cep'
 import bcrypt from 'bcryptjs'
@@ -51,7 +51,6 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     }
   })
   .post<IRequest, [Env, ExecutionContext]>('/login/check', async (req, env) => {
-    const schema = getSchema()
     const db = drizzle(env.DB, { schema })
 
     const bodySchema = z.object({ email: z.string().email() })
@@ -84,7 +83,6 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     }
   })
   .post<IRequest, [Env, ExecutionContext]>('/signup', async (req, env) => {
-    const schema = getSchema()
     const db = drizzle(env.DB, { schema })
     try {
       const novoCadastro = novoCadastroSchema.parse(await req.json())

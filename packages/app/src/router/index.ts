@@ -14,6 +14,17 @@ const isSignedIn: NavigationGuardWithThis<any> = (to, from, next) => {
   else { next() }
 }
 
+const checkIfThereAreDraftAds: NavigationGuardWithThis<any> = async (to, from, next) => {
+  const { api } = useApp()
+  const ads = await api.fetchAnuncios({ status: 'draft' })
+  if (ads.length) {
+    next({ name: 'rascunhos' })
+  }
+  else {
+    next()
+  }
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -57,8 +68,14 @@ const router = createRouter({
       children: [
         {
           path: '',
+          // beforeEnter: [checkIfThereAreDraftAds],
           name: 'anuncie',
           component: async () => import('@/views/FormularioCadastroAnuncio.vue') as Component
+        },
+        {
+          path: 'rascunhos',
+          name: 'rascunhos',
+          component: async () => import('@/views/SelecaoRascunhosAnuncio.vue') as Component
         }
       ]
     },

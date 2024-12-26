@@ -1,4 +1,5 @@
 import type { AnoModelo, CodigoTipoCombustivel, Marca, Modelo, Preco } from '@cmp/api/clients/fipe-api-client'
+import type { AnuncioStatus } from '@cmp/shared/models/anuncio-status'
 import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
 import type { AtualizaCadastro } from '@cmp/shared/models/atualiza-cadastro'
 import type { Acessorio, Anuncio, Cadastro, Cor, InformacaoAdicional } from '@cmp/shared/models/database/schema'
@@ -298,6 +299,16 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     const anuncioAtualizado = await this.axios.put<unknown>(`/api/v1/ads/${btoa(id)}`, anuncio)
       .then(({ data }) => data)
     return anuncioAtualizado
+  }
+
+  async fetchAnuncios(params?: { status?: AnuncioStatus }) {
+    let pathname = '/api/v1/ads'
+    if (params?.status) {
+      pathname += `?status=${params.status}`
+    }
+    const anuncios = await this.axios.get<Anuncio[]>(pathname)
+      .then(({ data }) => data)
+    return anuncios
   }
 
   async uploadImages(params: { adId: string, files: FileList, onUploadProgress?: (params: { total: number, loaded: number, done: number }) => Promise<void> | void }): Promise<Anuncio> {
