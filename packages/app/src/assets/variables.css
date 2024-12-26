@@ -31,6 +31,9 @@
   --secondary-lightest: hsl(from var(--secondary) h s calc(l + 40));
   --secondary-text: white;
 
+  --danger-lighter: hsl(from var(--danger) h s calc(l + 10));
+  --danger-text: white;
+
   --main-header-size: 5.625rem;
   --main-header-bg: var(--secondary);
   --main-header-size: 4rem;

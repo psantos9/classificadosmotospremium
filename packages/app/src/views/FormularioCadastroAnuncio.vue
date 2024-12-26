@@ -179,15 +179,15 @@
         <div class="mt-4 md:mt-14 flex flex-col md:flex-row gap-4 justify-between">
           <button
             type="button"
-            class="w-full md:w-40 hidden md:flex items-center justify-center gap-x-2 rounded-md text-[var(--secondary)] border border-[var(--secondary)] px-3.5 py-2.5 text-sm font-semibold shadow-sm"
+            class="w-full md:w-40 hidden md:flex items-center justify-center gap-x-2 rounded-md bg-[var(--danger)] hover:bg-[var(--danger-lighter)] text-[var(--danger-text)] border border-[var(--danger)] px-3.5 py-2.5 text-sm font-semibold shadow-sm transition-all"
             @click="$router.push({ name: 'minha-conta' })"
           >
-            <FontAwesomeIcon :icon="faArrowLeft" size="lg" />
-            Voltar
+            <FontAwesomeIcon :icon="faTrash" size="lg" />
+            Remover
           </button>
           <button
             type="button"
-            class="w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold shadow-sm transition-opacity"
+            class="w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] px-3.5 py-2.5 text-sm font-semibold shadow-sm transition-all"
             :class="{
               'opacity-40': submitting || !meta.valid,
             }"
@@ -198,6 +198,9 @@
             <FontAwesomeIcon :icon="submitting ? faSpinner : faArrowRight" size="lg" :spin="submitting" fixed-width />
           </button>
         </div>
+      </div>
+      <div v-if="meta.touched && errors">
+        {{ errors }}
       </div>
     </div>
   </div>
@@ -211,7 +214,7 @@ import ImageUpload from '@/components/ImageUpload.vue'
 import { useApp } from '@/composables/useApp'
 import { NOVO_ANUNCIO_ID } from '@/router'
 import { type AtualizaAnuncio, getAtualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
-import { faArrowLeft, faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRight, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import debounce from 'lodash.debounce'
@@ -413,6 +416,14 @@ const setAdState = async (ad: Anuncio) => {
   fotos.value = ad.fotos
 }
 
+const submit = async () => {
+  console.log('SUBMITTING')
+  requests.value++
+  setTimeout(() => {
+    requests.value--
+  }, 5000)
+}
+
 const atualizaAnuncio = debounce(async (atualizacao: AtualizaAnuncio) => {
   try {
     requests.value++
@@ -476,6 +487,9 @@ onBeforeRouteLeave((to, from, next) => {
     else {
       return next(false)
     }
+  }
+  else {
+    next()
   }
 })
 
