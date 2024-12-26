@@ -217,9 +217,9 @@
               'opacity-40': submitting || !meta.valid,
             }"
             :disabled="submitting || !meta.valid"
-            @click="submit"
+            @click="$router.push({ name: 'planos', params: { adId } })"
           >
-            Enviar
+            Continuar
             <FontAwesomeIcon :icon="submitting ? faSpinner : faArrowRight" size="lg" :spin="submitting" fixed-width />
           </button>
         </div>
@@ -253,16 +253,16 @@ import debounce from 'lodash.debounce'
 import { vMaska } from 'maska/vue'
 import { useForm } from 'vee-validate'
 import { computed, nextTick, ref, unref, watch } from 'vue'
-import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
+import { ZodError } from 'zod'
 
 const router = useRouter()
+const route = useRoute()
 const { api } = useApp()
 const toast = useToast()
 
-const adIdParam = unref(router.currentRoute).params.adId ?? NOVO_ANUNCIO_ID
-let adId = typeof adIdParam !== 'string' || adIdParam === NOVO_ANUNCIO_ID ? null : adIdParam
-
+const adId = ref<string | null>(null)
 const anuncio = ref<Anuncio | null>(null)
 
 const cores = ref<Cor[]>([])
@@ -271,7 +271,7 @@ const listaInformacoesAdicionais = ref<InformacaoAdicional[]>([])
 
 const anuncioFormSchema = toTypedSchema(getAtualizaAnuncioSchema())
 
-const { errors, defineField, values, setFieldValue, meta } = useForm({
+const { errors, defineField, values, setFieldValue, meta, resetForm, validate } = useForm({
   validationSchema: anuncioFormSchema,
   initialValues: { fotos: [], informacoesAdicionais: [], acessorios: [], descricao: '' }
 })
@@ -313,9 +313,6 @@ const atualizaMarcas = async () => {
   try {
     loadingMarcas.value = true
     marcas.value = await api.fetchMarcas()
-    if (unref(marca) === null) {
-      marca.value = unref(marcas).find(marca => marca.codigoMarca === 77) ?? unref(marcas)[0] ?? null
-    }
   }
   catch (err) {
     marca.value = null
@@ -404,7 +401,9 @@ const atualizaPreco = async () => {
     setFieldValue('modelo', _preco.modelo)
     precoFIPE.value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(_preco.precoBRL)
     if (unref(preco) === null) {
-      preco.value = _preco.precoBRL.toString()
+      nextTick(() => {
+        preco.value = _preco.precoBRL.toString()
+      })
     }
   }
   finally {
@@ -423,62 +422,61 @@ const toggleItem = (id: number, items: number[]) => {
   items.sort()
 }
 
-const setAdState = async (ad: Anuncio) => {
+const setAdState = async (ad: Anuncio | null) => {
   if (unref(marcas).length === 0) {
     await atualizaMarcas()
   }
-  else if (unref(modelos).length === 0) {
-    await atualizaModelos()
-  }
-  marca.value = unref(marcas).find(marca => marca.marca === ad.marca) ?? null
-  modelo.value = unref(modelos).find(modelo => modelo.modelo === ad.modelo) ?? null
-  anoModelo.value = ad.anoModelo
-  ano.value = ad.ano
-  quilometragem.value = ad.quilometragem
-  cor.value = unref(cores).find(cor => cor.id === ad.cor) ?? null
+  marca.value = ad === null ? null : unref(marcas).find(marca => marca.marca === ad.marca) ?? null
+  await atualizaModelos()
+  modelo.value = ad === null ? null : unref(modelos).find(modelo => modelo.modelo === ad.modelo) ?? null
+  anoModelo.value = ad?.anoModelo ?? null
+  ano.value = ad?.ano ?? undefined
+  quilometragem.value = ad?.quilometragem ?? undefined
+  cor.value = ad === null ? null : unref(cores).find(cor => cor.id === ad.cor) ?? null
   nextTick(() => {
-    preco.value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ad.preco)
+    preco.value = ad?.preco.toString() ?? null
   })
 
-  placa.value = ad.placa
-  acessorios.value = ad.acessorios
-  informacoesAdicionais.value = ad.informacoesAdicionais
-  descricao.value = ad.descricao ?? undefined
+  placa.value = ad?.placa ?? undefined
+  acessorios.value = ad?.acessorios ?? []
+  informacoesAdicionais.value = ad?.informacoesAdicionais ?? []
+  descricao.value = ad?.descricao ?? undefined
   anuncio.value = ad
-  fotos.value = ad.fotos
+  fotos.value = ad?.fotos ?? []
+  if (ad === null) {
+    resetForm()
+  }
+  else {
+    validate()
+  }
 }
 
 const removeAnuncio = async () => {
-  if (adId !== null) {
-    await api.removeAnuncio(adId)
-    await router.push({ name: 'minha-conta' })
+  const _adId = unref(adId)
+  if (_adId !== null) {
+    await api.removeAnuncio(_adId)
+    await router.back()
   }
 }
 
 const removeFoto = async (imageKey: string) => {
-  if (adId === null) {
+  const _adId = unref(adId)
+  if (_adId === null) {
     return
   }
-  anuncio.value = await api.removeImagem({ adId, imageKey })
-}
-
-const submit = async () => {
-  console.log('SUBMITTING')
-  requests.value++
-  setTimeout(() => {
-    requests.value--
-  }, 5000)
+  anuncio.value = await api.removeImagem({ adId: _adId, imageKey })
 }
 
 const atualizaAnuncio = debounce(async (atualizacao: AtualizaAnuncio) => {
+  const _adId = unref(adId)
   try {
     requests.value++
-    if (adId === null) {
+    if (_adId === null) {
       anuncio.value = await api.criaAnuncio(atualizacao)
-      adId = unref(anuncio)?.id ?? null
+      adId.value = unref(anuncio)?.id ?? null
     }
     else {
-      await api.atualizaAnuncio(adId, atualizacao)
+      await api.atualizaAnuncio(_adId, atualizacao)
     }
   }
   finally {
@@ -563,8 +561,15 @@ watch([anoModelo, ano, preco], ([anoModelo, ano, precoFormatted]) => {
 
 watch(meta, (meta) => {
   if (meta.valid) {
-    const anuncio = getAtualizaAnuncioSchema().parse(unref(values))
-    atualizaAnuncio(anuncio)
+    try {
+      const anuncio = getAtualizaAnuncioSchema().parse(unref(values))
+      atualizaAnuncio(anuncio)
+    }
+    catch (err) {
+      if (!(err instanceof ZodError)) {
+        throw err
+      }
+    }
   }
 })
 
@@ -583,18 +588,15 @@ onBeforeRouteLeave((to, from, next) => {
   }
 })
 
-;(async () => {
+const init = async () => {
+  const _adId = unref(adId)
   await atualizaMarcas()
   cores.value = await api.fetchCores()
   listaAcessorios.value = await api.fetchAcessorios()
   listaInformacoesAdicionais.value = await api.fetchInformacoesAdicionais()
 
-  if (adId !== null) {
-    const ad = await api.fetchAnuncio(adId)
-    if (ad === null) {
-      toast.error(`Não foi possível encontrar o anúncio`)
-      router.push({ name: 'anuncie' })
-    }
+  if (_adId !== null) {
+    const ad = await api.fetchAnuncio(_adId)
     if (ad === null) {
       toast.error(`Não foi possível encontrar o anúncio`)
       router.push({ name: 'anuncie' })
@@ -603,5 +605,13 @@ onBeforeRouteLeave((to, from, next) => {
       await setAdState(ad)
     }
   }
-})()
+  else {
+    await setAdState(null)
+  }
+}
+
+watch(route, (route) => {
+  adId.value = (typeof route.params.adId !== 'string' || route.params.adId === NOVO_ANUNCIO_ID) ? null : route.params.adId as string
+  void init()
+}, { immediate: true })
 </script>

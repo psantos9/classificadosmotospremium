@@ -65,6 +65,18 @@ const router = createRouter({
       component: async () => import('@/views/MinhaConta.vue') as Component
     },
     {
+      path: '/meus-anuncios',
+      name: 'meus-anuncios',
+      beforeEnter: [isSignedIn],
+      component: async () => import('@/views/MeusAnuncios.vue') as Component
+    },
+    {
+      path: '/minhas-mensagens',
+      name: 'minhas-mensagens',
+      beforeEnter: [isSignedIn],
+      component: async () => import('@/views/MinhasMensagens.vue') as Component
+    },
+    {
       path: '/meus-dados',
       name: 'meus-dados',
       beforeEnter: [isSignedIn],
@@ -91,6 +103,11 @@ const router = createRouter({
           path: 'rascunhos',
           name: 'rascunhos',
           component: async () => import('@/views/SelecaoRascunhosAnuncio.vue') as Component
+        },
+        {
+          path: 'planos/:adId',
+          name: 'planos',
+          component: async () => import('@/views/Planos.vue') as Component
         }
       ]
     },

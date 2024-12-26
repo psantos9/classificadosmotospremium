@@ -1,7 +1,6 @@
 <template>
   <div>
     <RouterLink
-    di
       :to="{ name: 'anuncie' }"
       class="rounded h-[2.5rem] px-4 flex items-center gap-2 transition-colors"
       :class="[flat ? 'text-[var(--primary)]' : 'bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] font-semibold']"

@@ -23,7 +23,7 @@
 
 <script lang="ts" setup>
 import { useApp } from '@/composables/useApp'
-import { faLock, faSignOut, faUser } from '@fortawesome/free-solid-svg-icons'
+import { faBullhorn, faEnvelope, faLock, faSignOut, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { useRouter } from 'vue-router'
 
@@ -31,6 +31,8 @@ const { api } = useApp()
 const router = useRouter()
 
 const sections = [
+  { icon: faBullhorn, title: 'Meus Anúncios', description: 'Gerencie seus anúncios ativos e inativos', action: async () => await router.push({ name: 'meus-anuncios' }) },
+  { icon: faEnvelope, title: 'Minhas Mensagens', description: 'Leia e gerencie as mensagems que você recebeu', action: async () => await router.push({ name: 'minhas-mensagens' }) },
   { icon: faUser, title: 'Meus Dados', description: 'Atualize seus dados cadastrais', action: async () => await router.push({ name: 'meus-dados' }) },
   { icon: faLock, title: 'Alterar Senha', description: 'Atualize a sua senha com frequência para garantir a segurança da sua conta', action: async () => await router.push({ name: 'alterar-senha' }) },
   { icon: faSignOut, title: 'Sair', description: 'Encerre a sessão da sua conta com segurança', action: async () => await api.logout() }
