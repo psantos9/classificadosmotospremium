@@ -308,8 +308,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
   }
 
   async removeAnuncio(id: string) {
-    await this.axios.delete<Anuncio | null>(`/api/v1/ads/${btoa(id)}`)
-      .then(({ data }) => data)
+    await this.axios.delete(`/api/v1/ads/${btoa(id)}`)
   }
 
   async fetchAnuncios(params?: { status?: AnuncioStatus }) {
@@ -359,6 +358,13 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
         onUploadProgress: event => onUploadProgress?.(file, event)
       }
     ).then(({ data }) => data)
+    return anuncio
+  }
+
+  async removeImagem(params: { adId: string, imageKey: string }) {
+    const { adId, imageKey } = params
+    const anuncio = await this.axios.delete<Anuncio>(`/api/v1/ads/${btoa(adId)}/images/${imageKey}`)
+      .then(({ data }) => data)
     return anuncio
   }
 

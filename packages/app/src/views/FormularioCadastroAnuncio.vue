@@ -25,15 +25,8 @@
             label-key="modelo"
             :loading="loadingMarcas"
           />
-          <Combobox
-            v-model="anoModelo"
-            class="sm:col-span-3"
-            label="Ano Modelo"
-            :data="anosModelo"
-            :loading="loadingMarcas"
-          />
           <div class="sm:col-span-3">
-            <label for="name" class="block text-sm/6 font-medium">Ano</label>
+            <label for="name" class="block text-sm/6 font-medium">Ano Fabricação</label>
             <div class="mt-2 relative">
               <input
                 v-model="ano"
@@ -46,6 +39,14 @@
               </p>
             </div>
           </div>
+          <Combobox
+            v-model="anoModelo"
+            class="sm:col-span-3"
+            label="Ano Modelo"
+            :data="anosModelo"
+            :loading="loadingMarcas"
+          />
+
           <div class="sm:col-span-3">
             <label for="name" class="block text-sm/6 font-medium">Quilometragem (km)</label>
             <div class="mt-2 relative">
@@ -161,18 +162,41 @@
       </div>
       <div v-if="anuncio !== null" class="card-section">
         <span class="title">Fotos</span>
-        <div class="grid grid-cols-1 gap-8 sm:grid-cols-6">
-          <div class="flex flex-col gap-4 col-span-full md:col-span-3">
-            <ImageUpload class="md:col-span-3" :anuncio="anuncio" @update="anuncio = $event" />
-            <div class="rounded-md border min-h-[100px] p-4 bg-white grid grid-cols-3 items-center gap-2">
-              <div v-for="foto in anuncio.fotos" :key="foto" class="rounded-md shadow overflow-hidden">
-                <img :src="api.getImageUrl(foto)" class="aspect-video">
-              </div>
+        <ImageUpload :anuncio="anuncio" @update="anuncio = $event" />
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-4 items-start justify-center">
+          <div
+            v-for="(foto, i) in anuncio.fotos"
+            :key="foto"
+            v-draggable="{ group: 'fotos', data: foto, dropCallback: (group: string, droppedFoto: string) => swapFotos(foto, droppedFoto) }"
+            data-dragging-active="fotos"
+            :data-index="i"
+            class="group rounded-md overflow-hidden data-[index=0]:col-span-2 data-[index=0]:row-span-2 h-full flex items-center justify-center relative bg-black cursor-pointer shadow data-[dragover]:scale-105 transition-all"
+          >
+            <img :src="api.getImageUrl(foto)" class="aspect-video">
+            <div class="absolute top-0 left-0 bg-white/90 text-xs rounded-md shadow px-2 py-1 m-1 font-light">
+              {{ i === 0 ? 'Foto principal' : i + 1 }}
             </div>
-          </div>
-
-          <div class="border rounded-md col-span-full md:col-span-3 p-4 bg-white">
-            Regras
+            <button
+              v-if="anuncio.fotos.length > 1"
+              class="opacity-0 group-hover:opacity-100 absolute top-0 right-0 rounded-full py-1 m-1 w-7 h-7 flex items-center justify-center bg-white hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] border hover:border-[var(--primary)] cursor-pointer transition-all"
+              @click="removeFoto(foto)"
+            >
+              <FontAwesomeIcon :icon="faTrash" size="sm" fixed-width />
+            </button>
+            <button
+              v-if="i !== 0"
+              class="opacity-0 group-hover:opacity-100 absolute bottom-0 left-0 rounded-full py-1 m-1 w-7 h-7 flex items-center justify-center bg-white hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] border hover:border-[var(--primary)] cursor-pointer transition-all"
+              @click="moveFotoLeft(foto)"
+            >
+              <FontAwesomeIcon :icon="faArrowLeft" size="sm" fixed-width />
+            </button>
+            <button
+              v-if="i !== anuncio.fotos.length - 1"
+              class="opacity-0 group-hover:opacity-100 absolute bottom-0 right-0 rounded-full py-1 m-1 w-7 h-7 flex items-center justify-center bg-white hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] border hover:border-[var(--primary)] cursor-pointer transition-all"
+              @click="moveFotoRight(foto)"
+            >
+              <FontAwesomeIcon :icon="faArrowRight" size="sm" fixed-width />
+            </button>
           </div>
         </div>
 
@@ -200,8 +224,15 @@
           </button>
         </div>
       </div>
-      <div v-if="meta.touched && errors">
-        {{ errors }}
+      <div v-if="meta.touched && Object.keys(errors).length > 0" class="flex flex-col items-center px-8 py-4 text-sm">
+        <div class="flex gap-2 items-center text-[var(--warning)] uppercase mb-4">
+          <FontAwesomeIcon :icon="faExclamationTriangle" size="2x" />
+          <span class="text-xl font-bold text-[var(--warning)]">Os seguintes campos têm pendências</span>
+        </div>
+
+        <span v-for="[key, value] of Object.entries(errors)" :key="key">
+          <span class="font-bold capitalize">{{ key }}:</span> {{ value }}
+        </span>
       </div>
     </div>
   </div>
@@ -215,7 +246,7 @@ import ImageUpload from '@/components/ImageUpload.vue'
 import { useApp } from '@/composables/useApp'
 import { NOVO_ANUNCIO_ID } from '@/router'
 import { type AtualizaAnuncio, getAtualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
-import { faArrowRight, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faArrowRight, faExclamationTriangle, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import debounce from 'lodash.debounce'
@@ -424,6 +455,13 @@ const removeAnuncio = async () => {
   }
 }
 
+const removeFoto = async (imageKey: string) => {
+  if (adId === null) {
+    return
+  }
+  anuncio.value = await api.removeImagem({ adId, imageKey })
+}
+
 const submit = async () => {
   console.log('SUBMITTING')
   requests.value++
@@ -447,6 +485,50 @@ const atualizaAnuncio = debounce(async (atualizacao: AtualizaAnuncio) => {
     requests.value--
   }
 }, 1000)
+
+const moveFotoLeft = async (foto: string) => {
+  const _anuncio = unref(anuncio)
+  if (_anuncio === null) {
+    return
+  }
+  const fotos = _anuncio.fotos
+  const index = fotos.indexOf(foto)
+  if (index > 0) {
+    [fotos[index], fotos[index - 1]] = [fotos[index - 1], fotos[index]]
+    const atualizacao = getAtualizaAnuncioSchema().parse(unref(values))
+    await atualizaAnuncio(atualizacao)
+  }
+}
+
+const moveFotoRight = async (foto: string) => {
+  const _anuncio = unref(anuncio)
+  if (_anuncio === null) {
+    return
+  }
+  const fotos = _anuncio.fotos
+  const index = fotos.indexOf(foto)
+  if (index < fotos.length - 1) {
+    [fotos[index], fotos[index + 1]] = [fotos[index + 1], fotos[index]]
+    const atualizacao = getAtualizaAnuncioSchema().parse(unref(values))
+    await atualizaAnuncio(atualizacao)
+  }
+}
+
+const swapFotos = async (foto1: string, foto2: string) => {
+  const _anuncio = unref(anuncio)
+  if (_anuncio === null) {
+    return
+  }
+  const fotos = _anuncio.fotos
+  const index1 = fotos.indexOf(foto1)
+  const index2 = fotos.indexOf(foto2)
+  if (index1 === index2) {
+    return
+  }
+  [fotos[index1], fotos[index2]] = [fotos[index2], fotos[index1]]
+  const atualizacao = getAtualizaAnuncioSchema().parse(unref(values))
+  await atualizaAnuncio(atualizacao)
+}
 
 watch(marca, () => atualizaModelos())
 watch(modelo, () => atualizaAnosModelo())

@@ -1,4 +1,5 @@
 import App from '@/App.vue'
+import Draggable from '@/directives/draggable'
 import { printAppVersionConsoleBanner } from '@/helpers/printAppVersionConsoleBanner'
 import router from '@/router'
 import { type Component, createApp } from 'vue'
@@ -11,6 +12,7 @@ printAppVersionConsoleBanner()
 const app = createApp(App as Component)
 
 app
+  .directive('draggable', Draggable)
   .use(router)
   .use(ToastPlugin)
 

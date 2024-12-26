@@ -17,7 +17,7 @@
   --info: #1a61d9;
   --success: #01b753;
   --danger: #f51919;
-  --warning: #ffc107
+  --warning: #f5a019;
   --std-gap: 1rem;
   --body-bg: #f2f2f2;
 
@@ -25,7 +25,7 @@
 
   --primary-lighter: hsl(from var(--primary) h s calc(l + 10));
   --primary-lightest: hsl(from var(--primary) h s calc(l + 20));
-  --primary-text: var(--grey-900);
+  --primary-text: black;
 
   --secondary-lighter: hsl(from var(--secondary) h s calc(l + 10));
   --secondary-lightest: hsl(from var(--secondary) h s calc(l + 40));

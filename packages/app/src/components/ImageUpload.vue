@@ -1,6 +1,6 @@
 <template>
   <div
-    class="group relative flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 cursor-pointer hover:bg-[var(--primary-lightest)] text-gray-600 hover:text-[var(--primary-text)] transition-colors data-[disabled=true]:pointer-events-none"
+    class="h-full group relative flex justify-center items-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 cursor-pointer hover:bg-[var(--primary-lightest)] text-gray-600 hover:text-[var(--primary-text)] transition-colors data-[disabled=true]:pointer-events-none"
     :data-disabled="uploading"
     @click="fileUpload?.click()"
   >
