@@ -5,7 +5,7 @@ import { getImageStorageKey } from '@/helpers/get-image-storage-key'
 import { sha256 } from '@cmp/api/helpers/shsa256'
 import { ALLOWED_IMAGE_MIME_TYPES as allowedImageMimeTypes } from '@cmp/shared/constants'
 import { getAtualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
-import { AnuncioStatus, schema } from '@cmp/shared/models/database/schema'
+import { AnuncioStatus, getSchema } from '@cmp/shared/models/database/schema'
 import { and, eq, sql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/d1'
 import { AutoRouter, error, StatusError } from 'itty-router'
@@ -18,6 +18,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   .post('/', async (req, env) => {
     const userId = req.userId
     const anuncio = getAtualizaAnuncioSchema().parse(await req.json())
+    const schema = getSchema()
     const db = drizzle(env.DB, { schema })
     const [row] = await db.insert(schema.anuncio).values({ ...anuncio, userId }).returning()
     const novoAnuncio: Anuncio = row
@@ -27,6 +28,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const userId = req.userId
     const adId = z.string().uuid().parse(atob(req.params.b64AdId))
     const atualizacao = getAtualizaAnuncioSchema().parse(await req.json())
+    const schema = getSchema()
     const db = drizzle(env.DB, { schema })
     const [row = null] = await db.update(schema.anuncio).set({ ...atualizacao, updatedAt: sql`CURRENT_TIMESTAMP` }).where(and(eq(schema.anuncio.id, adId), eq(schema.anuncio.userId, userId))).limit(1).returning()
     const novoAnuncio: Anuncio | null = row
@@ -39,6 +41,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     if (!contentType?.match(/multipart\/form-data/)) {
       throw new StatusError(415)
     }
+    const schema = getSchema()
     const db = drizzle(env.DB, { schema })
     const { isExist } = await db.get<{ isExist: number }>(sql`SELECT EXISTS (SELECT 1 FROM ${schema.anuncio} WHERE ${schema.anuncio.id} = ${adId} AND ${schema.anuncio.userId} = ${userId} AND ${schema.anuncio.status} = ${AnuncioStatus.DRAFT}) as isExist`)
 

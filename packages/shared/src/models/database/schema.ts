@@ -22,7 +22,7 @@ export const anuncioStatus = customType<{ data: AnuncioStatus, notNull: true, de
   }
 })
 
-export const cadastro = sqliteTable('cadastro', {
+export const getCadastro = () => sqliteTable('cadastro', {
   id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
   createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   updatedAt: integer({ mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`).$onUpdateFn(() => new Date()),
@@ -44,27 +44,27 @@ export const cadastro = sqliteTable('cadastro', {
   password: text().notNull()
 }, _t => [])
 
-export const cor = sqliteTable('cor', {
+export const getCor = () => sqliteTable('cor', {
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
   label: text().notNull()
 }, _t => [])
 
-export const acessorio = sqliteTable('acessorio', {
+export const getAcessorio = () => sqliteTable('acessorio', {
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
   label: text().notNull()
 }, _t => [])
 
-export const informacaoAdicional = sqliteTable('informacao_adicional', {
+export const getInformacaoAdicional = () => sqliteTable('informacao_adicional', {
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
   label: text().notNull()
 }, _t => [])
 
-export const anuncio = sqliteTable('anuncio', {
+export const getAnuncio = () => sqliteTable('anuncio', {
   id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
   createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   updatedAt: integer({ mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`).$onUpdateFn(() => new Date()),
   publishedAt: integer({ mode: 'timestamp' }),
-  userId: text().references(() => cadastro.id, { onDelete: 'cascade' }).notNull(),
+  userId: text().references(() => getCadastro().id, { onDelete: 'cascade' }).notNull(),
   status: anuncioStatus().notNull().default(AnuncioStatus.DRAFT),
   codigoFipe: text().notNull(),
   anoModelo: integer().notNull(),
@@ -81,24 +81,33 @@ export const anuncio = sqliteTable('anuncio', {
 ])
 
 // Relations
-export const cadastroRelations = relations(cadastro, ({ many }) => ({
-  anuncios: many(anuncio)
+export const cadastroRelations = relations(getCadastro(), ({ many }) => ({
+  anuncios: many(getAnuncio())
 }))
 
-export const anuncioRelations = relations(anuncio, ({ one }) => ({
-  cadastro: one(cadastro)
+export const anuncioRelations = relations(getAnuncio(), ({ one }) => ({
+  cadastro: one(getCadastro())
 }))
+
+export const getSchema = () => ({
+  cadastro: getCadastro(),
+  cor: getCor(),
+  acessorio: getAcessorio(),
+  informacaoAdicional: getInformacaoAdicional(),
+  anuncio: getAnuncio()
+})
+
+// eslint-disable-next-line unused-imports/no-unused-vars
+const schema = getSchema()
 
 // Types
-export type Cadastro = typeof cadastro.$inferSelect
+export type Cadastro = typeof schema.cadastro.$inferSelect
 export type SelectCadastro = Omit<Cadastro, 'password'>
-export type NovoCadastro = typeof cadastro.$inferInsert
+export type NovoCadastro = typeof schema.cadastro.$inferInsert
 
-export type Cor = typeof cor.$inferSelect
-export type Acessorio = typeof acessorio.$inferSelect
-export type InformacaoAdicional = typeof informacaoAdicional.$inferSelect
+export type Cor = typeof schema.cor.$inferSelect
+export type Acessorio = typeof schema.acessorio.$inferSelect
+export type InformacaoAdicional = typeof schema.informacaoAdicional.$inferSelect
 
-export type Anuncio = typeof anuncio.$inferSelect
-export type NovoAnuncio = typeof anuncio.$inferInsert
-
-export const schema = { cadastro, cor, anuncio }
+export type Anuncio = typeof schema.anuncio.$inferSelect
+export type NovoAnuncio = typeof schema.anuncio.$inferInsert

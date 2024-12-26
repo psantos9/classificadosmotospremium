@@ -5,7 +5,7 @@ import { router as adsRouter } from '@cmp/api/routes/api/v1/ads'
 import { router as fipeRouter } from '@cmp/api/routes/api/v1/fipe'
 import { router as imagesRouter } from '@cmp/api/routes/api/v1/images'
 import { router as usersRouter } from '@cmp/api/routes/api/v1/users'
-import { cadastro, type NovoCadastro, schema } from '@cmp/shared/models/database/schema'
+import { getSchema, type NovoCadastro } from '@cmp/shared/models/database/schema'
 import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
 import { type OpenCEP, openCEPSchema } from '@cmp/shared/models/open-cep'
 import bcrypt from 'bcryptjs'
@@ -51,12 +51,13 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     }
   })
   .post<IRequest, [Env, ExecutionContext]>('/login/check', async (req, env) => {
+    const schema = getSchema()
     const db = drizzle(env.DB, { schema })
 
     const bodySchema = z.object({ email: z.string().email() })
     try {
       const { email } = bodySchema.parse(await req.json())
-      const { isExist } = await db.get<{ isExist: number }>(sql`SELECT EXISTS (SELECT 1 from ${cadastro} where ${cadastro.email} = ${email}) as isExist`)
+      const { isExist } = await db.get<{ isExist: number }>(sql`SELECT EXISTS (SELECT 1 from ${schema.cadastro} where ${schema.cadastro.email} = ${email}) as isExist`)
       return json({ exists: isExist === 1 })
     }
     catch (err) {
@@ -83,6 +84,7 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     }
   })
   .post<IRequest, [Env, ExecutionContext]>('/signup', async (req, env) => {
+    const schema = getSchema()
     const db = drizzle(env.DB, { schema })
     try {
       const novoCadastro = novoCadastroSchema.parse(await req.json())
@@ -95,7 +97,7 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
         ...novoCadastro,
         password
       }
-      await db.insert(cadastro).values(_cadastro).returning({ userId: cadastro.id })
+      await db.insert(schema.cadastro).values(_cadastro).returning({ userId: schema.cadastro.id })
       const bearerToken = await getBearerToken({ email: novoCadastro.email, password: novoCadastro.password, db: env.DB, apiSecret: env.API_SECRET })
       return json({ bearerToken })
     }
