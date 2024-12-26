@@ -25,7 +25,7 @@ export const anuncioStatus = customType<{ data: AnuncioStatus, notNull: true, de
 export const getCadastro = () => sqliteTable('cadastro', {
   id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
   createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer({ mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`).$onUpdateFn(() => new Date()),
+  updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
   cpfCnpj: text().notNull().unique(),
   nomeRazaoSocial: text().notNull(),
   nomeFantasia: text(),
@@ -62,7 +62,7 @@ export const getInformacaoAdicional = () => sqliteTable('informacao_adicional', 
 export const getAnuncio = () => sqliteTable('anuncio', {
   id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
   createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer({ mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`).$onUpdateFn(() => new Date()),
+  updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
   publishedAt: integer({ mode: 'timestamp' }),
   userId: text().references(() => getCadastro().id, { onDelete: 'cascade' }).notNull(),
   status: anuncioStatus().notNull().default(AnuncioStatus.DRAFT),
