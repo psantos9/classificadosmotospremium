@@ -21,7 +21,7 @@ const checkIfThereAreDraftAds: NavigationGuardWithThis<any> = async (to, from, n
   const adId = to.params.adId
   if (adId === undefined) {
     const drafts = await api.fetchAnuncios({ status: 'draft' })
-    if (drafts.length) {
+    if (drafts.length > 0) {
       next({ name: 'rascunhos' })
     }
     else {

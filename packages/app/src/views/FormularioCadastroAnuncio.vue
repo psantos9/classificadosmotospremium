@@ -420,7 +420,7 @@ const setAdState = async (ad: Anuncio) => {
 const removeAnuncio = async () => {
   if (adId !== null) {
     await api.removeAnuncio(adId)
-    router.back()
+    await router.push({ name: 'minha-conta' })
   }
 }
 

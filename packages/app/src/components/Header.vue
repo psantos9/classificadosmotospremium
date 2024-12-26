@@ -28,8 +28,13 @@
             </span>
           </RouterLink>
         </div>
-        <AdvertiseHereButton :flat="true" class="block md:hidden" @click="$router.push({ name: 'anuncie' })" />
-        <AdvertiseHereButton class="hidden md:block" @click="$router.push({ name: 'anuncie' })" />
+        <AdvertiseHereButton
+          :flat="true"
+          class="block md:hidden"
+        />
+        <AdvertiseHereButton
+          class="hidden md:block"
+        />
         <SignInButton class="hidden md:block max-w-[150px]" />
       </div>
     </header>
