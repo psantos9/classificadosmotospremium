@@ -1,5 +1,6 @@
 import type { Env, IAppAuthenticatedRequest } from '@/types'
 import type { AnuncioStatus } from '@cmp/shared/models/anuncio-status'
+import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
 import type { Anuncio, NovoAnuncio } from '@cmp/shared/models/database/schema'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
 import { fetchAdImageKeys } from '@/helpers/fetch-all-ads-image-keys'
@@ -62,41 +63,46 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
       return error(404, 'anúncio não encontrado')
     }
 
-    if (anuncio.reviewWorkflowId !== null) {
-      const instance = await env.AD_REVIEW_WORKFLOW.get(anuncio.reviewWorkflowId)
-      const status = await instance.status()
-      if (['terminated', 'complete', 'errored'].includes(status.status)) {
-        await instance.terminate()
-      }
-    }
-
     const update: Partial<NovoAnuncio> = anuncio.status === 'draft'
       ? { ...atualizacao, atualizacao }
       : { atualizacao }
-
-    if (anuncio.status !== 'draft') {
-      update.reviewWorkflowId = crypto.randomUUID()
-    }
 
     ;[anuncio = null] = await db.update(schema.anuncio).set(update).where(and(...filters)).limit(1).returning({ ...anuncioColumns })
     if (anuncio === null) {
       return error(404, 'anúncio não encontrado')
     }
-    else if (update.reviewWorkflowId) {
-      await env.AD_REVIEW_WORKFLOW.create({ id: update.reviewWorkflowId, params: { adId } })
-    }
-    return anuncio
+
+    return { ...anuncio, ...atualizacao }
   })
-  .put('/:adId/status/to_review', async (req, env) => {
+  .put('/:adId/review', async (req, env) => {
     const userId = req.userId
     const adId = z.coerce.number().parse(req.params.adId)
-    const status = anuncioStatusSchema.parse(req.params.status)
 
     const db = getDb(env.DB)
-    const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId), eq(schema.anuncio.status, 'draft')]
+    const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
+
+    let [anuncio = null] = await db.select({ ...anuncioColumns }).from(schema.anuncio).where(and(...filters)).limit(1)
+    if (anuncio === null) {
+      return error(404, 'anúncio não encontrado')
+    }
+    else if (anuncio.atualizacao === null) {
+      return status(204)
+    }
+    if (anuncio.reviewWorkflowId !== null) {
+      try {
+        const instance = await env.AD_REVIEW_WORKFLOW.get(anuncio.reviewWorkflowId)
+        const status = await instance.status()
+        if (!['terminated', 'complete', 'errored'].includes(status.status)) {
+          await instance.terminate()
+        }
+      }
+      catch (err) {
+        console.log('error while terminating workflow', err)
+      }
+    }
 
     const reviewWorkflowId = crypto.randomUUID()
-    const [anuncio = null] = await db.update(schema.anuncio).set({ status, reviewWorkflowId }).where(and(...filters)).limit(1).returning({ ...anuncioColumns })
+    ;[anuncio = null] = await db.update(schema.anuncio).set({ reviewWorkflowId }).where(and(...filters)).limit(1).returning({ ...anuncioColumns })
     if (anuncio === null) {
       return error(404, 'anúncio não pode ser alterado')
     }
@@ -130,11 +136,11 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
       throw new StatusError(415)
     }
     const db = getDb(env.DB)
-    const [row = null] = await db.select({ fotos: schema.anuncio.fotos }).from(schema.anuncio).where(and(eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId))).limit(1)
+    let [row = null] = await db.select().from(schema.anuncio).where(and(eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId))).limit(1)
     if (row === null) {
       return error(404, 'não é possivel adicionar imagens ao anuncio')
     }
-    const { fotos } = row
+    const fotos = row.status === 'draft' ? row.fotos : row.atualizacao?.fotos ?? row.fotos
 
     const formData = (await req.formData()) as FormData
     const r2Keys: string[] = []
@@ -165,8 +171,24 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
       }
     }
     const novasFotos = Array.from(new Set([...fotos, ...r2Keys]))
-    const [anuncio = null] = await db.update(schema.anuncio).set({ fotos: novasFotos }).where(and(eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId))).limit(1).returning({ ...anuncioColumns })
-    return anuncio
+    ;[row = null] = await db.select().from(schema.anuncio).where(and(eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId))).limit(1)
+    if (row === null) {
+      return error(400, 'error while uploading photos')
+    }
+
+    const { codigoFipe, marca, modelo, ano, anoModelo, quilometragem, placa, preco, cor, descricao, acessorios, informacoesAdicionais } = row
+
+    const atualizacao: AtualizaAnuncio = { codigoFipe, marca, modelo, ano, anoModelo, quilometragem, placa, preco, cor, descricao: descricao ?? '', acessorios, informacoesAdicionais, fotos: novasFotos }
+
+    const update: Partial<NovoAnuncio> = row.status === 'draft'
+      ? { fotos: atualizacao.fotos, atualizacao }
+      : { atualizacao }
+
+    const [anuncio = null] = await db.update(schema.anuncio).set(update).where(and(eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId))).limit(1).returning({ ...anuncioColumns })
+    if (anuncio === null) {
+      return error(400, 'error while uploading photos')
+    }
+    return { ...anuncio, ...atualizacao }
   })
   .put('/:adId/images/delete', async (req, env) => {
     const userId = req.userId
@@ -178,40 +200,23 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     if (anuncio === null) {
       return error(404, 'anúncio não encontrado')
     }
-    const fotos = anuncio.fotos
+
+    const fotos = anuncio.status === 'draft' ? anuncio.fotos : anuncio.atualizacao?.fotos ?? anuncio.fotos
     const imagesToDelete = imageKeys.filter(imageKey => fotos.includes(imageKey))
     const imagesToKeep = fotos.filter(foto => !imagesToDelete.includes(foto))
     if (imagesToKeep.length === 0) {
       return error(400, 'o anúncio tem de ter pelo menos uma foto')
     }
     await env.AD_IMAGES_BUCKET.delete(imagesToDelete)
-    ;[anuncio] = await db.update(schema.anuncio).set({ fotos: imagesToKeep }).where(and(...filters)).limit(1).returning({ ...anuncioColumns })
-    return anuncio
-  })
-  .delete('/:adId/images/:b64ImageKey', async (req, env) => {
-    const userId = req.userId
-    const adId = z.coerce.number().parse(req.params.adId)
-    const imageKey = z.string().parse(atob(req.params.b64ImageKey))
-    const db = getDb(env.DB)
-    const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
-    let [anuncio = null] = await db.select({ ...anuncioColumns }).from(schema.anuncio).where(and(...filters)).limit(1)
-    if (anuncio === null) {
-      return error(404, 'anúncio não encontrado')
-    }
-    else if (anuncio.fotos.length === 1) {
-      return error(400, 'o anúncio tem de ter pelo menos uma foto')
-    }
 
-    if (await env.AD_IMAGES_BUCKET.head(imageKey) !== null) {
-      await env.AD_IMAGES_BUCKET.delete(imageKey)
-    }
-    const idx = anuncio.fotos.indexOf(imageKey)
-    if (idx < 0) {
-      return anuncio
-    }
-    else {
-      anuncio.fotos.splice(idx, 1)
-      ;[anuncio] = await db.update(schema.anuncio).set({ fotos: anuncio.fotos }).where(and(...filters)).limit(1).returning({ ...anuncioColumns })
-    }
-    return anuncio
+    const { codigoFipe, marca, modelo, ano, anoModelo, quilometragem, placa, preco, cor, descricao, acessorios, informacoesAdicionais } = anuncio
+    const atualizacao: AtualizaAnuncio = { codigoFipe, marca, modelo, ano, anoModelo, quilometragem, placa, preco, cor, descricao: descricao ?? '', acessorios, informacoesAdicionais, fotos: imagesToKeep }
+
+    const update: Partial<NovoAnuncio> = anuncio.status === 'draft'
+      ? { fotos: atualizacao.fotos, atualizacao }
+      : { atualizacao }
+
+    ;[anuncio] = await db.update(schema.anuncio).set(update).where(and(...filters)).limit(1).returning({ ...anuncioColumns })
+
+    return { ...anuncio, ...atualizacao }
   })
