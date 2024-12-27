@@ -558,7 +558,7 @@ const uploadPhotos = async (files: FileList) => {
   if (_ad === null) {
     return
   }
-  const { id: adId } = _ad
+  const { id: adId, fotos: adImageKeys } = _ad
 
   const onPreviewIndex = (imageIndex: Record<string, string>) => {
     photoUploadIndex.value = imageIndex
@@ -570,7 +570,7 @@ const uploadPhotos = async (files: FileList) => {
 
   try {
     uploadProgress.value = 0
-    anuncio.value = await api.uploadImages({ adId, files, onPreviewIndex, onUploadProgress })
+    anuncio.value = await api.uploadImages({ adId, files, adImageKeys, onPreviewIndex, onUploadProgress })
   }
   finally {
     onPreviewIndex({})

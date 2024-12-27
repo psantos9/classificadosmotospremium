@@ -324,19 +324,21 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncios
   }
 
-  async uploadImages(params: { adId: number, files: FileList, onUploadProgress?: (event: AxiosProgressEvent) => void, onPreviewIndex?: (index: { [imageKey: string]: string }) => void }): Promise<Anuncio> {
-    const { adId, files, onUploadProgress, onPreviewIndex } = params
+  async uploadImages(params: { adId: number, files: FileList, adImageKeys?: string[], onUploadProgress?: (event: AxiosProgressEvent) => void, onPreviewIndex?: (index: { [imageKey: string]: string }) => void }): Promise<Anuncio> {
+    const { adId, files, adImageKeys = [], onUploadProgress, onPreviewIndex } = params
     const previewIndex: { [imageKey: string ]: string } = {}
     const formData = new FormData()
     let i = 0
 
     for (const file of files) {
-      formData.append(`file[${i}]`, file)
       const ext = mimeDB[file.type]?.extensions?.[0] ?? ''
       const sha256 = await computeFileHash(file)
       const url = URL.createObjectURL(file)
       const imageKey = getImageStorageKey({ adId, file: { sha256, ext } })
-      previewIndex[imageKey] = url
+      if (!adImageKeys.includes(imageKey)) {
+        formData.append(`file[${i}]`, file)
+        previewIndex[imageKey] = url
+      }
       i++
     }
     onPreviewIndex?.(previewIndex)
