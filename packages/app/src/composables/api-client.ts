@@ -335,12 +335,10 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
 
   async uploadImages(params: { adId: number, files: FileList, onUploadProgress?: (params: IImageUploadEvent) => void }): Promise<Anuncio> {
     const { adId, files, onUploadProgress } = params
-    let anuncio: Anuncio | null = null
-    for (const file of files) {
-      anuncio = await this.uploadImage({ adId, file, onUploadProgress })
-    }
+    await Promise.all(Array.from(files).map(async file => this.uploadImage({ adId, file, onUploadProgress })))
+    const anuncio = await this.fetchAnuncio(adId)
     if (anuncio === null) {
-      throw new Error('nao foi possivel carregar a imagem')
+      throw new Error('impossivel carregar o anuncio')
     }
     return anuncio
   }
