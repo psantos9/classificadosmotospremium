@@ -163,7 +163,6 @@
       <div v-if="anuncio !== null" class="card-section">
         <span class="title">Fotos</span>
         <ImageUpload @files="uploadPhotos" />
-        {{ photosToDelete }}
         <div class="grid grid-cols-1 gap-4 md:grid-cols-4 items-start justify-center">
           <div
             v-for="(foto, i) in anuncio.fotos.filter(foto => !photosToDelete.includes(foto))"
