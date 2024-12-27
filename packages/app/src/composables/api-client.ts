@@ -64,7 +64,7 @@ export interface IAPIClient {
 
 const getAxiosInstance = (params: { baseURL: string, ctx: APIClient }) => {
   const { baseURL, ctx } = params
-  const instance = axios.create({ baseURL, timeout: 5000 })
+  const instance = axios.create({ baseURL, timeout: 30000 })
   instance.interceptors.response.use(res => res, async (error: AxiosError) => {
     if (error?.response?.status === 401) {
       await ctx.logout()
@@ -335,14 +335,22 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
 
   async uploadImages(params: { adId: number, files: FileList, onUploadProgress?: (params: IImageUploadEvent) => void }): Promise<Anuncio> {
     const { adId, files, onUploadProgress } = params
-    await Promise.all(Array.from(files).map(async file => this.uploadImage({ adId, file, onUploadProgress })))
-    const anuncio = await this.fetchAnuncio(adId)
-    if (anuncio === null) {
-      throw new Error('impossivel carregar o anuncio')
-    }
+    const formData = new FormData()
+    Array.from(files).forEach((file, i) => {
+      formData.append(`file[${i}]`, file)
+    })
+    const anuncio = await this.axios.post<Anuncio>(
+      `/api/v1/ads/${adId}/images`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' }
+        // onUploadProgress: event => onUploadProgress?.({ imageKey, url, sha256, ext, file, progress: event })
+      }
+    ).then(({ data }) => data)
     return anuncio
   }
 
+  /*
   private async uploadImage(params: { adId: number, file: File, onUploadProgress?: (params: IImageUploadEvent) => void }) {
     const { adId, file, onUploadProgress } = params
 
@@ -363,6 +371,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     ).then(({ data }) => data)
     return anuncio
   }
+    */
 
   async removeImagem(params: { adId: number, imageKey: string }) {
     const { adId, imageKey } = params
