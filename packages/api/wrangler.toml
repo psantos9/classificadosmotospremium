@@ -46,6 +46,11 @@ binding = "AD_IMAGES_BUCKET"
 bucket_name = "cmp-ad-images-preview"
 preview_bucket_name = "cmp-ad-images-preview"
 
+[[env.dev.workflows]]
+name = "workflow-ad-review"
+binding = "AD_REVIEW_WORKFLOW"
+class_name = "AdReviewWorkflow"
+
 # PREVIEW
 [env.preview]
 name = "cmp-api-preview"

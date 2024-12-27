@@ -304,6 +304,13 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncioAtualizado
   }
 
+  async submeteAnuncioParaRevisao(adId: number) {
+    const status: AnuncioStatus = 'to_review'
+    const anuncioAtualizado = await this.axios.put<Anuncio>(`/api/v1/ads/${adId}/status/${status}`)
+      .then(({ data }) => data)
+    return anuncioAtualizado
+  }
+
   async fetchAnuncio(adId: number) {
     const anuncio = await this.axios.get<Anuncio | null>(`/api/v1/ads/${adId}`)
       .then(({ data }) => data)

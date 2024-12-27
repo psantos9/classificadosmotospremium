@@ -226,7 +226,7 @@
               'opacity-40': submitting || !meta.valid,
             }"
             :disabled="submitting || !meta.valid"
-            @click="$router.push({ name: 'planos', params: { adId } })"
+            @click="submitForReview"
           >
             Publicar
             <FontAwesomeIcon :icon="submitting ? faSpinner : faArrowRight" size="lg" :spin="submitting" fixed-width />
@@ -469,6 +469,14 @@ const removeAnuncio = async () => {
     api.removeAnuncio(_adId)
     await router.back()
   }
+}
+
+const submitForReview = async () => {
+  const _adId = unref(adId)
+  if (_adId === null) {
+    return
+  }
+  await api.submeteAnuncioParaRevisao(_adId)
 }
 
 let deleting = 0

@@ -1,5 +1,5 @@
-import type { AnuncioStatus } from '@cmp/shared/models/anuncio-status'
-import { anuncioStatusSchema } from '@cmp/shared/models/anuncio-status'
+import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
+import { type AnuncioStatus, anuncioStatusSchema } from '@cmp/shared/models/anuncio-status'
 import { relations, sql } from 'drizzle-orm'
 import { check, customType, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
@@ -73,7 +73,9 @@ export const anuncio = sqliteTable('anuncio', () => ({
   descricao: text(),
   informacoesAdicionais: text({ mode: 'json' }).notNull().$type<number[]>().$defaultFn(() => []),
   acessorios: text({ mode: 'json' }).notNull().$type<number[]>().$defaultFn(() => []),
-  fotos: text({ mode: 'json' }).notNull().$type<string[]>().$defaultFn(() => [])
+  fotos: text({ mode: 'json' }).notNull().$type<string[]>().$defaultFn(() => []),
+  atualizacao: text({ mode: 'json' }).$type<AtualizaAnuncio | null>().$defaultFn(() => null),
+  reviewWorkflowId: text()
 }), table => [
   check('anuncioStatus', sql.raw(`${table.status.name} IN (${Object.values(anuncioStatusSchema.enum).map(value => `'${value}'`).join(',')})`))
 ])
@@ -98,5 +100,5 @@ export type Cor = typeof schema.cor.$inferSelect
 export type Acessorio = typeof schema.acessorio.$inferSelect
 export type InformacaoAdicional = typeof schema.informacaoAdicional.$inferSelect
 
-export type Anuncio = typeof schema.anuncio.$inferSelect
+export type Anuncio = Omit<typeof schema.anuncio.$inferSelect, 'userId'>
 export type NovoAnuncio = typeof schema.anuncio.$inferInsert

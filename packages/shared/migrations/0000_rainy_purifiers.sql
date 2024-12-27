@@ -24,6 +24,8 @@ CREATE TABLE `anuncio` (
 	`informacoes_adicionais` text NOT NULL,
 	`acessorios` text NOT NULL,
 	`fotos` text NOT NULL,
+	`atualizacao` text,
+	`review_workflow_id` text,
 	FOREIGN KEY (`user_id`) REFERENCES `cadastro`(`id`) ON UPDATE no action ON DELETE cascade,
 	CONSTRAINT "anuncioStatus" CHECK(status IN ('draft','to_review','rejected','published','paused','expired','finished'))
 );

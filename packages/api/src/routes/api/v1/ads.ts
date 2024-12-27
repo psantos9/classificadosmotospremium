@@ -1,6 +1,6 @@
 import type { Env, IAppAuthenticatedRequest } from '@/types'
 import type { AnuncioStatus } from '@cmp/shared/models/anuncio-status'
-import type { Anuncio } from '@cmp/shared/models/database/schema'
+import type { Anuncio, NovoAnuncio } from '@cmp/shared/models/database/schema'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
 import { fetchAdImageKeys } from '@/helpers/fetch-all-ads-image-keys'
 import { getDb } from '@/helpers/get-db'
@@ -11,9 +11,12 @@ import { anuncioStatusSchema } from '@cmp/shared/models/anuncio-status'
 import { getAtualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
 import { schema } from '@cmp/shared/models/database/schema'
 import { and, eq, type SQL } from 'drizzle-orm'
+import { getTableColumns } from 'drizzle-orm'
 import { AutoRouter, error, status, StatusError } from 'itty-router'
 import mimeDB from 'mime-db'
 import { z } from 'zod'
+
+const { userId, ...anuncioColumns } = getTableColumns(schema.anuncio)
 
 export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContext]>({
   base: '/api/v1/ads',
@@ -28,7 +31,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     if (anuncioStatusSchema.options.includes(statusParam as AnuncioStatus)) {
       filters.push(eq(schema.anuncio.status, statusParam))
     }
-    const anuncios = await db.select().from(schema.anuncio).where(and(...filters))
+    const anuncios = await db.select({ ...anuncioColumns }).from(schema.anuncio).where(and(...filters))
     return anuncios
   })
   .get('/:adId', async (req, env) => {
@@ -36,7 +39,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const adId = z.coerce.number().parse(req.params.adId)
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
-    const [anuncio = null] = await db.select().from(schema.anuncio).where(and(...filters)).limit(1)
+    const [anuncio = null] = await db.select({ ...anuncioColumns }).from(schema.anuncio).where(and(...filters)).limit(1)
     return anuncio
   })
   .post('/', async (req, env) => {
@@ -51,17 +54,61 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const userId = req.userId
     const adId = z.coerce.number().parse(req.params.adId)
     const atualizacao = getAtualizaAnuncioSchema().parse(await req.json())
+
     const db = getDb(env.DB)
-    const [row = null] = await db.update(schema.anuncio).set({ ...atualizacao }).where(and(eq(schema.anuncio.id, adId), eq(schema.anuncio.userId, userId))).limit(1).returning()
-    const novoAnuncio: Anuncio | null = row
-    return novoAnuncio === null ? error(404, 'anúncio não encontrado') : novoAnuncio
+    const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
+    let [anuncio = null] = await db.select({ ...anuncioColumns }).from(schema.anuncio).where(and(...filters)).limit(1)
+    if (anuncio === null) {
+      return error(404, 'anúncio não encontrado')
+    }
+
+    if (anuncio.reviewWorkflowId !== null) {
+      const instance = await env.AD_REVIEW_WORKFLOW.get(anuncio.reviewWorkflowId)
+      const status = await instance.status()
+      if (['terminated', 'complete', 'errored'].includes(status.status)) {
+        await instance.terminate()
+      }
+    }
+
+    const update: Partial<NovoAnuncio> = anuncio.status === 'draft'
+      ? { ...atualizacao, atualizacao }
+      : { atualizacao }
+
+    if (anuncio.status !== 'draft') {
+      update.reviewWorkflowId = crypto.randomUUID()
+    }
+
+    ;[anuncio = null] = await db.update(schema.anuncio).set(update).where(and(...filters)).limit(1).returning({ ...anuncioColumns })
+    if (anuncio === null) {
+      return error(404, 'anúncio não encontrado')
+    }
+    else if (update.reviewWorkflowId) {
+      await env.AD_REVIEW_WORKFLOW.create({ id: update.reviewWorkflowId, params: { adId } })
+    }
+    return anuncio
+  })
+  .put('/:adId/status/to_review', async (req, env) => {
+    const userId = req.userId
+    const adId = z.coerce.number().parse(req.params.adId)
+    const status = anuncioStatusSchema.parse(req.params.status)
+
+    const db = getDb(env.DB)
+    const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId), eq(schema.anuncio.status, 'draft')]
+
+    const reviewWorkflowId = crypto.randomUUID()
+    const [anuncio = null] = await db.update(schema.anuncio).set({ status, reviewWorkflowId }).where(and(...filters)).limit(1).returning({ ...anuncioColumns })
+    if (anuncio === null) {
+      return error(404, 'anúncio não pode ser alterado')
+    }
+    await env.AD_REVIEW_WORKFLOW.create({ id: reviewWorkflowId, params: { adId } })
+    return anuncio
   })
   .delete('/:adId', async (req, env) => {
     const userId = req.userId
     const adId = z.coerce.number().parse(req.params.adId)
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
-    const [anuncio = null] = await db.select().from(schema.anuncio).where(and(...filters)).limit(1)
+    const [anuncio = null] = await db.select({ ...anuncioColumns }).from(schema.anuncio).where(and(...filters)).limit(1)
     if (anuncio === null) {
       return error(404, 'anúncio não encontrado')
     }
@@ -118,7 +165,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
       }
     }
     const novasFotos = Array.from(new Set([...fotos, ...r2Keys]))
-    const [anuncio = null] = await db.update(schema.anuncio).set({ fotos: novasFotos }).where(and(eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId))).limit(1).returning()
+    const [anuncio = null] = await db.update(schema.anuncio).set({ fotos: novasFotos }).where(and(eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId))).limit(1).returning({ ...anuncioColumns })
     return anuncio
   })
   .put('/:adId/images/delete', async (req, env) => {
@@ -127,7 +174,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const imageKeys = z.array(z.string()).parse(await req.json())
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
-    let [anuncio = null] = await db.select().from(schema.anuncio).where(and(...filters)).limit(1)
+    let [anuncio = null] = await db.select({ ...anuncioColumns }).from(schema.anuncio).where(and(...filters)).limit(1)
     if (anuncio === null) {
       return error(404, 'anúncio não encontrado')
     }
@@ -138,7 +185,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
       return error(400, 'o anúncio tem de ter pelo menos uma foto')
     }
     await env.AD_IMAGES_BUCKET.delete(imagesToDelete)
-    ;[anuncio] = await db.update(schema.anuncio).set({ fotos: imagesToKeep }).where(and(...filters)).limit(1).returning()
+    ;[anuncio] = await db.update(schema.anuncio).set({ fotos: imagesToKeep }).where(and(...filters)).limit(1).returning({ ...anuncioColumns })
     return anuncio
   })
   .delete('/:adId/images/:b64ImageKey', async (req, env) => {
@@ -147,7 +194,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const imageKey = z.string().parse(atob(req.params.b64ImageKey))
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
-    let [anuncio = null] = await db.select().from(schema.anuncio).where(and(...filters)).limit(1)
+    let [anuncio = null] = await db.select({ ...anuncioColumns }).from(schema.anuncio).where(and(...filters)).limit(1)
     if (anuncio === null) {
       return error(404, 'anúncio não encontrado')
     }
@@ -164,7 +211,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     }
     else {
       anuncio.fotos.splice(idx, 1)
-      ;[anuncio] = await db.update(schema.anuncio).set({ fotos: anuncio.fotos }).where(and(...filters)).limit(1).returning()
+      ;[anuncio] = await db.update(schema.anuncio).set({ fotos: anuncio.fotos }).where(and(...filters)).limit(1).returning({ ...anuncioColumns })
     }
     return anuncio
   })
