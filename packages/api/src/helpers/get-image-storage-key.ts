@@ -15,7 +15,7 @@ export const getImageStorageKey = (params: ImageKeyParams) => {
   const keyParams: Array<number | string> = [adId]
   if (file) {
     const { sha256, ext } = file
-    keyParams.push(`${sha256}.${ext ? `.${ext}` : ''}`)
+    keyParams.push(`${sha256}${ext ? `.${ext}` : ''}`)
   }
   const key = keyParams.join('/')
   return key
