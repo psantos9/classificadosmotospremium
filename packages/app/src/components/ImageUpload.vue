@@ -22,16 +22,12 @@
         Adicione até 20 fotos nos formatos PNG, JPG, GIF, com até 10MB cada uma.
       </p>
     </div>
-    <Transition enter-active-class="transition-opacity duration-1000" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition-opacity duration-1000" leave-from-class="opacity-100" leave-to-class="opacity-0">
-      <div v-if="done !== 0" class="absolute -bottom-1 left-0 bg-[var(--primary)] h-1 rounded transition-all duration-500" :style="`width: ${done * 100}%`" />
-    </Transition>
   </div>
 </template>
 
 <script lang="ts" setup>
 import type { IImageUploadEvent } from '@/composables/api-client'
 import type { Anuncio } from '@cmp/shared/models/database/schema'
-import type { AxiosProgressEvent } from 'axios'
 import { useApp } from '@/composables/useApp'
 import { ALLOWED_IMAGE_MIME_TYPES as allowedMimeTypes } from '@cmp/shared/constants'
 import { faImage } from '@fortawesome/free-solid-svg-icons'
