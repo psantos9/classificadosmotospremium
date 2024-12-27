@@ -122,7 +122,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   })
   .delete('/:adId/images/:imageKey', async (req, env) => {
     const userId = req.userId
-    const adId = z.coerce.number().parse(atob(req.params.adId))
+    const adId = z.coerce.number().parse(req.params.adId)
     const imageKey = z.string().parse(req.params.imageKey)
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
