@@ -1,12 +1,12 @@
 import type { Env } from '@/types'
 import { getImageStorageKey } from '@cmp/api/helpers/get-image-storage-key'
 
-export const fetchAdImageKeys = async (params: { env: Env, userId: number, adId: number }) => {
-  const { env, userId, adId } = params
+export const fetchAdImageKeys = async (params: { env: Env, adId: number }) => {
+  const { env, adId } = params
   const r2Bucket = env.AD_IMAGES_BUCKET
 
   const options = {
-    prefix: getImageStorageKey({ userId, adId })
+    prefix: getImageStorageKey({ adId })
   }
   const listed = await r2Bucket.list(options)
 

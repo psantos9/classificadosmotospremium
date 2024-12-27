@@ -67,7 +67,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     else if (anuncio.status !== anuncioStatusSchema.enum.draft) {
       return error(400, 'só é possível deletar anúncios com o status draft')
     }
-    const adKeys = await fetchAdImageKeys({ env, userId, adId })
+    const adKeys = await fetchAdImageKeys({ env, adId })
     if (adKeys.length > 0) {
       await env.AD_IMAGES_BUCKET.delete(adKeys)
     }
@@ -102,16 +102,15 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
           }
           const { type } = file
           const hash = await sha256(file)
-          const storageKey = getImageStorageKey({ userId, adId, sha256: hash })
+          const storageKey = getImageStorageKey({ adId, sha256: hash })
           if (await env.AD_IMAGES_BUCKET.head(storageKey) === null) {
             await env.AD_IMAGES_BUCKET.put(storageKey, await file.arrayBuffer(), {
               sha256: hash,
               httpMetadata: { contentType: type }
             })
           }
-          const b64ImageKey = btoa(storageKey)
-          if (!fotos.includes(b64ImageKey)) {
-            r2Keys.push(b64ImageKey)
+          if (!fotos.includes(storageKey)) {
+            r2Keys.push(storageKey)
           }
         }
       }

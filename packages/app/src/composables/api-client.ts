@@ -368,7 +368,19 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncio
   }
 
-  getImageUrl(b64ImageKey: string) {
-    return `${this.axios.defaults.baseURL}/api/v1/images/${b64ImageKey}`
+  getImageUrl(imageKey: string) {
+    let baseURL = ''
+    switch (import.meta.env.MODE) {
+      case 'preview':
+        baseURL = 'https://cdn.preview.classificadosmotospremium.com.br'
+        break
+      case 'production':
+        baseURL = 'https://cdn.classificadosmotospremium.com.br'
+        break
+      default:
+        baseURL = `${this.axios.defaults.baseURL ?? ''}/api/v1/images`
+        imageKey = btoa(imageKey)
+    }
+    return `${baseURL}/${imageKey}`
   }
 }
