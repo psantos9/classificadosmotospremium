@@ -471,15 +471,25 @@ const removeAnuncio = async () => {
   }
 }
 
+let deleting = 0
 const removeFotos = debounce(async () => {
   const _ad = unref(anuncio)
   if (_ad === null) {
     return
   }
   const { id: adId } = _ad
-  const imageKeys = unref(photosToDelete)
-  anuncio.value = await api.removeImagens({ adId, imageKeys })
-  photosToDelete.value = []
+  const imageKeys = [...unref(photosToDelete)]
+  try {
+    deleting++
+    const _anuncio = await api.removeImagens({ adId, imageKeys })
+    photosToDelete.value = unref(photosToDelete).filter(photo => !imageKeys.includes(photo))
+    if (deleting === 1) {
+      anuncio.value = _anuncio
+    }
+  }
+  finally {
+    deleting--
+  }
 }, 1000)
 
 const atualizaAnuncio = debounce(async (atualizacao: AtualizaAnuncio) => {
