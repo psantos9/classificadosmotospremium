@@ -341,6 +341,13 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
       }
       i++
     }
+    if (Array.from(formData.keys()).length === 0) {
+      const anuncio = await this.fetchAnuncio(adId)
+      if (anuncio === null) {
+        throw new Error('nao foi possivel encontrar o anuncio')
+      }
+      return anuncio
+    }
     onPreviewIndex?.(previewIndex)
     try {
       const anuncio = await this.axios.post<Anuncio>(
