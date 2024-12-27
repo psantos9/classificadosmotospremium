@@ -363,6 +363,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
 
   async removeImagem(params: { adId: number, imageKey: string }) {
     const { adId, imageKey } = params
+    console.log('IMAGE KEY', imageKey, btoa(imageKey))
     const anuncio = await this.axios.delete<Anuncio>(`/api/v1/ads/${adId}/images/${btoa(imageKey)}`)
       .then(({ data }) => data)
     return anuncio
