@@ -121,10 +121,10 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const [anuncio = null] = await db.update(schema.anuncio).set({ fotos: novasFotos }).where(and(eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId))).limit(1).returning()
     return anuncio
   })
-  .delete('/:adId/images/:imageKey', async (req, env) => {
+  .delete('/:adId/images/:b64ImageKey', async (req, env) => {
     const userId = req.userId
     const adId = z.coerce.number().parse(req.params.adId)
-    const imageKey = z.string().parse(req.params.imageKey)
+    const imageKey = z.string().parse(atob(req.params.b64ImageKey))
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
     let [anuncio = null] = await db.select().from(schema.anuncio).where(and(...filters)).limit(1)
@@ -135,8 +135,8 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
       return error(400, 'o anúncio tem de ter pelo menos uma foto')
     }
 
-    if (await env.AD_IMAGES_BUCKET.head(atob(imageKey)) !== null) {
-      await env.AD_IMAGES_BUCKET.delete(atob(imageKey))
+    if (await env.AD_IMAGES_BUCKET.head(imageKey) !== null) {
+      await env.AD_IMAGES_BUCKET.delete(imageKey)
     }
     const idx = anuncio.fotos.indexOf(imageKey)
     if (idx < 0) {
