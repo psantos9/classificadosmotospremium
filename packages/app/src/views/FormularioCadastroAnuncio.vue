@@ -566,18 +566,6 @@ const uploadPhotos = async (files: FileList) => {
   }
 }
 
-/*
-const handleImageEvent = (event: IImageUploadEvent) => {
-  const _anuncio = unref(anuncio)
-  if (_anuncio === null) {
-    return
-  }
-
-  const { imageKey, url, progress } = event
-  unref(photoUploadIndex)[imageKey] = { url, progress: progress.progress ?? 0 }
-}
-  */
-
 watch(marca, () => atualizaModelos())
 watch(modelo, () => atualizaAnosModelo())
 
