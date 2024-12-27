@@ -333,45 +333,37 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncios
   }
 
-  async uploadImages(params: { adId: number, files: FileList, onUploadProgress?: (params: IImageUploadEvent) => void }): Promise<Anuncio> {
-    const { adId, files, onUploadProgress } = params
+  async uploadImages(params: { adId: number, files: FileList, onUploadProgress?: (event: AxiosProgressEvent) => void, onPreviewIndex?: (index: { [imageKey: string]: string }) => void }): Promise<Anuncio> {
+    const { adId, files, onUploadProgress, onPreviewIndex } = params
+    const previewIndex: { [imageKey: string ]: string } = {}
     const formData = new FormData()
-    Array.from(files).forEach((file, i) => {
+    let i = 0
+
+    for (const file of files) {
       formData.append(`file[${i}]`, file)
-    })
-    const anuncio = await this.axios.post<Anuncio>(
-      `/api/v1/ads/${adId}/images`,
-      formData,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' }
-        // onUploadProgress: event => onUploadProgress?.({ imageKey, url, sha256, ext, file, progress: event })
-      }
-    ).then(({ data }) => data)
-    return anuncio
+      const ext = mimeDB[file.type]?.extensions?.[0] ?? ''
+      const sha256 = await computeFileHash(file)
+      const url = URL.createObjectURL(file)
+      const imageKey = getImageStorageKey({ adId, file: { sha256, ext } })
+      previewIndex[imageKey] = url
+      i++
+    }
+    onPreviewIndex?.(previewIndex)
+    try {
+      const anuncio = await this.axios.post<Anuncio>(
+        `/api/v1/ads/${adId}/images`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          onUploadProgress: event => onUploadProgress?.(event)
+        }
+      ).then(({ data }) => data)
+      return anuncio
+    }
+    finally {
+      onPreviewIndex?.({})
+    }
   }
-
-  /*
-  private async uploadImage(params: { adId: number, file: File, onUploadProgress?: (params: IImageUploadEvent) => void }) {
-    const { adId, file, onUploadProgress } = params
-
-    const ext = mimeDB[file.type]?.extensions?.[0] ?? ''
-    const sha256 = await computeFileHash(file)
-    const url = URL.createObjectURL(file)
-    const imageKey = getImageStorageKey({ adId, file: { sha256: '123', ext: '' } })
-
-    const formData = new FormData()
-    formData.append(`file[0]`, file)
-    const anuncio = await this.axios.post<Anuncio>(
-      `/api/v1/ads/${adId}/images`,
-      formData,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: event => onUploadProgress?.({ imageKey, url, sha256, ext, file, progress: event })
-      }
-    ).then(({ data }) => data)
-    return anuncio
-  }
-    */
 
   async removeImagem(params: { adId: number, imageKey: string }) {
     const { adId, imageKey } = params

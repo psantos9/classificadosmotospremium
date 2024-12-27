@@ -26,50 +26,22 @@
 </template>
 
 <script lang="ts" setup>
-import type { IImageUploadEvent } from '@/composables/api-client'
-import type { Anuncio } from '@cmp/shared/models/database/schema'
-import { useApp } from '@/composables/useApp'
 import { ALLOWED_IMAGE_MIME_TYPES as allowedMimeTypes } from '@cmp/shared/constants'
 import { faImage } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { ref, toRefs, unref } from 'vue'
-import { useToast } from 'vue-toast-notification'
+import { ref } from 'vue'
 
-const props = defineProps<{ anuncio: Anuncio }>()
-
+defineProps<{ uploading?: boolean }>()
 const emit = defineEmits<{
-  (e: 'update', value: Anuncio): void
-  (e: 'image', value: IImageUploadEvent): void
-
+  (e: 'files', value: FileList): void
 }>()
-
 const fileUpload = ref<HTMLElement | null>(null)
-const done = ref(0)
-const uploading = ref(false)
-
-const { anuncio } = toRefs(props)
-const { api } = useApp()
-const toast = useToast()
 
 const handleFileUpload = async (evt: Event) => {
-  const adId = unref(anuncio).id
   const files = (evt.target as HTMLInputElement).files ?? null
   if (files === null) {
     return
   }
-
-  try {
-    uploading.value = true
-    const anuncioAtualizado = await api.uploadImages({ adId, files, onUploadProgress: event => emit('image', event) })
-    emit('update', anuncioAtualizado)
-  }
-  catch (err) {
-    toast.error('Ocorreu um erro ao carregar as images')
-    console.error(err)
-  }
-  finally {
-    uploading.value = false
-    done.value = 0
-  }
+  emit('files', files)
 }
 </script>
