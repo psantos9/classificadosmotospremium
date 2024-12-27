@@ -77,6 +77,11 @@ binding = "AD_IMAGES_BUCKET"
 bucket_name = "cmp-ad-images-preview"
 preview_bucket_name = "cmp-ad-images-preview"
 
+[[env.preview.workflows]]
+name = "workflow-ad-review"
+binding = "AD_REVIEW_WORKFLOW"
+class_name = "AdReviewWorkflow"
+
 # PRODUCTION
 [env.production]
 name = "cmp-api"
@@ -103,6 +108,10 @@ binding = "AD_IMAGES_BUCKET"
 bucket_name = "cmp-ad-images"
 preview_bucket_name = "cmp-ad-images-preview"
 
+[[env.production.workflows]]
+name = "workflow-ad-review"
+binding = "AD_REVIEW_WORKFLOW"
+class_name = "AdReviewWorkflow"
 
 
 # Automatically place your workloads in an optimal location to minimize latency.
