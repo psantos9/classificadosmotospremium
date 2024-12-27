@@ -471,11 +471,21 @@ const removeAnuncio = async () => {
 }
 
 const removeFoto = async (imageKey: string) => {
-  const _adId = unref(adId)
-  if (_adId === null) {
+  const _ad = unref(anuncio)
+  if (_ad === null) {
     return
   }
-  anuncio.value = await api.removeImagem({ adId: _adId, imageKey })
+  const { id: adId, fotos } = _ad
+
+  const fotosOriginais = [...fotos]
+  try {
+    _ad.fotos = fotos.filter(foto => foto !== imageKey)
+    anuncio.value = await api.removeImagem({ adId, imageKey })
+  }
+  catch (err) {
+    _ad.fotos = fotosOriginais
+    throw err
+  }
 }
 
 const atualizaAnuncio = debounce(async (atualizacao: AtualizaAnuncio) => {
