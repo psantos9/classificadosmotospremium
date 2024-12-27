@@ -178,7 +178,7 @@
             </div>
             <button
               v-if="anuncio.fotos.length > 1"
-              class="opacity-0 group-hover:opacity-100 absolute top-0 right-0 rounded-full py-1 m-1 w-7 h-7 flex items-center justify-center bg-white hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] border hover:border-[var(--primary)] cursor-pointer transition-all"
+              class="opacity-0 group-hover:opacity-100 absolute top-0 right-0 rounded-full py-1 m-1 w-7 h-7 flex items-center justify-center bg-[var(--danger)] hover:bg-[var(--danger-lighter)] text-[var(--danger-text)] border border-[var(--danger)] cursor-pointer transition-all"
               @click="removeFoto(foto)"
             >
               <FontAwesomeIcon :icon="faTrash" size="sm" fixed-width />
@@ -248,7 +248,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { IImageUploadEvent } from '@/composables/api-client'
 import type { Marca, Modelo } from '@cmp/api/clients/fipe-api-client'
 import type { Acessorio, Anuncio, Cor, InformacaoAdicional } from '@cmp/shared/models/database/schema'
 import type { AxiosProgressEvent } from 'axios'

@@ -14,15 +14,6 @@ import mimeDB from 'mime-db'
 
 export const API_PERSISTENCE_KEY = 'CPM:SESSION'
 
-export interface IImageUploadEvent {
-  imageKey: string
-  url: string
-  sha256: string
-  ext: string
-  file: File
-  progress: AxiosProgressEvent
-}
-
 export class UnauthorizedError extends Error {
   constructor() {
     super('401 - Unauthorized')
