@@ -228,7 +228,7 @@
             :disabled="submitting || !meta.valid"
             @click="$router.push({ name: 'planos', params: { adId } })"
           >
-            Continuar
+            Publicar
             <FontAwesomeIcon :icon="submitting ? faSpinner : faArrowRight" size="lg" :spin="submitting" fixed-width />
           </button>
         </div>
