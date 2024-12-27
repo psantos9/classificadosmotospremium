@@ -179,7 +179,7 @@
             <button
               v-if="i > 0"
               class="opacity-0 group-hover:opacity-100 absolute top-0 right-0 rounded-full py-1 m-1 w-7 h-7 flex items-center justify-center bg-[var(--danger)] hover:bg-[var(--danger-lighter)] text-[var(--danger-text)] border border-[var(--danger)] cursor-pointer transition-all"
-              @click="photosToDelete.push(foto)"
+              @click="photosToDelete.push(foto); removeFotos()"
             >
               <FontAwesomeIcon :icon="faTrash" size="sm" fixed-width />
             </button>
@@ -621,8 +621,6 @@ watch(meta, (meta) => {
     }
   }
 })
-
-watch(photosToDelete, removeFotos, { deep: true })
 
 onBeforeRouteLeave((to, from, next) => {
   if (unref(submitting)) {
