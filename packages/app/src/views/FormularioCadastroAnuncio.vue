@@ -466,7 +466,7 @@ const setAdState = async (ad: Anuncio | null) => {
 const removeAnuncio = async () => {
   const _adId = unref(adId)
   if (_adId !== null) {
-    await api.removeAnuncio(_adId)
+    api.removeAnuncio(_adId)
     await router.back()
   }
 }
