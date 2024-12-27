@@ -372,6 +372,13 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncio
   }
 
+  async removeImagens(params: { adId: number, imageKeys: string[] }) {
+    const { adId, imageKeys } = params
+    const anuncio = await this.axios.put<Anuncio>(`/api/v1/ads/${adId}/images/delete`, imageKeys)
+      .then(({ data }) => data)
+    return anuncio
+  }
+
   getImageUrl(imageKey: string) {
     let baseURL = ''
     switch (import.meta.env.MODE) {

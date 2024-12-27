@@ -121,6 +121,26 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const [anuncio = null] = await db.update(schema.anuncio).set({ fotos: novasFotos }).where(and(eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId))).limit(1).returning()
     return anuncio
   })
+  .put('/:adId/images/delete', async (req, env) => {
+    const userId = req.userId
+    const adId = z.coerce.number().parse(req.params.adId)
+    const imageKeys = z.array(z.string()).parse(await req.json())
+    const db = getDb(env.DB)
+    const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
+    let [anuncio = null] = await db.select().from(schema.anuncio).where(and(...filters)).limit(1)
+    if (anuncio === null) {
+      return error(404, 'anúncio não encontrado')
+    }
+    const fotos = anuncio.fotos
+    const imagesToDelete = imageKeys.filter(imageKey => fotos.includes(imageKey))
+    const imagesToKeep = fotos.filter(foto => !imagesToDelete.includes(foto))
+    if (imagesToKeep.length === 0) {
+      return error(400, 'o anúncio tem de ter pelo menos uma foto')
+    }
+    await env.AD_IMAGES_BUCKET.delete(imagesToDelete)
+    ;[anuncio] = await db.update(schema.anuncio).set({ fotos: imagesToKeep }).where(and(...filters)).limit(1).returning()
+    return anuncio
+  })
   .delete('/:adId/images/:b64ImageKey', async (req, env) => {
     const userId = req.userId
     const adId = z.coerce.number().parse(req.params.adId)
