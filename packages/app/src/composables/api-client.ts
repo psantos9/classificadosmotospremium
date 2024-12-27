@@ -5,11 +5,23 @@ import type { AtualizaCadastro } from '@cmp/shared/models/atualiza-cadastro'
 import type { Acessorio, Anuncio, Cadastro, Cor, InformacaoAdicional } from '@cmp/shared/models/database/schema'
 import type { NovoCadastro } from '@cmp/shared/models/novo-cadastro'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
+import { computeFileHash } from '@/helpers/computeFileSha256'
+import { getImageStorageKey } from '@cmp/api/helpers/get-image-storage-key'
 import axios, { type Axios, AxiosError, type AxiosProgressEvent } from 'axios'
 import Emittery from 'emittery'
 import { decodeJwt } from 'jose'
+import mimeDB from 'mime-db'
 
 export const API_PERSISTENCE_KEY = 'CPM:SESSION'
+
+export interface IImageUploadEvent {
+  imageKey: string
+  url: string
+  sha256: string
+  ext: string
+  file: File
+  progress: AxiosProgressEvent
+}
 
 export class UnauthorizedError extends Error {
   constructor() {
@@ -321,21 +333,8 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncios
   }
 
-  async uploadImages(params: { adId: number, files: FileList, onUploadProgress?: (params: { total: number, loaded: number, done: number }) => Promise<void> | void }): Promise<Anuncio> {
-    const { adId, files } = params
-    const fileIndex = Array.from(files).reduce((accumulator: Record<string, number>, file) => {
-      accumulator[file.name] = file.size
-      return accumulator
-    }, {})
-    let loaded = 0
-
-    const onUploadProgress = (file: File, event: AxiosProgressEvent) => {
-      fileIndex[file.name] = event.total ?? 0
-      loaded += event.loaded
-      const totalUploadSize = Object.values(fileIndex).reduce((accumulator, size) => accumulator += size, 0)
-      void params.onUploadProgress?.({ total: totalUploadSize, loaded, done: loaded / totalUploadSize })
-    }
-
+  async uploadImages(params: { adId: number, files: FileList, onUploadProgress?: (params: IImageUploadEvent) => void }): Promise<Anuncio> {
+    const { adId, files, onUploadProgress } = params
     let anuncio: Anuncio | null = null
     for (const file of files) {
       anuncio = await this.uploadImage({ adId, file, onUploadProgress })
@@ -346,8 +345,14 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncio
   }
 
-  private async uploadImage(params: { adId: number, file: File, onUploadProgress?: (file: File, progressEvent: AxiosProgressEvent) => void }) {
+  private async uploadImage(params: { adId: number, file: File, onUploadProgress?: (params: IImageUploadEvent) => void }) {
     const { adId, file, onUploadProgress } = params
+
+    const ext = mimeDB[file.type]?.extensions?.[0] ?? ''
+    const sha256 = await computeFileHash(file)
+    const url = URL.createObjectURL(file)
+    const imageKey = getImageStorageKey({ adId, file: { sha256: '123', ext: '' } })
+
     const formData = new FormData()
     formData.append(`file[0]`, file)
     const anuncio = await this.axios.post<Anuncio>(
@@ -355,7 +360,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: event => onUploadProgress?.(file, event)
+        onUploadProgress: event => onUploadProgress?.({ imageKey, url, sha256, ext, file, progress: event })
       }
     ).then(({ data }) => data)
     return anuncio

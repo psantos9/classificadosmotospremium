@@ -29,7 +29,9 @@
 </template>
 
 <script lang="ts" setup>
+import type { IImageUploadEvent } from '@/composables/api-client'
 import type { Anuncio } from '@cmp/shared/models/database/schema'
+import type { AxiosProgressEvent } from 'axios'
 import { useApp } from '@/composables/useApp'
 import { ALLOWED_IMAGE_MIME_TYPES as allowedMimeTypes } from '@cmp/shared/constants'
 import { faImage } from '@fortawesome/free-solid-svg-icons'
@@ -39,7 +41,11 @@ import { useToast } from 'vue-toast-notification'
 
 const props = defineProps<{ anuncio: Anuncio }>()
 
-const emit = defineEmits<{ (e: 'update', anuncio: Anuncio): void }>()
+const emit = defineEmits<{
+  (e: 'update', value: Anuncio): void
+  (e: 'image', value: IImageUploadEvent): void
+
+}>()
 
 const fileUpload = ref<HTMLElement | null>(null)
 const done = ref(0)
@@ -49,24 +55,16 @@ const { anuncio } = toRefs(props)
 const { api } = useApp()
 const toast = useToast()
 
-const onUploadProgress = (params: { total: number, loaded: number, done: number }) => {
-  done.value = params.done
-  if (unref(done) === 1) {
-    setTimeout(() => {
-      done.value = 0
-    }, 200)
-  }
-}
-
 const handleFileUpload = async (evt: Event) => {
   const adId = unref(anuncio).id
   const files = (evt.target as HTMLInputElement).files ?? null
   if (files === null) {
     return
   }
+
   try {
     uploading.value = true
-    const anuncioAtualizado = await api.uploadImages({ adId, files, onUploadProgress })
+    const anuncioAtualizado = await api.uploadImages({ adId, files, onUploadProgress: event => emit('image', event) })
     emit('update', anuncioAtualizado)
   }
   catch (err) {

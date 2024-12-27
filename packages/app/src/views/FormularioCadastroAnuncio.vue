@@ -162,7 +162,7 @@
       </div>
       <div v-if="anuncio !== null" class="card-section">
         <span class="title">Fotos</span>
-        <ImageUpload :anuncio="anuncio" @update="anuncio = $event" />
+        <ImageUpload :anuncio="anuncio" @update="anuncio = $event" @image="handleImageEvent" />
         <div class="grid grid-cols-1 gap-4 md:grid-cols-4 items-start justify-center">
           <div
             v-for="(foto, i) in anuncio.fotos"
@@ -197,6 +197,15 @@
             >
               <FontAwesomeIcon :icon="faArrowRight" size="sm" fixed-width />
             </button>
+          </div>
+          <div
+            v-for="([photoKey, { url, progress }]) in Object.entries(photoUploadIndex).filter(([photoKey]) => !anuncio?.fotos.includes(photoKey))" :key="photoKey"
+            class="group rounded-md overflow-hidden data-[index=0]:col-span-2 data-[index=0]:row-span-2 h-full flex items-center justify-center relative bg-black cursor-pointer shadow data-[dragover]:scale-105 transition-all"
+          >
+            <img :src="url" class="aspect-video">
+            <div v-if="progress < 1" class="absolute inset text-white w-full h-full flex items-center justify-center bg-black/50 transition-colors">
+              <FontAwesomeIcon :icon="faSpinner" size="lg" spin />
+            </div>
           </div>
         </div>
 
@@ -239,12 +248,12 @@
 </template>
 
 <script lang="ts" setup>
+import type { IImageUploadEvent } from '@/composables/api-client'
 import type { Marca, Modelo } from '@cmp/api/clients/fipe-api-client'
 import type { Acessorio, Anuncio, Cor, InformacaoAdicional } from '@cmp/shared/models/database/schema'
 import Combobox from '@/components/Combobox.vue'
 import ImageUpload from '@/components/ImageUpload.vue'
 import { useApp } from '@/composables/useApp'
-import { NOVO_ANUNCIO_ID } from '@/router'
 import { type AtualizaAnuncio, getAtualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
 import { faArrowLeft, faArrowRight, faExclamationTriangle, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -308,6 +317,7 @@ const acessorios = ref<number[]>([])
 const informacoesAdicionais = ref<number[]>([])
 
 const fotos = ref<string[]>([])
+const photoUploadIndex = ref<{ [photoKey: string]: { url: string, progress: number, error?: string } }>({})
 
 const atualizaMarcas = async () => {
   try {
@@ -527,6 +537,16 @@ const swapFotos = async (foto1: string, foto2: string) => {
   setFieldValue('fotos', fotos)
   const atualizacao = getAtualizaAnuncioSchema().parse(unref(values))
   await atualizaAnuncio(atualizacao)
+}
+
+const handleImageEvent = (event: IImageUploadEvent) => {
+  const _anuncio = unref(anuncio)
+  if (_anuncio === null) {
+    return
+  }
+
+  const { imageKey, url, progress } = event
+  unref(photoUploadIndex)[imageKey] = { url, progress: progress.progress ?? 0 }
 }
 
 watch(marca, () => atualizaModelos())
