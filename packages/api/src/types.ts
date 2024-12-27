@@ -12,5 +12,5 @@ export interface Env {
 export type CF = [env: Env, context: ExecutionContext]
 
 export interface IAppAuthenticatedRequest extends IRequest {
-  userId: string
+  userId: number
 }

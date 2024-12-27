@@ -3,15 +3,14 @@ import type { AnuncioStatus } from '@cmp/shared/models/anuncio-status'
 import type { Anuncio } from '@cmp/shared/models/database/schema'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
 import { fetchAdImageKeys } from '@/helpers/fetch-all-ads-image-keys'
+import { getDb } from '@/helpers/get-db'
 import { getImageStorageKey } from '@/helpers/get-image-storage-key'
 import { sha256 } from '@cmp/api/helpers/shsa256'
 import { ALLOWED_IMAGE_MIME_TYPES as allowedImageMimeTypes } from '@cmp/shared/constants'
 import { anuncioStatusSchema } from '@cmp/shared/models/anuncio-status'
 import { getAtualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
 import { schema } from '@cmp/shared/models/database/schema'
-import { and, eq, sql, type SQL } from 'drizzle-orm'
-
-import { drizzle } from 'drizzle-orm/d1'
+import { and, eq, type SQL } from 'drizzle-orm'
 import { AutoRouter, error, status, StatusError } from 'itty-router'
 import { z } from 'zod'
 
@@ -23,7 +22,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const userId = req.userId
     const url = new URL(req.url)
     const statusParam = (url.searchParams.get('status') ?? '') as AnuncioStatus
-    const db = drizzle(env.DB, { schema })
+    const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId)]
     if (anuncioStatusSchema.options.includes(statusParam as AnuncioStatus)) {
       filters.push(eq(schema.anuncio.status, statusParam))
@@ -31,10 +30,10 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const anuncios = await db.select().from(schema.anuncio).where(and(...filters))
     return anuncios
   })
-  .get('/:b64AdId', async (req, env) => {
+  .get('/:adId', async (req, env) => {
     const userId = req.userId
-    const adId = z.string().uuid().parse(atob(req.params.b64AdId))
-    const db = drizzle(env.DB, { schema })
+    const adId = z.coerce.number().parse(req.params.adId)
+    const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
     const [anuncio = null] = await db.select().from(schema.anuncio).where(and(...filters)).limit(1)
     return anuncio
@@ -42,24 +41,24 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   .post('/', async (req, env) => {
     const userId = req.userId
     const anuncio = getAtualizaAnuncioSchema().parse(await req.json())
-    const db = drizzle(env.DB, { schema })
+    const db = getDb(env.DB)
     const [row] = await db.insert(schema.anuncio).values({ ...anuncio, userId }).returning()
     const novoAnuncio: Anuncio = row
     return novoAnuncio
   })
-  .put('/:b64AdId', async (req, env) => {
+  .put('/:adId', async (req, env) => {
     const userId = req.userId
-    const adId = z.string().uuid().parse(atob(req.params.b64AdId))
+    const adId = z.coerce.number().parse(req.params.adId)
     const atualizacao = getAtualizaAnuncioSchema().parse(await req.json())
-    const db = drizzle(env.DB, { schema })
+    const db = getDb(env.DB)
     const [row = null] = await db.update(schema.anuncio).set({ ...atualizacao }).where(and(eq(schema.anuncio.id, adId), eq(schema.anuncio.userId, userId))).limit(1).returning()
     const novoAnuncio: Anuncio | null = row
     return novoAnuncio === null ? error(404, 'anúncio não encontrado') : novoAnuncio
   })
-  .delete('/:b64AdId', async (req, env) => {
+  .delete('/:adId', async (req, env) => {
     const userId = req.userId
-    const adId = z.string().uuid().parse(atob(req.params.b64AdId))
-    const db = drizzle(env.DB, { schema })
+    const adId = z.coerce.number().parse(req.params.adId)
+    const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
     const [anuncio = null] = await db.select().from(schema.anuncio).where(and(...filters)).limit(1)
     if (anuncio === null) {
@@ -75,14 +74,14 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     await db.delete(schema.anuncio).where(and(...filters))
     return status(204)
   })
-  .post('/:b64AdId/images', async (req, env) => {
+  .post('/:adId/images', async (req, env) => {
     const userId = req.userId
-    const adId = z.string().uuid('bad adId').parse(atob(req.params.b64AdId))
+    const adId = z.coerce.number().parse(req.params.adId)
     const contentType = req.headers.get('Content-Type')
     if (!contentType?.match(/multipart\/form-data/)) {
       throw new StatusError(415)
     }
-    const db = drizzle(env.DB, { schema })
+    const db = getDb(env.DB)
     const [row = null] = await db.select({ fotos: schema.anuncio.fotos }).from(schema.anuncio).where(and(eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId))).limit(1)
     if (row === null) {
       return error(404, 'não é possivel adicionar imagens ao anuncio')
@@ -121,11 +120,11 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const [anuncio = null] = await db.update(schema.anuncio).set({ fotos: novasFotos }).where(and(eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId))).limit(1).returning()
     return anuncio
   })
-  .delete('/:b64AdId/images/:imageKey', async (req, env) => {
+  .delete('/:adId/images/:imageKey', async (req, env) => {
     const userId = req.userId
-    const adId = z.string().uuid().parse(atob(req.params.b64AdId))
+    const adId = z.coerce.number().parse(atob(req.params.adId))
     const imageKey = z.string().parse(req.params.imageKey)
-    const db = drizzle(env.DB, { schema })
+    const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
     let [anuncio = null] = await db.select().from(schema.anuncio).where(and(...filters)).limit(1)
     if (anuncio === null) {

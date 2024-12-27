@@ -1,11 +1,11 @@
 import type { Env, IAppAuthenticatedRequest } from '@/types'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
+import { getDb } from '@/helpers/get-db'
 import { atualizaCadastroSchema } from '@cmp/shared/models/atualiza-cadastro'
 import { schema } from '@cmp/shared/models/database/schema'
 import { passwordSchema } from '@cmp/shared/models/novo-cadastro'
 import bcrypt from 'bcryptjs'
 import { eq } from 'drizzle-orm'
-import { drizzle } from 'drizzle-orm/d1'
 import { AutoRouter, error, json, StatusError } from 'itty-router'
 import { z } from 'zod'
 
@@ -20,8 +20,8 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
 })
   .get('/:userId?', async (req, env) => {
     const authenticatedUserId = req.userId
-    const db = drizzle(env.DB, { schema })
-    const userId = req.params.userId ? z.string().uuid().parse(atob(req.params.userId)) : authenticatedUserId
+    const db = getDb(env.DB)
+    const userId = req.params.userId ? z.coerce.number().parse(req.params.userId) : authenticatedUserId
 
     if (authenticatedUserId !== userId) {
       const cadastroDB = await db.query.cadastro.findFirst({ where: (cadastro, { eq }) => eq(cadastro.id, userId) }) ?? null
@@ -42,7 +42,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   })
   .put('/password', async (req, env) => {
     const authenticatedUserId = req.userId
-    const db = drizzle(env.DB, { schema })
+    const db = getDb(env.DB)
 
     const senhas = bodyPasswordSchema.parse(await req.json())
     let cadastroDB = await db.query.cadastro.findFirst({ where: (cadastro, { eq }) => eq(cadastro.id, authenticatedUserId) }) ?? null
@@ -63,8 +63,8 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   })
   .put('/:userId', async (req, env) => {
     const authenticatedUserId = req.userId
-    const db = drizzle(env.DB, { schema })
-    const userId = z.string().uuid().parse(atob(req.params.userId))
+    const db = getDb(env.DB)
+    const userId = z.coerce.number().parse(req.params.userId)
 
     if (authenticatedUserId !== userId) {
       const cadastroDB = await db.query.cadastro.findFirst({ where: (cadastro, { eq }) => eq(cadastro.id, userId) }) ?? null

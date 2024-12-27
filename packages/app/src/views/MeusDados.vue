@@ -265,7 +265,7 @@ const $toast = useToast()
 const { api } = useApp()
 const router = useRouter()
 
-const cadastroId = ref('')
+const cadastroId = ref<number | null>(null)
 const originalHash = ref('')
 const skipCepCheck = ref(true)
 const submitting = ref(false)
@@ -325,12 +325,16 @@ const tipoEntidade = computed(() => {
 })
 
 const submit = async () => {
+  const id = unref(cadastroId)
+  if (!id) {
+    return
+  }
   const { valid } = await validate()
   if (valid) {
     const cadastro = JSON.parse(JSON.stringify(unref(values)))
     try {
       submitting.value = true
-      const cadastroAtualizado = await api.atualizaCadastro({ id: unref(cadastroId), cadastro })
+      const cadastroAtualizado = await api.atualizaCadastro({ id, cadastro })
       await syncCadastro(cadastroAtualizado)
       $toast.success('Dados atualizados com sucesso')
       router.push({ name: 'minha-conta' })

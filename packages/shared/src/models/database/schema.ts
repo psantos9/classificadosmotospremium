@@ -16,9 +16,10 @@ export const anuncioStatusType = customType<{ data: AnuncioStatus, notNull: true
 })
 
 export const cadastro = sqliteTable('cadastro', {
-  id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: integer().primaryKey({ autoIncrement: true }),
   createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
+  locked: integer({ mode: 'boolean' }).$defaultFn(() => false),
   cpfCnpj: text().notNull().unique(),
   nomeRazaoSocial: text().notNull(),
   nomeFantasia: text(),
@@ -53,11 +54,12 @@ export const informacaoAdicional = sqliteTable('informacao_adicional', () => ({
 }), _t => [])
 
 export const anuncio = sqliteTable('anuncio', () => ({
-  id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: integer().primaryKey({ autoIncrement: true }),
   createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
+  expiresAt: integer({ mode: 'timestamp' }),
   publishedAt: integer({ mode: 'timestamp' }),
-  userId: text().references(() => cadastro.id, { onDelete: 'cascade' }).notNull(),
+  userId: integer().notNull().references(() => cadastro.id, { onDelete: 'cascade' }),
   status: anuncioStatusType().notNull().default(anuncioStatusSchema.enum.draft),
   codigoFipe: text().notNull(),
   marca: text().notNull(),

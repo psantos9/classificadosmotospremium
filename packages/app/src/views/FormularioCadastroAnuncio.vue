@@ -262,7 +262,7 @@ const route = useRoute()
 const { api } = useApp()
 const toast = useToast()
 
-const adId = ref<string | null>(null)
+const adId = ref<number | null>(null)
 const anuncio = ref<Anuncio | null>(null)
 
 const cores = ref<Cor[]>([])
@@ -611,7 +611,8 @@ const init = async () => {
 }
 
 watch(route, (route) => {
-  adId.value = (typeof route.params.adId !== 'string' || route.params.adId === NOVO_ANUNCIO_ID) ? null : route.params.adId as string
+  const _adId = Number.parseInt(route.params.adId as string)
+  adId.value = Number.isNaN(_adId) ? null : _adId
   void init()
 }, { immediate: true })
 </script>

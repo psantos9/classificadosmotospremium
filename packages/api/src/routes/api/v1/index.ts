@@ -1,16 +1,16 @@
 import type { CF, Env, IAppAuthenticatedRequest } from '@/types'
+import { getDb } from '@/helpers/get-db'
 import { getBearerToken } from '@/helpers/getBearerToken'
 import { authenticateRequest } from '@/middleware/authenticate-request'
 import { router as adsRouter } from '@cmp/api/routes/api/v1/ads'
 import { router as fipeRouter } from '@cmp/api/routes/api/v1/fipe'
 import { router as imagesRouter } from '@cmp/api/routes/api/v1/images'
 import { router as usersRouter } from '@cmp/api/routes/api/v1/users'
-import { type NovoCadastro, schema } from '@cmp/shared/models/database/schema'
+import { schema } from '@cmp/shared/models/database/schema'
 import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
 import { type OpenCEP, openCEPSchema } from '@cmp/shared/models/open-cep'
 import bcrypt from 'bcryptjs'
 import { sql } from 'drizzle-orm'
-import { drizzle } from 'drizzle-orm/d1'
 import { AutoRouter, type IRequest, json, StatusError } from 'itty-router'
 import { z, ZodError } from 'zod'
 
@@ -51,7 +51,7 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     }
   })
   .post<IRequest, [Env, ExecutionContext]>('/login/check', async (req, env) => {
-    const db = drizzle(env.DB, { schema })
+    const db = getDb(env.DB)
 
     const bodySchema = z.object({ email: z.string().email() })
     try {
@@ -83,19 +83,12 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     }
   })
   .post<IRequest, [Env, ExecutionContext]>('/signup', async (req, env) => {
-    const db = drizzle(env.DB, { schema })
+    const db = getDb(env.DB)
     try {
       const novoCadastro = novoCadastroSchema.parse(await req.json())
       const password: string = bcrypt.hashSync(novoCadastro.password, 10)
 
-      const _cadastro: NovoCadastro = {
-        id: crypto.randomUUID(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        ...novoCadastro,
-        password
-      }
-      await db.insert(schema.cadastro).values(_cadastro).returning({ userId: schema.cadastro.id })
+      await db.insert(schema.cadastro).values({ ...novoCadastro, password }).returning({ userId: schema.cadastro.id })
       const bearerToken = await getBearerToken({ email: novoCadastro.email, password: novoCadastro.password, db: env.DB, apiSecret: env.API_SECRET })
       return json({ bearerToken })
     }

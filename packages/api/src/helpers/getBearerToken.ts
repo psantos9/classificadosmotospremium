@@ -18,7 +18,7 @@ export const getBearerToken = async (params: { email: string, password: string, 
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setIssuer(TOKEN_ISSUER)
-    .setSubject(cadastro.id)
+    .setSubject(cadastro.id.toString())
     .setExpirationTime(MAX_TOKEN_AGE)
     .sign(new TextEncoder().encode(apiSecret))
   return bearerToken

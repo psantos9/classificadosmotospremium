@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const imageR2KeySchema = z.object({ userId: z.string().uuid(), adId: z.string().uuid(), sha256: z.string().optional() })
+const imageR2KeySchema = z.object({ userId: z.number(), adId: z.number(), sha256: z.string().optional() })
 export type ImageKeyParams = z.infer<typeof imageR2KeySchema>
 
 export class InvalidImageKey extends Error {
@@ -12,7 +12,7 @@ export class InvalidImageKey extends Error {
 
 export const getImageStorageKey = (params: ImageKeyParams) => {
   const { userId, adId, sha256 } = imageR2KeySchema.parse(params)
-  const keyParams: string[] = [userId, adId]
+  const keyParams: Array<number | string> = [userId, adId]
   if (sha256) {
     keyParams.push(sha256)
   }

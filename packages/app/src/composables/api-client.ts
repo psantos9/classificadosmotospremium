@@ -181,9 +181,9 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     await this.emit(APIClientEvent.SIGNED_IN, true)
   }
 
-  async atualizaCadastro(params: { id: string, cadastro: AtualizaCadastro }) {
+  async atualizaCadastro(params: { id: number, cadastro: AtualizaCadastro }) {
     const { id, cadastro } = params
-    const cadastroAtualizado = await this.axios.put<Omit<Cadastro, 'password'>>(`/api/v1/users/${btoa(id)}`, cadastro)
+    const cadastroAtualizado = await this.axios.put<Omit<Cadastro, 'password'>>(`/api/v1/users/${id}`, cadastro)
       .then(({ data }) => data)
       .catch((err) => {
         if (err instanceof AxiosError && err.status === 409) {
@@ -295,20 +295,20 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return novoAnuncio
   }
 
-  async atualizaAnuncio(id: string, anuncio: AtualizaAnuncio) {
-    const anuncioAtualizado = await this.axios.put<unknown>(`/api/v1/ads/${btoa(id)}`, anuncio)
+  async atualizaAnuncio(adId: number, anuncio: AtualizaAnuncio) {
+    const anuncioAtualizado = await this.axios.put<Anuncio>(`/api/v1/ads/${adId}`, anuncio)
       .then(({ data }) => data)
     return anuncioAtualizado
   }
 
-  async fetchAnuncio(id: string) {
-    const anuncio = await this.axios.get<Anuncio | null>(`/api/v1/ads/${btoa(id)}`)
+  async fetchAnuncio(adId: number) {
+    const anuncio = await this.axios.get<Anuncio | null>(`/api/v1/ads/${adId}`)
       .then(({ data }) => data)
     return anuncio
   }
 
-  async removeAnuncio(id: string) {
-    await this.axios.delete(`/api/v1/ads/${btoa(id)}`)
+  async removeAnuncio(adId: number) {
+    await this.axios.delete(`/api/v1/ads/${adId}`)
   }
 
   async fetchAnuncios(params?: { status?: AnuncioStatus }) {
@@ -321,7 +321,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncios
   }
 
-  async uploadImages(params: { adId: string, files: FileList, onUploadProgress?: (params: { total: number, loaded: number, done: number }) => Promise<void> | void }): Promise<Anuncio> {
+  async uploadImages(params: { adId: number, files: FileList, onUploadProgress?: (params: { total: number, loaded: number, done: number }) => Promise<void> | void }): Promise<Anuncio> {
     const { adId, files } = params
     const fileIndex = Array.from(files).reduce((accumulator: Record<string, number>, file) => {
       accumulator[file.name] = file.size
@@ -346,12 +346,12 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncio
   }
 
-  private async uploadImage(params: { adId: string, file: File, onUploadProgress?: (file: File, progressEvent: AxiosProgressEvent) => void }) {
+  private async uploadImage(params: { adId: number, file: File, onUploadProgress?: (file: File, progressEvent: AxiosProgressEvent) => void }) {
     const { adId, file, onUploadProgress } = params
     const formData = new FormData()
     formData.append(`file[0]`, file)
     const anuncio = await this.axios.post<Anuncio>(
-      `/api/v1/ads/${btoa(adId)}/images`,
+      `/api/v1/ads/${adId}/images`,
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -361,9 +361,9 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncio
   }
 
-  async removeImagem(params: { adId: string, imageKey: string }) {
+  async removeImagem(params: { adId: number, imageKey: string }) {
     const { adId, imageKey } = params
-    const anuncio = await this.axios.delete<Anuncio>(`/api/v1/ads/${btoa(adId)}/images/${imageKey}`)
+    const anuncio = await this.axios.delete<Anuncio>(`/api/v1/ads/${adId}/images/${imageKey}`)
       .then(({ data }) => data)
     return anuncio
   }

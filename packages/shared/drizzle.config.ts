@@ -4,5 +4,5 @@ export default defineConfig({
   out: './migrations',
   schema: './src/models/database/*.ts',
   dialect: 'sqlite',
-  casing: 'camelCase'
+  casing: 'snake_case'
 })

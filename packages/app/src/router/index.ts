@@ -18,8 +18,7 @@ const isSignedIn: NavigationGuardWithThis<any> = (to, from, next) => {
 
 const checkIfThereAreDraftAds: NavigationGuardWithThis<any> = async (to, from, next) => {
   const { api } = useApp()
-  const adId = to.params.adId
-  if (adId === undefined) {
+  if (to.params.adId === undefined) {
     const drafts = await api.fetchAnuncios({ status: 'draft' })
     if (drafts.length > 0) {
       next({ name: 'rascunhos' })
@@ -28,11 +27,12 @@ const checkIfThereAreDraftAds: NavigationGuardWithThis<any> = async (to, from, n
       next()
     }
   }
-  else if (adId === NOVO_ANUNCIO_ID) {
+  const adId = Number.parseInt(to.params.adId as string)
+  if (Number.isNaN(adId)) {
     next()
   }
   else {
-    const ad = await api.fetchAnuncio(adId as string)
+    const ad = await api.fetchAnuncio(adId)
     if (ad == null) {
       to.params.adId = 'novo'
     }

@@ -20,7 +20,7 @@ import { useRouter } from 'vue-router'
 const { api } = useApp()
 const router = useRouter()
 
-const adId = unref(router.currentRoute).params.adId as string
+const adId = Number.parseInt(unref(router.currentRoute).params.adId as string)
 
 const anuncio = ref<Anuncio | null>(null)
 
