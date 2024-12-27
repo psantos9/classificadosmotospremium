@@ -524,6 +524,7 @@ const swapFotos = async (foto1: string, foto2: string) => {
     return
   }
   [fotos[index1], fotos[index2]] = [fotos[index2], fotos[index1]]
+  setFieldValue('fotos', fotos)
   const atualizacao = getAtualizaAnuncioSchema().parse(unref(values))
   await atualizaAnuncio(atualizacao)
 }
