@@ -20,11 +20,13 @@
     "drizzle-orm": "^0.38.2",
     "itty-router": "^5.0.18",
     "jose": "^5.9.6",
+    "mime-db": "^1.53.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.5.40",
     "@cloudflare/workers-types": "^4.20241218.0",
+    "@types/mime-db": "^1.43.5",
     "typescript": "^5.5.2",
     "wrangler": "^3.99.0"
   }

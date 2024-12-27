@@ -12,6 +12,7 @@ import { getAtualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
 import { schema } from '@cmp/shared/models/database/schema'
 import { and, eq, type SQL } from 'drizzle-orm'
 import { AutoRouter, error, status, StatusError } from 'itty-router'
+import mimeDB from 'mime-db'
 import { z } from 'zod'
 
 export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContext]>({
@@ -102,7 +103,8 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
           }
           const { type } = file
           const hash = await sha256(file)
-          const storageKey = getImageStorageKey({ adId, sha256: hash })
+          const ext = mimeDB[file.type].extensions?.[0] ?? ''
+          const storageKey = getImageStorageKey({ adId, file: { sha256: hash, ext } })
           if (await env.AD_IMAGES_BUCKET.head(storageKey) === null) {
             await env.AD_IMAGES_BUCKET.put(storageKey, await file.arrayBuffer(), {
               sha256: hash,
