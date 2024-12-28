@@ -515,16 +515,20 @@ const removeFotos = debounce(async () => {
   if (_ad === null) {
     return
   }
+  const _fotos = unref(fotos)
   const { id: adId } = _ad
   const imageKeys = [...unref(photosToDelete)]
   try {
     deleting++
-    const _anuncio = await api.removeImagens({ adId, imageKeys })
-    _ad.fotos = _ad.fotos.filter(foto => !imageKeys.includes(foto))
+    const ad = await api.removeImagens({ adId, imageKeys })
+    setAdState(ad)
+    /*
+    fotos.value = _fotos.filter(foto => !imageKeys.includes(foto))
     photosToDelete.value = unref(photosToDelete).filter(photo => !imageKeys.includes(photo))
     if (deleting === 1) {
       anuncio.value = _anuncio
     }
+      */
   }
   finally {
     deleting--
