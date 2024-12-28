@@ -170,9 +170,9 @@
             v-draggable="{ group: 'fotos', data: foto, dropCallback: (group: string, droppedFoto: string) => swapFotos(foto, droppedFoto) }"
             data-dragging-active="fotos"
             :data-index="i"
-            class="group rounded-md overflow-hidden data-[index=0]:col-span-2 data-[index=0]:row-span-2 h-full flex items-center justify-center relative cursor-pointer data-[dragover]:scale-105 transition-all"
+            class="group rounded-md overflow-hidden md:data-[index=0]:col-span-2 md:data-[index=0]:row-span-2 h-full flex items-center justify-center relative cursor-pointer data-[dragover]:scale-105 transition-all"
           >
-            <img :src="api.getImageUrl(foto)" class="aspect-video border border-gray-300 rounded-md">
+            <img :src="api.getImageUrl(foto)" class="border border-gray-300 rounded-md">
             <div class="absolute top-0 left-0 bg-white/90 text-xs rounded-md shadow px-2 py-1 m-1 font-light">
               {{ i === 0 ? 'Foto principal' : i + 1 }}
             </div>

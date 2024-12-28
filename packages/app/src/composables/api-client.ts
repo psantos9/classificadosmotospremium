@@ -260,7 +260,8 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
       { id: 6, label: 'Outra' },
       { id: 7, label: 'Prata' },
       { id: 8, label: 'Preto' },
-      { id: 9, label: 'Verde' }
+      { id: 9, label: 'Verde' },
+      { id: 10, label: 'Vermelho' }
     ]
     return cores
   }

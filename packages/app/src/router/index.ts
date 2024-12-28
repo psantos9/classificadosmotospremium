@@ -3,6 +3,7 @@ import type { NavigationGuardWithThis } from 'vue-router'
 import { useApp } from '@/composables/useApp'
 import HomeView from '@/views/HomeView.vue'
 import Identificacao from '@/views/Identificacao.vue'
+import Veiculos from '@/views/Veiculos.vue'
 import { unref } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -47,6 +48,11 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView as Component
+    },
+    {
+      path: '/veiculos',
+      name: 'veiculos',
+      component: Veiculos as Component
     },
     {
       path: '/identificacao',

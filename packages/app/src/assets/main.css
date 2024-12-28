@@ -9,7 +9,7 @@
   }
 
   .view-container {
-    @apply p-4 md:p-14 max-w-screen-2xl mx-auto;
+    @apply w-full md:p-14 md:container mx-auto;
   }
 
   .card {
