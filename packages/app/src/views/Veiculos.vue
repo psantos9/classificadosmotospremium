@@ -1,11 +1,11 @@
 <template>
-  <div class="flex-1 md:mt-16 md:container md:mx-auto flex flex-col items-center md:overflow-y-hidden">
+  <div class="flex-1 p-4 md:p-0 md:my-8 md:container md:mx-auto flex flex-col gap-8 items-center md:overflow-y-hidden">
     <div class="hidden md:block uppercase text-2xl font-black tracking-wide text-center">
       Anúncio de veículos
     </div>
-    <div class="w-full flex-1 md:grid md:grid-cols-[19rem_auto] gap-2 overflow-y-hidden">
+    <div class="w-full flex-1 md:grid md:grid-cols-[19rem_auto] gap-8 overflow-y-hidden">
       <!-- filtros -->
-      <div class="overflow-y-auto bg-white rounded-md hidden md:flex flex-col divide-y divide-gray-300 ">
+      <div class="overflow-y-auto bg-white shadow rounded-md hidden md:flex flex-col divide-y">
         <div class="flex flex-col items-center p-4 gap-2">
           <FontAwesomeIcon :icon="faFilter" size="2xl" class="text-[var(--primary)]" />
           <span class="uppercase font-black">Filtrar anúncios</span>
@@ -15,13 +15,11 @@
         <div>quilometragem veiculo</div>
         <div>Aplicad filtros</div>
       </div>
-      <div class="flex-1 bg-green-100 grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] gap-2 overflow-y-auto">
+      <div class="flex-1 grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] gap-4 overflow-y-auto">
         <div
           v-for="i in [...Array(20).keys()]" :key="i"
           class="grid-card"
-        >
-          {{ i }}
-        </div>
+        />
       </div>
     </div>
   </div>
@@ -34,6 +32,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 <style scoped>
 .grid-card {
-  @apply bg-red-100 h-[200px];
+  @apply bg-white shadow rounded-md h-[200px];
 }
 </style>
