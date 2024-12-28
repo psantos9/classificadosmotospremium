@@ -13,7 +13,13 @@ export default defineConfig(({ mode }) => {
 
   const config: UserConfig = {
     plugins: [
-      vue(),
+      vue({
+        template: {
+          compilerOptions: {
+            isCustomElement: tag => ['swiper-container', 'swiper-slide'].includes(tag)
+          }
+        }
+      }),
       vueDevTools()
     ],
     resolve: {
