@@ -19,6 +19,7 @@
         <VehicleCard
           v-for="anuncio in anuncios" :key="anuncio.id"
           :anuncio="anuncio"
+          @click="$router.push({ name: 'veiculo', params: { id: anuncio.id } })"
         />
       </div>
     </div>

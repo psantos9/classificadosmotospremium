@@ -12,7 +12,7 @@ import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
 import { type OpenCEP, openCEPSchema } from '@cmp/shared/models/open-cep'
 import bcrypt from 'bcryptjs'
 import { and, eq, sql } from 'drizzle-orm'
-import { AutoRouter, type IRequest, json, StatusError } from 'itty-router'
+import { AutoRouter, error, type IRequest, json, StatusError } from 'itty-router'
 import { z, ZodError } from 'zod'
 
 const loginSchema = z.object({
@@ -114,6 +114,16 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     const filters: SQL[] = [eq(schema.anuncio.status, 'published')]
     const anuncios = await db.select({ ...getPublicAdColumns() }).from(schema.anuncio).where(and(...filters))
     return anuncios
+  })
+  .get<IRequest, [Env, ExecutionContext]>('/anuncios/:id', async (req, env) => {
+    const id = z.coerce.number().int().parse(req.params.id)
+    const db = getDb(env.DB)
+    const filters: SQL[] = [eq(schema.anuncio.status, 'published'), eq(schema.anuncio.id, id)]
+    const [anuncio = null] = await db.select({ ...getPublicAdColumns() }).from(schema.anuncio).where(and(...filters)).limit(1)
+    if (anuncio === null) {
+      return error(404, 'anuncio nao encontrado')
+    }
+    return anuncio
   })
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/images/*', imagesRouter.fetch)
   .all<IRequest, CF>('*', authenticateRequest)

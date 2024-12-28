@@ -317,14 +317,14 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncioAtualizado
   }
 
-  async fetchAnuncio(adId: number) {
+  async removeAnuncio(adId: number) {
+    await this.axios.delete(`/api/v1/ads/${adId}`)
+  }
+
+  async fetchMeuAnuncio(adId: number) {
     const anuncio = await this.axios.get<Anuncio | null>(`/api/v1/ads/${adId}`)
       .then(({ data }) => data)
     return anuncio
-  }
-
-  async removeAnuncio(adId: number) {
-    await this.axios.delete(`/api/v1/ads/${adId}`)
   }
 
   async fetchMeusAnuncios(params?: { status?: AnuncioStatus }) {
@@ -342,6 +342,13 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     const anuncios = await this.axios.get<PublicAd[]>(pathname)
       .then(({ data }) => data)
     return anuncios
+  }
+
+  async fetchAnuncio(id: number) {
+    const pathname = `/api/v1/anuncios/${id}`
+    const anuncio = await this.axios.get<PublicAd>(pathname)
+      .then(({ data }) => data)
+    return anuncio
   }
 
   async uploadImages(params: { adId: number, files: FileList, adImageKeys?: string[], onUploadProgress?: (event: AxiosProgressEvent) => void, onPreviewIndex?: (index: { [imageKey: string]: string }) => void }): Promise<Anuncio> {
@@ -362,7 +369,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
       i++
     }
     if (Array.from(formData.keys()).length === 0) {
-      const anuncio = await this.fetchAnuncio(adId)
+      const anuncio = await this.fetchMeuAnuncio(adId)
       if (anuncio === null) {
         throw new Error('nao foi possivel encontrar o anuncio')
       }

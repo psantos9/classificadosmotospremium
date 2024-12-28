@@ -3,6 +3,7 @@ import type { NavigationGuardWithThis } from 'vue-router'
 import { useApp } from '@/composables/useApp'
 import HomeView from '@/views/HomeView.vue'
 import Identificacao from '@/views/Identificacao.vue'
+import Veiculo from '@/views/Veiculo.vue'
 import Veiculos from '@/views/Veiculos.vue'
 import { unref } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -20,7 +21,7 @@ const isSignedIn: NavigationGuardWithThis<any> = (to, from, next) => {
 const checkIfThereAreDraftAds: NavigationGuardWithThis<any> = async (to, from, next) => {
   const { api } = useApp()
   if (to.params.adId === undefined) {
-    const drafts = await api.fetchAnuncios({ status: 'draft' })
+    const drafts = await api.fetchMeusAnuncios({ status: 'draft' })
     if (drafts.length > 0) {
       next({ name: 'rascunhos' })
     }
@@ -53,6 +54,11 @@ const router = createRouter({
       path: '/veiculos',
       name: 'veiculos',
       component: Veiculos as Component
+    },
+    {
+      path: '/veiculo/:id',
+      name: 'veiculo',
+      component: Veiculo as Component
     },
     {
       path: '/identificacao',

@@ -38,6 +38,8 @@
   --main-header-size: 5.625rem;
   --main-header-bg: var(--secondary);
   --main-header-size: 4rem;
+
+  --swiper-navigation-color: white;
 }
 
 @media screen and (min-width:960px) {
