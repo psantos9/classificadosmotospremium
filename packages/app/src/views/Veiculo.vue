@@ -1,12 +1,12 @@
 <template>
   <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md md:grid md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-8">
     <div class="flex flex-col">
-      <swiper-container v-bind="options" class="w-full aspect-video">
+      <swiper-container v-bind="options" class="w-full">
         <swiper-slide v-for="(foto, i) in fotos" :key="i">
           <ExpandableImage
             :src="foto"
-            container-class="rounded-md shadow"
-            class="h-full"
+            container-class="rounded-md bg-black aspect-video mx-auto"
+            class="h-full mx-auto rounded-md shadow-md"
           />
         </swiper-slide>
       </swiper-container>
