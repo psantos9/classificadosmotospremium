@@ -165,7 +165,7 @@
         <ImageUpload @files="uploadPhotos" />
         <div class="grid grid-cols-1 gap-4 md:grid-cols-4 items-start justify-center">
           <div
-            v-for="(foto, i) in anuncio.fotos.filter(foto => !photosToDelete.includes(foto))"
+            v-for="(foto, i) in fotos.filter(foto => !photosToDelete.includes(foto))"
             :key="foto"
             v-draggable="{ group: 'fotos', data: foto, dropCallback: (group: string, droppedFoto: string) => swapFotos(foto, droppedFoto) }"
             data-dragging-active="fotos"
@@ -565,46 +565,33 @@ const atualizaAnuncio = async (atualizacao: AtualizaAnuncio) => {
 const debouncedAtualizaAnuncio = debounce(atualizaAnuncio, 1000)
 
 const moveFotoLeft = async (foto: string) => {
-  const _anuncio = unref(anuncio)
-  if (_anuncio === null) {
-    return
-  }
-  const fotos = _anuncio.fotos
-  const index = fotos.indexOf(foto)
+  const _fotos = unref(fotos)
+  const index = _fotos.indexOf(foto)
   if (index > 0) {
-    [fotos[index], fotos[index - 1]] = [fotos[index - 1], fotos[index]]
+    [_fotos[index], _fotos[index - 1]] = [_fotos[index - 1], _fotos[index]]
     const atualizacao = getAtualizaAnuncioSchema().parse(unref(values))
     await atualizaAnuncio(atualizacao)
   }
 }
 
 const moveFotoRight = async (foto: string) => {
-  const _anuncio = unref(anuncio)
-  if (_anuncio === null) {
-    return
-  }
-  const fotos = _anuncio.fotos
-  const index = fotos.indexOf(foto)
-  if (index < fotos.length - 1) {
-    [fotos[index], fotos[index + 1]] = [fotos[index + 1], fotos[index]]
+  const _fotos = unref(fotos)
+  const index = _fotos.indexOf(foto)
+  if (index < _fotos.length - 1) {
+    [_fotos[index], _fotos[index + 1]] = [_fotos[index + 1], _fotos[index]]
     const atualizacao = getAtualizaAnuncioSchema().parse(unref(values))
     await atualizaAnuncio(atualizacao)
   }
 }
 
 const swapFotos = async (foto1: string, foto2: string) => {
-  const _anuncio = unref(anuncio)
-  if (_anuncio === null) {
-    return
-  }
-  const fotos = _anuncio.fotos
-  const index1 = fotos.indexOf(foto1)
-  const index2 = fotos.indexOf(foto2)
+  const _fotos = unref(fotos)
+  const index1 = _fotos.indexOf(foto1)
+  const index2 = _fotos.indexOf(foto2)
   if (index1 === index2) {
     return
   }
-  [fotos[index1], fotos[index2]] = [fotos[index2], fotos[index1]]
-  setFieldValue('fotos', fotos)
+  [_fotos[index1], _fotos[index2]] = [_fotos[index2], _fotos[index1]]
   const atualizacao = getAtualizaAnuncioSchema().parse(unref(values))
   await atualizaAnuncio(atualizacao)
 }
