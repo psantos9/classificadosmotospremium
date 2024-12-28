@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "f7f1a451-9b08-4e46-90ff-73eb71462c6b",
+  "id": "f5d68832-a654-4c2d-bf7a-494cedae34e6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "acessorio": {
@@ -80,6 +80,13 @@
           "notNull": true,
           "autoincrement": false,
           "default": "'draft'"
+        },
+        "revision": {
+          "name": "revision",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "codigo_fipe": {
           "name": "codigo_fipe",
@@ -208,7 +215,7 @@
       "checkConstraints": {
         "anuncioStatus": {
           "name": "anuncioStatus",
-          "value": "status IN ('draft','to_review','rejected','published','paused','expired','finished')"
+          "value": "status IN ('draft','rejected','published','paused','expired','finished','archived')"
         }
       }
     },

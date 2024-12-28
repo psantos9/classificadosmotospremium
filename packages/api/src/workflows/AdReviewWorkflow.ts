@@ -29,20 +29,24 @@ export class AdReviewWorkflow extends WorkflowEntrypoint<Env, AdReviewEvent> {
       if (ad === null) {
         throw new NonRetryableError(`ad not found: ${adId}`)
       }
-      const { atualizacao, status, publishedAt } = ad
-      const fotos = atualizacao?.fotos ?? ad.fotos
+
+      console.log('AD ANTES ATUALIZADO', ad)
+      const anuncio = JSON.parse(JSON.stringify(ad)) as Anuncio
+      const { revision, atualizacao } = anuncio
       const update: Partial<Anuncio> = {
         ...(atualizacao ?? {}),
-        fotos,
-        status: status === 'draft' ? 'published' : status,
-        publishedAt: publishedAt ?? new Date(),
+        revision: revision + 1,
+        status: 'published',
+        publishedAt: ad.publishedAt ?? new Date(),
         atualizacao: null,
         reviewWorkflowId: null
       }
-        ;[ad] = await db.update(schema.anuncio).set(update).where(eq(schema.anuncio.id, adId)).limit(1).returning()
+      console.log('UPDATE', update)
+      ;[ad] = await db.update(schema.anuncio).set(update).where(eq(schema.anuncio.id, adId)).limit(1).returning()
       if (ad === null) {
         throw new NonRetryableError(`ad not found: ${adId}`)
       }
+      console.log('AD ATUALIZADO', ad)
     })
   }
 }

@@ -11,6 +11,7 @@ CREATE TABLE `anuncio` (
 	`published_at` integer,
 	`user_id` integer NOT NULL,
 	`status` text DEFAULT 'draft' NOT NULL,
+	`revision` integer NOT NULL,
 	`codigo_fipe` text NOT NULL,
 	`marca` text NOT NULL,
 	`modelo` text NOT NULL,
@@ -27,7 +28,7 @@ CREATE TABLE `anuncio` (
 	`atualizacao` text,
 	`review_workflow_id` text,
 	FOREIGN KEY (`user_id`) REFERENCES `cadastro`(`id`) ON UPDATE no action ON DELETE cascade,
-	CONSTRAINT "anuncioStatus" CHECK(status IN ('draft','to_review','rejected','published','paused','expired','finished'))
+	CONSTRAINT "anuncioStatus" CHECK(status IN ('draft','rejected','published','paused','expired','finished','archived'))
 );
 --> statement-breakpoint
 CREATE TABLE `cadastro` (

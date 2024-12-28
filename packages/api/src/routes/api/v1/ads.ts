@@ -41,7 +41,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
     const [anuncio = null] = await db.select({ ...anuncioColumns }).from(schema.anuncio).where(and(...filters)).limit(1)
-    return anuncio
+    return { ...anuncio, ...anuncio?.atualizacao ?? null }
   })
   .post('/', async (req, env) => {
     const userId = req.userId
@@ -66,13 +66,44 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const update: Partial<NovoAnuncio> = anuncio.status === 'draft'
       ? { ...atualizacao, atualizacao }
       : { atualizacao }
-
     ;[anuncio = null] = await db.update(schema.anuncio).set(update).where(and(...filters)).limit(1).returning({ ...anuncioColumns })
     if (anuncio === null) {
       return error(404, 'anúncio não encontrado')
     }
-
     return { ...anuncio, ...atualizacao }
+  })
+  .delete('/:adId/changes', async (req, env) => {
+    const userId = req.userId
+    const adId = z.coerce.number().parse(req.params.adId)
+
+    const db = getDb(env.DB)
+    const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
+
+    let [anuncio = null] = await db.select({ ...anuncioColumns }).from(schema.anuncio).where(and(...filters)).limit(1)
+    if (anuncio === null) {
+      return error(404, 'anúncio não encontrado')
+    }
+    else if (anuncio.atualizacao === null) {
+      return status(204)
+    }
+    if (anuncio.reviewWorkflowId !== null) {
+      try {
+        const instance = await env.AD_REVIEW_WORKFLOW.get(anuncio.reviewWorkflowId)
+        const status = await instance.status()
+        if (!['terminated', 'complete', 'errored'].includes(status.status)) {
+          await instance.terminate()
+        }
+      }
+      catch (err) {
+        console.log('error while terminating workflow', err)
+        throw err
+      }
+    }
+    ;[anuncio = null] = await db.update(schema.anuncio).set({ reviewWorkflowId: null, atualizacao: null }).where(and(...filters)).limit(1).returning({ ...anuncioColumns })
+    if (anuncio === null) {
+      return error(404, 'anúncio não pode ser alterado')
+    }
+    return anuncio
   })
   .put('/:adId/review', async (req, env) => {
     const userId = req.userId
@@ -118,14 +149,15 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     if (anuncio === null) {
       return error(404, 'anúncio não encontrado')
     }
-    else if (anuncio.status !== anuncioStatusSchema.enum.draft) {
-      return error(400, 'só é possível deletar anúncios com o status draft')
-    }
+
+    /*
     const adKeys = await fetchAdImageKeys({ env, adId })
     if (adKeys.length > 0) {
       await env.AD_IMAGES_BUCKET.delete(adKeys)
     }
     await db.delete(schema.anuncio).where(and(...filters))
+    */
+    await db.update(schema.anuncio).set({ status: 'archived' }).where(and(...filters)).limit(1)
     return status(204)
   })
   .post('/:adId/images', async (req, env) => {

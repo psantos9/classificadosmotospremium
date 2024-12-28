@@ -170,9 +170,9 @@
             v-draggable="{ group: 'fotos', data: foto, dropCallback: (group: string, droppedFoto: string) => swapFotos(foto, droppedFoto) }"
             data-dragging-active="fotos"
             :data-index="i"
-            class="group rounded-md overflow-hidden data-[index=0]:col-span-2 data-[index=0]:row-span-2 h-full flex items-center justify-center relative bg-black cursor-pointer shadow data-[dragover]:scale-105 transition-all"
+            class="group rounded-md overflow-hidden data-[index=0]:col-span-2 data-[index=0]:row-span-2 h-full flex items-center justify-center relative cursor-pointer data-[dragover]:scale-105 transition-all"
           >
-            <img :src="api.getImageUrl(foto)" class="aspect-video">
+            <img :src="api.getImageUrl(foto)" class="aspect-video border border-gray-300 rounded-md">
             <div class="absolute top-0 left-0 bg-white/90 text-xs rounded-md shadow px-2 py-1 m-1 font-light">
               {{ i === 0 ? 'Foto principal' : i + 1 }}
             </div>
@@ -211,15 +211,26 @@
 
         <div class="mt-4 md:mt-14 flex flex-col md:flex-row gap-4 justify-between">
           <button
-            v-if="adId !== null"
+            v-if="adId !== null && anuncio.status !== 'archived'"
             type="button"
             class="w-full md:w-40 hidden md:flex items-center justify-center gap-x-2 rounded-md bg-[var(--danger)] hover:bg-[var(--danger-lighter)] text-[var(--danger-text)] border border-[var(--danger)] px-3.5 py-2.5 text-sm font-semibold shadow-sm transition-all"
             @click="removeAnuncio"
           >
             <FontAwesomeIcon :icon="faTrash" size="lg" />
-            Remover
+            Arquivar
           </button>
           <button
+            v-if="anuncio.atualizacao !== null"
+            type="button"
+            class="w-full md:w-40 hidden md:flex items-center justify-center gap-x-2 rounded-md bg-[var(--danger)] hover:bg-[var(--danger-lighter)] text-[var(--danger-text)] border border-[var(--danger)] px-3.5 py-2.5 text-sm font-semibold shadow-sm transition-all"
+            @click="resetAdChanges"
+          >
+            <FontAwesomeIcon :icon="faTrash" size="lg" />
+            Remove Alterações
+          </button>
+          <div class="flex-1" />
+          <button
+            v-if="anuncio.atualizacao"
             type="button"
             class="w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] px-3.5 py-2.5 text-sm font-semibold shadow-sm transition-all"
             :class="{
@@ -450,11 +461,11 @@ const setAdState = async (ad: Anuncio | null) => {
   })
 
   placa.value = ad?.placa ?? undefined
-  acessorios.value = ad?.acessorios ?? []
-  informacoesAdicionais.value = ad?.informacoesAdicionais ?? []
+  acessorios.value = [...ad?.acessorios ?? []]
+  informacoesAdicionais.value = [...ad?.informacoesAdicionais ?? []]
   descricao.value = ad?.descricao ?? undefined
   anuncio.value = ad
-  fotos.value = ad?.fotos ?? []
+  fotos.value = [...ad?.fotos ?? []]
   if (ad === null) {
     resetForm()
   }
@@ -471,12 +482,31 @@ const removeAnuncio = async () => {
   }
 }
 
+const resetAdChanges = async () => {
+  const _adId = unref(adId)
+  if (_adId === null) {
+    return
+  }
+  anuncio.value = await api.cancelaAlteracoesAnuncio(_adId)
+}
+
 const submitForReview = async () => {
   const _adId = unref(adId)
   if (_adId === null) {
     return
   }
-  await api.submeteAnuncioParaRevisao(_adId)
+  try {
+    requests.value++
+    await api.submeteAnuncioParaRevisao(_adId)
+    toast.info('O seu anúncio será revisto e publicado em breve.')
+    requests.value--
+    await router.push({ name: 'meus-anuncios' })
+  }
+  catch (err) {
+    toast.error('Ocorreu um erro ao publicar o anúncio.')
+    console.log(err)
+    requests.value--
+  }
 }
 
 let deleting = 0
@@ -501,7 +531,21 @@ const removeFotos = debounce(async () => {
   }
 }, 500)
 
-const atualizaAnuncio = debounce(async (atualizacao: AtualizaAnuncio) => {
+const atualizaAnuncio = async (atualizacao: AtualizaAnuncio) => {
+  const _anuncio = unref(anuncio)
+  const hasDifferences = [...Object.entries(atualizacao)]
+    .reduce((accumulator, [key, value], _, array) => {
+      const A = JSON.stringify(_anuncio?.[key as keyof Anuncio] ?? null)
+      const B = JSON.stringify(value)
+      if (A !== B) {
+        array.splice(0, array.length)
+        accumulator = true
+      }
+      return accumulator
+    }, false)
+  if (!hasDifferences) {
+    return
+  }
   const _adId = unref(adId)
   try {
     requests.value++
@@ -510,13 +554,15 @@ const atualizaAnuncio = debounce(async (atualizacao: AtualizaAnuncio) => {
       adId.value = unref(anuncio)?.id ?? null
     }
     else {
-      await api.atualizaAnuncio(_adId, atualizacao)
+      anuncio.value = await api.atualizaAnuncio(_adId, atualizacao)
     }
   }
   finally {
     requests.value--
   }
-}, 1000)
+}
+
+const debouncedAtualizaAnuncio = debounce(atualizaAnuncio, 1000)
 
 const moveFotoLeft = async (foto: string) => {
   const _anuncio = unref(anuncio)
@@ -551,7 +597,7 @@ const swapFotos = async (foto1: string, foto2: string) => {
   if (_anuncio === null) {
     return
   }
-  const fotos = _anuncio.fotos
+  const fotos = [..._anuncio.fotos]
   const index1 = fotos.indexOf(foto1)
   const index2 = fotos.indexOf(foto2)
   if (index1 === index2) {
@@ -622,7 +668,7 @@ watch(meta, (meta) => {
   if (meta.valid) {
     try {
       const anuncio = getAtualizaAnuncioSchema().parse(unref(values))
-      atualizaAnuncio(anuncio)
+      debouncedAtualizaAnuncio(anuncio)
     }
     catch (err) {
       if (!(err instanceof ZodError)) {
@@ -668,6 +714,10 @@ const init = async () => {
     await setAdState(null)
   }
 }
+
+watch(anuncio, (anuncio) => {
+  setAdState(anuncio)
+})
 
 watch(route, (route) => {
   const _adId = Number.parseInt(route.params.adId as string)

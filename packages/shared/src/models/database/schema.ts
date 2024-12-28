@@ -61,6 +61,7 @@ export const anuncio = sqliteTable('anuncio', () => ({
   publishedAt: integer({ mode: 'timestamp' }),
   userId: integer().notNull().references(() => cadastro.id, { onDelete: 'cascade' }),
   status: anuncioStatusType().notNull().default(anuncioStatusSchema.enum.draft),
+  revision: integer({ mode: 'number' }).notNull().$defaultFn(() => 0),
   codigoFipe: text().notNull(),
   marca: text().notNull(),
   modelo: text().notNull(),

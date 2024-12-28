@@ -310,6 +310,12 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncioAtualizado
   }
 
+  async cancelaAlteracoesAnuncio(adId: number) {
+    const anuncioAtualizado = await this.axios.delete<Anuncio>(`/api/v1/ads/${adId}/changes`)
+      .then(({ data }) => data)
+    return anuncioAtualizado
+  }
+
   async fetchAnuncio(adId: number) {
     const anuncio = await this.axios.get<Anuncio | null>(`/api/v1/ads/${adId}`)
       .then(({ data }) => data)
