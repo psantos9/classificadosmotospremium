@@ -1,6 +1,7 @@
 <template>
   <div
     class="expandable-image"
+    :class="containerClass"
     :data-expanded="expanded"
     @click="clickHandler"
   >
@@ -25,7 +26,7 @@
 <script lang="ts" setup>
 import { ref, unref } from 'vue'
 
-defineProps<{ imgClass: string }>()
+defineProps<{ containerClass?: string }>()
 const expanded = ref(false)
 
 const clickHandler = () => {

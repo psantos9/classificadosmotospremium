@@ -5,7 +5,8 @@
         <swiper-slide v-for="(foto, i) in fotos" :key="i">
           <ExpandableImage
             :src="foto"
-            class="rounded-md shadow object-fit"
+            container-class="rounded-md shadow"
+            class="h-full"
           />
         </swiper-slide>
       </swiper-container>
