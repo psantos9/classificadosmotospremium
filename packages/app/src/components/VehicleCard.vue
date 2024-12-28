@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white shadow rounded-md h-auto flex flex-col overflow-hidden group cursor-pointer hover:shadow-lg">
-    <div class="h-[150px] overflow-hidden">
-      <img :src="api.getImageUrl(anuncio.fotos[0])" class="h-full w-full object-cover group-hover:scale-110 transition-all">
+    <div class="overflow-hidden">
+      <img :src="api.getImageUrl(anuncio.fotos[0])" class="h-full w-full aspect-video object-cover group-hover:scale-110 transition-all">
     </div>
 
     <div class="flex flex-col p-4 text-sm gap-1">
