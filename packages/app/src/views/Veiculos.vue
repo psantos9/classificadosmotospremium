@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Anuncio } from '@cmp/shared/models/database/schema'
+import type { PublicAd } from '@cmp/shared/models/database/schema'
 import VehicleCard from '@/components/VehicleCard.vue'
 import { useApp } from '@/composables/useApp'
 import { faFilter } from '@fortawesome/free-solid-svg-icons'
@@ -35,7 +35,7 @@ import { ref } from 'vue'
 
 const { api } = useApp()
 
-const anuncios = ref<Anuncio[]>([])
+const anuncios = ref<PublicAd[]>([])
 const fetchAds = async () => {
   anuncios.value = await api.fetchAnuncios()
 }

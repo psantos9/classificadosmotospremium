@@ -20,11 +20,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { Anuncio } from '@cmp/shared/models/database/schema'
+import type { PublicAd } from '@cmp/shared/models/database/schema'
 import { useApp } from '@/composables/useApp'
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-defineProps<{ anuncio: Anuncio }>()
+defineProps<{ anuncio: PublicAd }>()
 const { api } = useApp()
 </script>

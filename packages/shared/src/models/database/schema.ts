@@ -1,6 +1,6 @@
 import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
 import { type AnuncioStatus, anuncioStatusSchema } from '@cmp/shared/models/anuncio-status'
-import { relations, sql } from 'drizzle-orm'
+import { getTableColumns, relations, sql } from 'drizzle-orm'
 import { check, customType, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const anuncioStatusType = customType<{ data: AnuncioStatus, notNull: true, default: true }>({
@@ -103,3 +103,10 @@ export type InformacaoAdicional = typeof schema.informacaoAdicional.$inferSelect
 
 export type Anuncio = Omit<typeof schema.anuncio.$inferSelect, 'userId'>
 export type NovoAnuncio = typeof schema.anuncio.$inferInsert
+
+export const getPublicAdColumns = () => {
+  const { userId, atualizacao, reviewWorkflowId, expiresAt, publishedAt, revision, ...anuncioColumns } = getTableColumns(schema.anuncio)
+  return anuncioColumns
+}
+
+export type PublicAd = Omit<Anuncio, 'userId' | 'atualizacao' | 'reviewWorkflowId' | 'expiresAt' | 'publishedAd' | 'revision'>

@@ -1,4 +1,5 @@
 import type { CF, Env, IAppAuthenticatedRequest } from '@/types'
+import type { SQL } from 'drizzle-orm'
 import { getDb } from '@/helpers/get-db'
 import { getBearerToken } from '@/helpers/getBearerToken'
 import { authenticateRequest } from '@/middleware/authenticate-request'
@@ -6,11 +7,11 @@ import { router as adsRouter } from '@cmp/api/routes/api/v1/ads'
 import { router as fipeRouter } from '@cmp/api/routes/api/v1/fipe'
 import { router as imagesRouter } from '@cmp/api/routes/api/v1/images'
 import { router as usersRouter } from '@cmp/api/routes/api/v1/users'
-import { schema } from '@cmp/shared/models/database/schema'
+import { getPublicAdColumns, schema } from '@cmp/shared/models/database/schema'
 import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
 import { type OpenCEP, openCEPSchema } from '@cmp/shared/models/open-cep'
 import bcrypt from 'bcryptjs'
-import { sql } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 import { AutoRouter, type IRequest, json, StatusError } from 'itty-router'
 import { z, ZodError } from 'zod'
 
@@ -107,6 +108,12 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
       }
       else { throw err }
     }
+  })
+  .get<IRequest, [Env, ExecutionContext]>('/anuncios', async (req, env) => {
+    const db = getDb(env.DB)
+    const filters: SQL[] = [eq(schema.anuncio.status, 'published')]
+    const anuncios = await db.select({ ...getPublicAdColumns() }).from(schema.anuncio).where(and(...filters))
+    return anuncios
   })
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/images/*', imagesRouter.fetch)
   .all<IRequest, CF>('*', authenticateRequest)
