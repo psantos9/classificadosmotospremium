@@ -25,6 +25,6 @@ const adId = Number.parseInt(unref(router.currentRoute).params.adId as string)
 const anuncio = ref<Anuncio | null>(null)
 
 ;(async () => {
-  anuncio.value = await api.fetchAnuncio(adId)
+  anuncio.value = await api.fetchMeuAnuncio(adId)
 })()
 </script>

@@ -36,7 +36,7 @@ const ads = ref<Anuncio[]>([])
 const loading = ref(false)
 
 const fetchAds = async () => {
-  ads.value = await api.fetchAnuncios()
+  ads.value = await api.fetchMeusAnuncios()
 }
 
 fetchAds()

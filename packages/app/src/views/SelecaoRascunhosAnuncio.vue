@@ -49,7 +49,7 @@ const router = useRouter()
 const draftAds = ref<Anuncio[]>([])
 
 const fetchDraftAds = async () => {
-  draftAds.value = await api.fetchAnuncios({ status: 'draft' })
+  draftAds.value = await api.fetchMeusAnuncios({ status: 'draft' })
   if (unref(draftAds).length === 0) {
     router.push({ name: 'anuncie' })
   }
