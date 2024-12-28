@@ -1,14 +1,17 @@
 <template>
-  <div class="bg-white shadow rounded-md h-auto flex flex-col overflow-hidden">
-    <img :src="api.getImageUrl(anuncio.fotos[0])" class="h-[150px] object-cover">
+  <div class="bg-white shadow rounded-md h-auto flex flex-col overflow-hidden group cursor-pointer hover:shadow-lg">
+    <div class="h-[150px] overflow-hidden">
+      <img :src="api.getImageUrl(anuncio.fotos[0])" class="h-full w-full object-cover group-hover:scale-110 transition-all">
+    </div>
+
     <div class="flex flex-col p-4 text-sm gap-1">
       <span class="font-extralight">{{ anuncio.ano }}/{{ anuncio.anoModelo }} - {{ anuncio.quilometragem }}km</span>
-      <span class="font-bold">{{ anuncio.marca }}</span>
+      <span class="mt-2 font-bold text-base">{{ anuncio.marca }}</span>
       <span>{{ anuncio.modelo }}</span>
-      <span class="font-black text-[var(--primary)] text-xl">
+      <span class="font-black text-[var(--primary-lighter)] group-hover:text-[var(--primary)] transition-colors text-2xl py-2">
         {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(anuncio.preco) }}
       </span>
-      <div class="mt-2">
+      <div class="mt-1 flex gap-2 items-center">
         <FontAwesomeIcon :icon="faLocationDot" />
         <span>Brasília DF</span>
       </div>
