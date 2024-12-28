@@ -15,10 +15,10 @@
         <div>quilometragem veiculo</div>
         <div>Aplicad filtros</div>
       </div>
-      <div class="flex-1 grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] gap-4 overflow-y-auto">
-        <div
-          v-for="i in [...Array(20).keys()]" :key="i"
-          class="grid-card"
+      <div class="flex-1 grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] gap-4 overflow-y-auto items-start">
+        <VehicleCard
+          v-for="anuncio in anuncios" :key="anuncio.id"
+          :anuncio="anuncio"
         />
       </div>
     </div>
@@ -26,12 +26,19 @@
 </template>
 
 <script lang="ts" setup>
+import type { Anuncio } from '@cmp/shared/models/database/schema'
+import VehicleCard from '@/components/VehicleCard.vue'
+import { useApp } from '@/composables/useApp'
 import { faFilter } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-</script>
+import { ref } from 'vue'
 
-<style scoped>
-.grid-card {
-  @apply bg-white shadow rounded-md h-[200px];
+const { api } = useApp()
+
+const anuncios = ref<Anuncio[]>([])
+const fetchAds = async () => {
+  anuncios.value = await api.fetchAnuncios()
 }
-</style>
+
+fetchAds()
+</script>
