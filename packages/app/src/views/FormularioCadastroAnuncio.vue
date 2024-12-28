@@ -509,30 +509,15 @@ const submitForReview = async () => {
   }
 }
 
-let deleting = 0
 const removeFotos = debounce(async () => {
   const _ad = unref(anuncio)
   if (_ad === null) {
     return
   }
-  const _fotos = unref(fotos)
   const { id: adId } = _ad
   const imageKeys = [...unref(photosToDelete)]
-  try {
-    deleting++
-    const ad = await api.removeImagens({ adId, imageKeys })
-    setAdState(ad)
-    /*
-    fotos.value = _fotos.filter(foto => !imageKeys.includes(foto))
-    photosToDelete.value = unref(photosToDelete).filter(photo => !imageKeys.includes(photo))
-    if (deleting === 1) {
-      anuncio.value = _anuncio
-    }
-      */
-  }
-  finally {
-    deleting--
-  }
+  const ad = await api.removeImagens({ adId, imageKeys })
+  setAdState(ad)
 }, 500)
 
 const atualizaAnuncio = async (atualizacao: AtualizaAnuncio) => {
