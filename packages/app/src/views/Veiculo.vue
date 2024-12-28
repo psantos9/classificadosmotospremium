@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md md:grid md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-8">
+  <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md md:grid md:grid-cols-2 gap-4">
     <div class="flex flex-col">
       <swiper-container v-bind="options" class="w-full">
         <swiper-slide v-for="(foto, i) in fotos" :key="i">
@@ -21,7 +21,7 @@
         </swiper-slide>
       </swiper-container>
     </div>
-    <div v-if="anuncio" class="flex flex-col gap-4">
+    <div v-if="anuncio" class="flex flex-col gap-2 p-4">
       <div class="uppercase font-light text-xs text-gray-500">
         Código: {{ anuncio.id }}
       </div>
@@ -54,6 +54,59 @@
         <div>{{ anuncio.descricao || 'Sem descrição' }}</div>
       </div>
     </div>
+    <div class="rounded-md shadow border bg-gray-100 p-4 flex flex-col gap-4">
+      <div class="text-lg font-black">
+        Sobre o anunciante
+      </div>
+      <div class="flex gap-4 item-center">
+        <div class="bg-black rounded-md shadow aspect-square flex items-center justify-center">
+          <img src="@/assets/images/logo_dark.svg" class="h-24 mx-auto">
+        </div>
+        <div class="flex flex-col justify-between gap-3">
+          <span class="font-black text-base">Particular</span>
+          <span class="font-thin">Brasília - DF</span>
+          <button
+            type="button"
+            class="flex items-center gap-1 text-[var(--primary-text)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] font-medium rounded-md text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
+          >
+            <FontAwesomeIcon :icon="faPhone" />
+            Ver telefone
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="rounded-md shadow border p-4 flex flex-col gap-4 bg-gray-100">
+      <div class="text-lg font-black">
+        Enviar proposta
+      </div>
+      <div class="grid gap-3 md:grid-cols-2">
+        <div class="col-span-full">
+          <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome</label>
+          <input id="name" class="form-input">
+        </div>
+        <div>
+          <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Telefone</label>
+          <input id="name" class="form-input">
+        </div>
+        <div>
+          <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+          <input id="name" class="form-input">
+        </div>
+        <div class="col-span-full">
+          <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mensagem</label>
+          <textarea id="message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" :placeholder="`Gostei do seu anúncio da ${anuncio?.marca} ${anuncio?.modelo} e gostaria de mais informações.`" />
+        </div>
+      </div>
+      <div class="mt-4 flex justify-center items-center">
+        <button
+          type="button"
+          class="flex items-center justify-center gap-1 text-[var(--primary-text)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] font-medium rounded-md text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
+        >
+          Enviar mensagem
+          <FontAwesomeIcon :icon="faChevronRight" />
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -62,7 +115,7 @@ import type { PublicAd } from '@cmp/shared/models/database/schema'
 import type { SwiperOptions } from 'swiper/types'
 import ExpandableImage from '@/components/ExpandableImage.vue'
 import { useApp } from '@/composables/useApp'
-import { faCalendarAlt, faPalette, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
+import { faCalendarAlt, faChevronRight, faPalette, faPhone, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { register } from 'swiper/element/bundle'
 import { type Component, ref, unref } from 'vue'
@@ -78,7 +131,7 @@ const getCaracteristicas = (anuncio: PublicAd | null): ICaracteristica[] => {
   if (anuncio === null) {
     return []
   }
-  const { marca, modelo, ano, anoModelo, quilometragem, cor } = anuncio
+  const { ano, anoModelo, quilometragem, cor } = anuncio
   const caracteristicas: ICaracteristica[] = [
     { icon: faCalendarAlt, label: 'Ano', value: `${ano}/${anoModelo}` },
     { icon: faTachometerAlt, label: 'KM', value: quilometragem.toString() },

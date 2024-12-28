@@ -677,7 +677,7 @@ const init = async () => {
   listaInformacoesAdicionais.value = await api.fetchInformacoesAdicionais()
 
   if (_adId !== null) {
-    const ad = await api.fetchAnuncio(_adId)
+    const ad = await api.fetchMeuAnuncio(_adId)
     if (ad === null) {
       toast.error(`Não foi possível encontrar o anúncio`)
       router.push({ name: 'anuncie' })
