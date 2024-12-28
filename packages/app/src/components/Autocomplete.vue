@@ -14,10 +14,10 @@
       @blur="query = ''"
     />
 
-    <ComboboxOptions v-if="filteredOptions.length > 0" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
-      <ComboboxOption v-for="option in filteredOptions" :key="option.key" v-slot="{ active, selected }" :value="option" as="template">
-        <li class="relative select-none py-2 pl-3 pr-9 cursor-pointer" :class="[active ? 'bg-[var(--primary)] outline-none' : 'text-gray-900']">
-          <span class="block truncate" :class="[selected && 'font-medium']">
+    <ComboboxOptions v-if="filteredOptions.length > 0" class="absolute z-10 max-h-60 mt-2 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+      <ComboboxOption v-for="option in filteredOptions" :key="option.key" v-slot="{ active }" :value="option" as="template">
+        <li class="relative select-none font-black text-sm px-4 py-2 cursor-pointer text-gray-600 transition-colors" :class="[active ? 'bg-gray-100' : '']">
+          <span class="block truncate">
             {{ typeof option === 'object' ? option[labelKey] : option }}
           </span>
         </li>

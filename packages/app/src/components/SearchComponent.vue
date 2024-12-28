@@ -1,5 +1,5 @@
 <template>
-  <div class="relative z-10 flex flex-col items-center justify-center h-[200px] rounded-xl bg-black mx-12">
+  <div class="relative z-10 flex flex-col items-center justify-center rounded-xl bg-black p-12 mx-14">
     <div class="uppercase font-bold text-2xl tracking-wide  text-white">
       Encontre o veículo ideal para você
     </div>
@@ -10,11 +10,17 @@
         <span>Ver ofertas</span>
       </button>
     </div>
+    <div>
+      <button class="mt-6 border border-[var(--primary)] hover:border-[var(--primary-lighter)] text-[var(--primary)] hover:text-[var(--primary-lighter)] rounded-md text-base font-bold flex gap-2 items-center justify-center px-4 py-1 transition-colors">
+        <FontAwesomeIcon :icon="faSliders" />
+        <span>Busca avançada</span>
+      </button>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import Autocomplete from '@/components/Autocomplete.vue'
-import { faMotorcycle } from '@fortawesome/free-solid-svg-icons'
+import { faMotorcycle, faSliders } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 </script>
