@@ -48,7 +48,6 @@ const model = defineModel<null | T>()
 const { filteringFn, data, labelKey } = toRefs(props)
 
 const query = ref('')
-const buttonEl = ref<any>(null)
 
 const filteredOptions = computed(() => {
   const _query = unref(query)

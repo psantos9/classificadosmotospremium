@@ -1,5 +1,5 @@
 <template>
-  <div class="relative z-10 flex flex-col items-center justify-center rounded-xl bg-black p-12 mx-14">
+  <div class="relative z-10 flex flex-col items-center justify-center md:rounded-xl bg-black p-12 md:mx-14">
     <div class="uppercase font-bold text-2xl tracking-wide  text-white">
       Encontre o veículo ideal para você
     </div>
