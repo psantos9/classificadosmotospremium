@@ -569,7 +569,7 @@ const moveFotoLeft = async (foto: string) => {
   if (_anuncio === null) {
     return
   }
-  const fotos = _anuncio.fotos
+  const fotos = [..._anuncio.fotos]
   const index = fotos.indexOf(foto)
   if (index > 0) {
     [fotos[index], fotos[index - 1]] = [fotos[index - 1], fotos[index]]
@@ -583,7 +583,7 @@ const moveFotoRight = async (foto: string) => {
   if (_anuncio === null) {
     return
   }
-  const fotos = _anuncio.fotos
+  const fotos = [..._anuncio.fotos]
   const index = fotos.indexOf(foto)
   if (index < fotos.length - 1) {
     [fotos[index], fotos[index + 1]] = [fotos[index + 1], fotos[index]]
