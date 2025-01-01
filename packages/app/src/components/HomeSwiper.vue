@@ -23,7 +23,11 @@ const options: SwiperOptions = {
 }
 
 const slides = [
-  'https://cdn.novaoitoclassificados.app/images/2/324663645649c88af0f61a5.71426777.1687980207.png',
-  'https://cdn.novaoitoclassificados.app/images/2/121992113060c139a72ed2a9.87136153.1623275943.png'
+  '/images/Banner_1_less.png',
+  '/images/Banner_2_less.png',
+  '/images/Banner_3_less.png',
+  '/images/Banner_4_less.png',
+  '/images/Banner_5_less.png',
+  '/images/Banner_6_less.png'
 ]
 </script>
