@@ -1,6 +1,7 @@
 <template>
-  <div>
+  <div class="flex flex-col">
     <HomeSwiper />
+
     <SearchComponent class="md:translate-y-[-30px]" />
   </div>
 </template>

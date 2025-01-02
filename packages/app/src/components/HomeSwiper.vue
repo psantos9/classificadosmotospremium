@@ -1,9 +1,13 @@
 <template>
-  <swiper-container v-bind="options">
-    <swiper-slide v-for="(slide, i) in slides" :key="i">
-      <img :src="slide">
-    </swiper-slide>
-  </swiper-container>
+  <div class="bg-black">
+    <div class="max-w-[1980px] mx-auto">
+      <swiper-container v-bind="options">
+        <swiper-slide v-for="(slide, i) in slides" :key="i">
+          <img :src="slide">
+        </swiper-slide>
+      </swiper-container>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -23,11 +27,11 @@ const options: SwiperOptions = {
 }
 
 const slides = [
-  '/images/banner-1.png',
-  '/images/banner-2.png',
-  '/images/banner-3.png',
-  '/images/banner-4.png',
-  '/images/banner-5.png',
-  '/images/banner-6.png'
+  '/images/banner-01.png',
+  '/images/banner-02.png',
+  '/images/banner-03.png',
+  '/images/banner-04.png',
+  '/images/banner-05.png',
+  '/images/banner-06.png'
 ]
 </script>
