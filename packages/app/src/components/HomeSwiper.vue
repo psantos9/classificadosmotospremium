@@ -23,11 +23,11 @@ const options: SwiperOptions = {
 }
 
 const slides = [
-  '/images/Banner_1_less.png',
-  '/images/Banner_2_less.png',
-  '/images/Banner_3_less.png',
-  '/images/Banner_4_less.png',
-  '/images/Banner_5_less.png',
-  '/images/Banner_6_less.png'
+  '/images/banner-1.png',
+  '/images/banner-2.png',
+  '/images/banner-3.png',
+  '/images/banner-4.png',
+  '/images/banner-5.png',
+  '/images/banner-6.png'
 ]
 </script>
