@@ -1,4 +1,4 @@
-import { schema } from '@cmp/shared/models/database/schema'
+import { schema } from '@cmp/shared/models/database/index'
 import bcrypt from 'bcryptjs'
 import { drizzle } from 'drizzle-orm/d1'
 import { SignJWT } from 'jose'

@@ -148,7 +148,7 @@ const { api } = useApp()
 const adId = Number.parseInt(unref(router.currentRoute).params.id as string ?? '')
 
 if (Number.isNaN(adId)) {
-  router.push({ name: 'veiculos' })
+  router.push({ name: 'anuncios' })
 }
 
 const fotos = ref<string[]>([])

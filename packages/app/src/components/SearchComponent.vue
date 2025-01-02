@@ -7,7 +7,7 @@
       <Autocomplete :data="['teste', 'ok']" class="flex-1" />
       <button
         class="bg-[var(--primary)] hover:bg-[var(--primary-lighter)] rounded-md h-[3.5rem] uppercase text-sm font-black flex gap-2 items-center justify-center px-8 transition-colors"
-        @click="$router.push({ name: 'veiculos' })"
+        @click="$router.push({ name: 'anuncios' })"
       >
         <FontAwesomeIcon :icon="faMotorcycle" size="lg" />
         <span>Ver ofertas</span>

@@ -260,7 +260,7 @@
 
 <script lang="ts" setup>
 import type { Marca, Modelo } from '@cmp/api/clients/fipe-api-client'
-import type { Acessorio, Anuncio, Cor, InformacaoAdicional } from '@cmp/shared/models/database/schema'
+import type { Acessorio, Anuncio, Cor, InformacaoAdicional } from '@cmp/shared/models/database/models'
 import type { AxiosProgressEvent } from 'axios'
 import Combobox from '@/components/Combobox.vue'
 import ImageUpload from '@/components/ImageUpload.vue'

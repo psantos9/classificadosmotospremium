@@ -1,13 +1,14 @@
 import type { CF, Env, IAppAuthenticatedRequest } from '@/types'
 import type { SQL } from 'drizzle-orm'
-import { getDb } from '@/helpers/get-db'
 import { getBearerToken } from '@/helpers/getBearerToken'
 import { authenticateRequest } from '@/middleware/authenticate-request'
 import { router as adsRouter } from '@cmp/api/routes/api/v1/ads'
 import { router as fipeRouter } from '@cmp/api/routes/api/v1/fipe'
 import { router as imagesRouter } from '@cmp/api/routes/api/v1/images'
 import { router as usersRouter } from '@cmp/api/routes/api/v1/users'
-import { getPublicAdColumns, schema } from '@cmp/shared/models/database/schema'
+import { getDb } from '@cmp/shared/helpers/get-db'
+import { getPublicAdColumns } from '@cmp/shared/models/database/helpers'
+import { schema } from '@cmp/shared/models/database/schema'
 import { novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
 import { type OpenCEP, openCEPSchema } from '@cmp/shared/models/open-cep'
 import bcrypt from 'bcryptjs'
@@ -119,6 +120,26 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     const id = z.coerce.number().int().parse(req.params.id)
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.status, 'published'), eq(schema.anuncio.id, id)]
+    const anuncio2 = await db.query.anuncio.findFirst({
+      where: and(...filters),
+      columns: {
+        reviewWorkflowId: false,
+        atualizacao: false,
+        revision: false,
+        placa: false,
+        status: false
+      },
+      with: {
+        informacoesAdicionais: true,
+        cadastro: {
+          columns: {
+            nomeFantasia: true,
+            nomeRazaoSocial: true
+          }
+        }
+      }
+    })
+    console.log('ANUNCIO', anuncio2)
     const [anuncio = null] = await db.select({ ...getPublicAdColumns() }).from(schema.anuncio).where(and(...filters)).limit(1)
     if (anuncio === null) {
       return error(404, 'anuncio nao encontrado')

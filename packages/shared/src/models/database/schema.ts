@@ -1,19 +1,8 @@
 import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
-import { type AnuncioStatus, anuncioStatusSchema } from '@cmp/shared/models/anuncio-status'
-import { getTableColumns, relations, sql } from 'drizzle-orm'
-import { check, customType, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-
-export const anuncioStatusType = customType<{ data: AnuncioStatus, notNull: true, default: true }>({
-  dataType() {
-    return 'text'
-  },
-  fromDriver(value) {
-    if (typeof value === 'string' && Object.values(anuncioStatusSchema.enum).includes(value as AnuncioStatus)) {
-      return value as AnuncioStatus
-    }
-    throw new Error(`Invalid cadastro status value ${value}}`)
-  }
-})
+import { anuncioStatusSchema } from '@cmp/shared/models/anuncio-status'
+import { relations, sql } from 'drizzle-orm'
+import { check, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { anuncioStatusType } from './custom-types'
 
 export const cadastro = sqliteTable('cadastro', {
   id: integer().primaryKey({ autoIncrement: true }),
@@ -81,32 +70,23 @@ export const anuncio = sqliteTable('anuncio', () => ({
   check('anuncioStatus', sql.raw(`${table.status.name} IN (${Object.values(anuncioStatusSchema.enum).map(value => `'${value}'`).join(',')})`))
 ])
 
-// Relations
 export const cadastroRelations = relations(cadastro, ({ many }) => ({
   anuncios: many(anuncio)
 }))
 
 export const anuncioRelations = relations(anuncio, ({ one }) => ({
-  cadastro: one(cadastro)
+  cadastro: one(cadastro, {
+    fields: [anuncio.userId],
+    references: [cadastro.id]
+  })
 }))
 
-export const schema = { cadastro, cor, acessorio, informacaoAdicional, anuncio }
-
-// Types
-export type Cadastro = typeof schema.cadastro.$inferSelect
-export type SelectCadastro = Omit<Cadastro, 'password'>
-export type NovoCadastro = typeof schema.cadastro.$inferInsert
-
-export type Cor = typeof schema.cor.$inferSelect
-export type Acessorio = typeof schema.acessorio.$inferSelect
-export type InformacaoAdicional = typeof schema.informacaoAdicional.$inferSelect
-
-export type Anuncio = Omit<typeof schema.anuncio.$inferSelect, 'userId'>
-export type NovoAnuncio = typeof schema.anuncio.$inferInsert
-
-export const getPublicAdColumns = () => {
-  const { userId, atualizacao, reviewWorkflowId, expiresAt, publishedAt, revision, ...anuncioColumns } = getTableColumns(schema.anuncio)
-  return anuncioColumns
+export const schema = {
+  cadastro,
+  cor,
+  acessorio,
+  informacaoAdicional,
+  anuncio,
+  cadastroRelations,
+  anuncioRelations
 }
-
-export type PublicAd = Omit<Anuncio, 'userId' | 'atualizacao' | 'reviewWorkflowId' | 'expiresAt' | 'publishedAd' | 'revision'>

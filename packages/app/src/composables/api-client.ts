@@ -2,7 +2,7 @@ import type { AnoModelo, CodigoTipoCombustivel, Marca, Modelo, Preco } from '@cm
 import type { AnuncioStatus } from '@cmp/shared/models/anuncio-status'
 import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
 import type { AtualizaCadastro } from '@cmp/shared/models/atualiza-cadastro'
-import type { Acessorio, Anuncio, Cadastro, Cor, InformacaoAdicional, PublicAd } from '@cmp/shared/models/database/schema'
+import type { Acessorio, Anuncio, Cadastro, Cor, InformacaoAdicional, PublicAd } from '@cmp/shared/models/database/models'
 import type { NovoCadastro } from '@cmp/shared/models/novo-cadastro'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
 import { computeFileHash } from '@/helpers/computeFileSha256'

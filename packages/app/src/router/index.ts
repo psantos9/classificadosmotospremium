@@ -1,10 +1,10 @@
 import type { Component } from 'vue'
 import type { NavigationGuardWithThis } from 'vue-router'
 import { useApp } from '@/composables/useApp'
+import Anuncio from '@/views/Anuncio.vue'
+import Anuncios from '@/views/Anuncios.vue'
 import HomeView from '@/views/HomeView.vue'
 import Identificacao from '@/views/Identificacao.vue'
-import Veiculo from '@/views/Veiculo.vue'
-import Veiculos from '@/views/Veiculos.vue'
 import { unref } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -51,14 +51,14 @@ const router = createRouter({
       component: HomeView as Component
     },
     {
-      path: '/veiculos',
-      name: 'veiculos',
-      component: Veiculos as Component
+      path: '/anuncios',
+      name: 'anuncios',
+      component: Anuncios as Component
     },
     {
-      path: '/veiculo/:id',
-      name: 'veiculo',
-      component: Veiculo as Component
+      path: '/anuncio/:id',
+      name: 'anuncio',
+      component: Anuncio as Component
     },
     {
       path: '/identificacao',
