@@ -5,7 +5,7 @@
 
 @layer base {
   body {
-    @apply min-h-screen relative overflow-x-hidden bg-[var(--body-bg)] text-gray-900;
+    @apply min-h-screen relative overflow-x-hidden bg-gray-100 text-gray-900;
   }
 
   .view-container {
