@@ -90,22 +90,21 @@
       </div>
     </div>
     <div v-else class="w-full h-full rounded-md bg-gray-100 animate-pulse" />
-  </div>
-  <div class="rounded-md shadow border bg-gray-100 p-4 flex flex-col gap-4">
-    <div class="text-lg font-black">
-      Sobre o anunciante
-    </div>
-    <div class="flex gap-4 item-center">
-      <div class="bg-black rounded-md shadow aspect-square flex items-center justify-center">
-        <img src="@/assets/images/logo_dark.svg" class="h-24 mx-auto">
+    <div class="rounded-md shadow border bg-gray-100 p-4 flex flex-col gap-4">
+      <div class="text-lg font-black">
+        Sobre o anunciante
       </div>
-      <div class="flex flex-col justify-between gap-3">
-        <span class="font-black text-base">{{ anuncio?.usuario.nomeFantasia ?? 'Particular' }}</span>
-        <span class="flex items-center gap-2">
-          <FontAwesomeIcon :icon="faLocationDot" />
-          <span class="font-thin">{{ anuncio?.usuario.localidade }} - {{ anuncio?.usuario.uf }}</span>
-        </span>
-        <span v-if="anuncio" class="font-thin text-xs">No site desde  {{ format(parseISO(anuncio.usuario.createdAt), 'MM \'de\' MMMM yyyy', { locale: ptBR }) }}</span>
+      <div class="flex gap-4 item-center">
+        <div class="bg-black rounded-md shadow aspect-square flex items-center justify-center">
+          <img src="@/assets/images/logo_dark.svg" class="h-24 mx-auto">
+        </div>
+        <div class="flex flex-col justify-between gap-3">
+          <span class="font-black text-base">{{ anuncio?.usuario.nomeFantasia ?? 'Particular' }}</span>
+          <span class="flex items-center gap-2">
+            <FontAwesomeIcon :icon="faLocationDot" />
+            <span class="font-thin">{{ anuncio?.usuario.localidade }} - {{ anuncio?.usuario.uf }}</span>
+          </span>
+          <span v-if="anuncio" class="font-thin text-xs">No site desde  {{ format(parseISO(anuncio.usuario.createdAt), 'MM \'de\' MMMM yyyy', { locale: ptBR }) }}</span>
         <!--
           <button
             type="button"
@@ -115,67 +114,68 @@
             Ver telefone
           </button>
           -->
+        </div>
       </div>
     </div>
-  </div>
-  <div class="rounded-md shadow border p-4 flex flex-col gap-4 bg-gray-100">
-    <div class="text-lg font-black">
-      Enviar proposta
-    </div>
-    <div class="grid gap-3 md:grid-cols-2">
-      <template v-if="!signedIn">
-        <div class="col-span-full relative">
-          <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome</label>
-          <input id="name" v-model="name" class="form-input" v-bind="nameAttrs">
-          <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
-            {{ errors.name }}
-          </p>
-        </div>
-        <div class="ol-span-full relative">
-          <label for="mobile" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Telefone</label>
-          <input
-            id="mobile"
-            v-model="mobile"
-            v-maska="{ mask: '(##) #########' }"
-            v-bind="mobileAttrs"
-            type="text"
-            autocomplete="off"
-            class="form-input"
-          >
-          <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
-            {{ errors.mobile }}
-          </p>
-        </div>
-        <div class="ol-span-full relative">
-          <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
-          <input id="email" v-model="email" class="form-input" v-bind="emailAttrs">
-          <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
-            {{ errors.email }}
-          </p>
-        </div>
-      </template>
+    <div class="rounded-md shadow border p-4 flex flex-col gap-4 bg-gray-100">
+      <div class="text-lg font-black">
+        Enviar proposta
+      </div>
+      <div class="grid gap-3 md:grid-cols-2">
+        <template v-if="!signedIn">
+          <div class="col-span-full relative">
+            <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome</label>
+            <input id="name" v-model="name" class="form-input" v-bind="nameAttrs">
+            <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+              {{ errors.name }}
+            </p>
+          </div>
+          <div class="ol-span-full relative">
+            <label for="mobile" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Telefone</label>
+            <input
+              id="mobile"
+              v-model="mobile"
+              v-maska="{ mask: '(##) #########' }"
+              v-bind="mobileAttrs"
+              type="text"
+              autocomplete="off"
+              class="form-input"
+            >
+            <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+              {{ errors.mobile }}
+            </p>
+          </div>
+          <div class="ol-span-full relative">
+            <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+            <input id="email" v-model="email" class="form-input" v-bind="emailAttrs">
+            <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+              {{ errors.email }}
+            </p>
+          </div>
+        </template>
 
-      <div class="col-span-full">
-        <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mensagem</label>
-        <textarea
-          id="message"
-          v-model="message"
-          rows="4"
-          class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border-2 border-gray-300 focus:border-[var(--primary)] !ring-0" :placeholder="`Gostei do seu anúncio da ${anuncio?.marca} ${anuncio?.modelo} e gostaria de mais informações.`"
-        />
+        <div class="col-span-full">
+          <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mensagem</label>
+          <textarea
+            id="message"
+            v-model="message"
+            rows="4"
+            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border-2 border-gray-300 focus:border-[var(--primary)] !ring-0" :placeholder="`Gostei do seu anúncio da ${anuncio?.marca} ${anuncio?.modelo} e gostaria de mais informações.`"
+          />
+        </div>
       </div>
-    </div>
-    <div class="mt-4 flex justify-center items-center">
-      <button
-        type="button"
-        :disabled="sendingMessageDisabled"
-        class="flex items-center justify-center gap-1 text-[var(--primary-text)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] font-medium rounded-md text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none transition-all"
-        :class="[sendingMessageDisabled ? 'opacity-70 pointer-events-none' : '']"
-        @click="enviarMensagem"
-      >
-        Enviar mensagem
-        <FontAwesomeIcon :icon="sendingMessage ? faSpinner : faChevronRight" :spin="sendingMessage" fixed-width />
-      </button>
+      <div class="mt-4 flex justify-center items-center">
+        <button
+          type="button"
+          :disabled="sendingMessageDisabled"
+          class="flex items-center justify-center gap-1 text-[var(--primary-text)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] font-medium rounded-md text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none transition-all"
+          :class="[sendingMessageDisabled ? 'opacity-70 pointer-events-none' : '']"
+          @click="enviarMensagem"
+        >
+          Enviar mensagem
+          <FontAwesomeIcon :icon="sendingMessage ? faSpinner : faChevronRight" :spin="sendingMessage" fixed-width />
+        </button>
+      </div>
     </div>
   </div>
 </template>
