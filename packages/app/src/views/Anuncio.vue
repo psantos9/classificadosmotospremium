@@ -100,7 +100,7 @@
             <FontAwesomeIcon :icon="faLocationDot" />
             <span class="font-thin">{{ anuncio?.usuario.localidade }} - {{ anuncio?.usuario.uf }}</span>
           </span>
-          <span class="font-thin text-xs">No site desde {{ format(parseISO(anuncio?.usuario.createdAt ?? ''), 'MMMM \'de\' yyyy', { locale: ptBR }) }}</span>
+          <span v-if="anuncio" class="font-thin text-xs">No site desde  {{ format(parseISO(anuncio.usuario.createdAt), 'MM \'de\' MMMM yyyy', { locale: ptBR }) }}</span>
           <!--
           <button
             type="button"
@@ -118,30 +118,58 @@
         Enviar proposta
       </div>
       <div class="grid gap-3 md:grid-cols-2">
-        <div class="col-span-full">
-          <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome</label>
-          <input id="name" class="form-input">
-        </div>
-        <div>
-          <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Telefone</label>
-          <input id="name" class="form-input">
-        </div>
-        <div>
-          <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
-          <input id="name" class="form-input">
-        </div>
+        <template v-if="!signedIn">
+          <div class="col-span-full relative">
+            <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome</label>
+            <input id="name" v-model="name" class="form-input" v-bind="nameAttrs">
+            <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+              {{ errors.name }}
+            </p>
+          </div>
+          <div class="ol-span-full relative">
+            <label for="mobile" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Telefone</label>
+            <input
+              id="mobile"
+              v-model="mobile"
+              v-maska="{ mask: '(##) #########' }"
+              v-bind="mobileAttrs"
+              type="text"
+              autocomplete="off"
+              class="form-input"
+            >
+            <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+              {{ errors.mobile }}
+            </p>
+          </div>
+          <div class="ol-span-full relative">
+            <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+            <input id="email" v-model="email" class="form-input" v-bind="emailAttrs">
+            <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+              {{ errors.email }}
+            </p>
+          </div>
+        </template>
+
         <div class="col-span-full">
           <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mensagem</label>
-          <textarea id="message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" :placeholder="`Gostei do seu anúncio da ${anuncio?.marca} ${anuncio?.modelo} e gostaria de mais informações.`" />
+          <textarea
+            id="message"
+            v-model="message"
+            rows="4"
+            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border-2 border-gray-300 focus:border-[var(--primary)] !ring-0" :placeholder="`Gostei do seu anúncio da ${anuncio?.marca} ${anuncio?.modelo} e gostaria de mais informações.`"
+          />
         </div>
       </div>
       <div class="mt-4 flex justify-center items-center">
         <button
           type="button"
-          class="flex items-center justify-center gap-1 text-[var(--primary-text)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] font-medium rounded-md text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
+          :disabled="sendingMessageDisabled"
+          class="flex items-center justify-center gap-1 text-[var(--primary-text)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] font-medium rounded-md text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none transition-all"
+          :class="[sendingMessageDisabled ? 'opacity-70 pointer-events-none' : '']"
+          @click="enviarMensagem"
         >
           Enviar mensagem
-          <FontAwesomeIcon :icon="faChevronRight" />
+          <FontAwesomeIcon :icon="sendingMessage ? faSpinner : faChevronRight" :spin="sendingMessage" fixed-width />
         </button>
       </div>
     </div>
@@ -153,19 +181,34 @@ import type { PublicAd } from '@cmp/shared/models/database/models'
 import type { SwiperOptions } from 'swiper/types'
 import ExpandableImage from '@/components/ExpandableImage.vue'
 import { useApp } from '@/composables/useApp'
-import { faCalendarAlt, faChevronRight, faLocationDot, faPalette, faPhone, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
+import { getUnauthenticatedMessageSenderSchema } from '@cmp/shared/models/nova-mensagem'
+import { faCalendarAlt, faChevronRight, faLocationDot, faPalette, faSpinner, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { toTypedSchema } from '@vee-validate/zod'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale/pt-BR'
+import { vMaska } from 'maska/vue'
 import { register } from 'swiper/element/bundle'
-import { type Component, ref, unref } from 'vue'
+import { useForm } from 'vee-validate'
+import { type Component, computed, ref, unref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toast-notification'
 
 export interface ICaracteristica {
   icon: Component
   label: string
   value: string
 }
+
+const anonymousMessageSenderSchema = toTypedSchema(getUnauthenticatedMessageSenderSchema())
+
+const { errors, defineField, values, meta, resetForm } = useForm({
+  validationSchema: anonymousMessageSenderSchema
+})
+
+const [email, emailAttrs] = defineField('email', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
+const [mobile, mobileAttrs] = defineField('mobile')
+const [name, nameAttrs] = defineField('name')
 
 const getCaracteristicas = (anuncio: PublicAd | null): ICaracteristica[] => {
   if (anuncio === null) {
@@ -183,7 +226,8 @@ const getCaracteristicas = (anuncio: PublicAd | null): ICaracteristica[] => {
 register()
 
 const router = useRouter()
-const { api, informacoesAdicionais, acessorios } = useApp()
+const { api, informacoesAdicionais, acessorios, signedIn } = useApp()
+const toast = useToast()
 
 const adId = Number.parseInt(unref(router.currentRoute).params.id as string ?? '')
 
@@ -191,6 +235,8 @@ if (Number.isNaN(adId)) {
   router.push({ name: 'anuncios' })
 }
 
+const sendingMessage = ref(false)
+const message = ref('')
 const fotos = ref<string[]>([])
 const anuncio = ref<PublicAd | null>(null)
 const caracteristicas = ref<ICaracteristica[]>([])
@@ -213,6 +259,34 @@ const fetchAnuncio = async () => {
   fotos.value = (unref(anuncio)?.fotos ?? []).map(foto => api.getImageUrl(foto))
   caracteristicas.value = getCaracteristicas(unref(anuncio))
 }
+
+const enviarMensagem = async () => {
+  const adId = unref(anuncio)?.id ?? null
+  const content = unref(message)
+  if (adId === null) {
+    return
+  }
+  const sender = getUnauthenticatedMessageSenderSchema().parse(unref(values))
+  try {
+    sendingMessage.value = true
+    await api.enviaMensagem({ adId, content, sender })
+    toast.success('Mensagem enviada com sucesso!')
+    message.value = ''
+    resetForm()
+  }
+  finally {
+    sendingMessage.value = false
+  }
+}
+
+const sendingMessageDisabled = computed(() => {
+  const _signedIn = unref(signedIn)
+  const content = unref(message)
+  const sending = unref(sendingMessage)
+  const { valid, touched } = unref(meta)
+  const disabled = sending || !content || (!_signedIn && !touched && !valid)
+  return disabled
+})
 
 fetchAnuncio()
 </script>

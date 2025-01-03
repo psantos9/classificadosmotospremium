@@ -45,6 +45,20 @@ CREATE TABLE `informacao_adicional` (
 	`label` text NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE `mensagem` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`created_at` integer NOT NULL,
+	`is_read` integer NOT NULL,
+	`ad_id` integer NOT NULL,
+	`sender_id` integer,
+	`sender` text,
+	`recipient_id` integer NOT NULL,
+	`content` text,
+	FOREIGN KEY (`ad_id`) REFERENCES `anuncio`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`sender_id`) REFERENCES `usuario`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`recipient_id`) REFERENCES `usuario`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
 CREATE TABLE `usuario` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`created_at` integer NOT NULL,

@@ -40,7 +40,6 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
     const [anuncio = null] = await db.select({ ...anuncioColumns }).from(schema.anuncio).where(and(...filters)).limit(1)
-    console.log('ANUNCIO', anuncio)
     return { ...anuncio, ...anuncio?.atualizacao ?? null }
   })
   .post('/', async (req, env) => {

@@ -5,10 +5,10 @@ import { authenticateRequest } from '@/middleware/authenticate-request'
 import { router as adsRouter } from '@cmp/api/routes/api/v1/ads'
 import { router as fipeRouter } from '@cmp/api/routes/api/v1/fipe'
 import { router as imagesRouter } from '@cmp/api/routes/api/v1/images'
+import { router as messagesRouter } from '@cmp/api/routes/api/v1/messages'
 import { router as usersRouter } from '@cmp/api/routes/api/v1/users'
 import { getDb } from '@cmp/shared/helpers/get-db'
-import { getPublicAdColumns } from '@cmp/shared/models/database/helpers'
-import { informacaoAdicional, schema } from '@cmp/shared/models/database/schema'
+import { schema } from '@cmp/shared/models/database/schema'
 import { novoUsuarioSchema } from '@cmp/shared/models/novo-usuario'
 import { type OpenCEP, openCEPSchema } from '@cmp/shared/models/open-cep'
 import bcrypt from 'bcryptjs'
@@ -186,6 +186,7 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     return anuncio
   })
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/images/*', imagesRouter.fetch)
+  .all<IRequest, [Env, IAppAuthenticatedRequest]>('/messages/*', messagesRouter.fetch)
   .all<IRequest, CF>('*', authenticateRequest)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/fipe/*', fipeRouter.fetch)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/users/*', usersRouter.fetch)

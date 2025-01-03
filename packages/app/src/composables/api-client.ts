@@ -5,6 +5,7 @@ import type { AtualizaUsuario } from '@cmp/shared/models/atualiza-usuario'
 import type { Acessorio, Anuncio, Cor, InformacaoAdicional, PublicAd, Usuario } from '@cmp/shared/models/database/models'
 import type { NovoUsuario } from '@cmp/shared/models/novo-usuario'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
+import type { UnauthenticatedMessageSender } from '@cmp/shared/models/unauthenticated-message-sender'
 import { computeFileHash } from '@/helpers/computeFileSha256'
 import { getImageStorageKey } from '@cmp/api/helpers/get-image-storage-key'
 import axios, { type Axios, AxiosError, type AxiosProgressEvent } from 'axios'
@@ -379,6 +380,10 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     const anuncio = await this.axios.put<Anuncio>(`/api/v1/ads/${adId}/images/delete`, imageKeys)
       .then(({ data }) => data)
     return anuncio
+  }
+
+  async enviaMensagem(params: { adId: number, sender?: UnauthenticatedMessageSender, content: string }) {
+    await this.axios.post('/api/v1/messages', params)
   }
 
   getImageUrl(imageKey: string) {

@@ -28,8 +28,13 @@
     @apply font-black uppercase text-xl;
   }
 
+  input, textarea {
+    @apply ring-offset-0 !ring-0
+  }
+
+
   .form-input {
-    @apply block w-full rounded-md bg-white px-3 py-1.5 text-base  outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-[var(--primary)] sm:text-sm/6
+    @apply block w-full rounded-md bg-white px-3 py-1.5 text-base  outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-[var(--primary)] !ring-0 sm:text-sm/6
   }
 
   /* hide input number arrows */

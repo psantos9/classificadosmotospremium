@@ -1,4 +1,5 @@
 import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
+import type { UnauthenticatedMessageSender } from '../unauthenticated-message-sender'
 import { anuncioStatusSchema } from '@cmp/shared/models/anuncio-status'
 import { relations, sql } from 'drizzle-orm'
 import { check, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
@@ -73,6 +74,17 @@ export const anuncio = sqliteTable('anuncio', () => ({
   check('anuncioStatus', sql.raw(`${table.status.name} IN (${Object.values(anuncioStatusSchema.enum).map(value => `'${value}'`).join(',')})`))
 ])
 
+export const mensagem = sqliteTable('mensagem', () => ({
+  id: integer().primaryKey({ autoIncrement: true }),
+  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  isRead: integer({ mode: 'boolean' }).notNull().$defaultFn(() => false),
+  adId: integer().notNull().references(() => anuncio.id, { onDelete: 'cascade' }),
+  senderId: integer().references(() => usuario.id, { onDelete: 'cascade' }),
+  sender: text({ mode: 'json' }).$type<UnauthenticatedMessageSender | null>().$defaultFn(() => null),
+  recipientId: integer().notNull().references(() => usuario.id, { onDelete: 'cascade' }),
+  content: text()
+}), _table => [])
+
 export const usuarioRelations = relations(usuario, ({ many }) => ({
   anuncios: many(anuncio)
 }))
@@ -94,6 +106,7 @@ export const schema = {
   acessorio,
   informacaoAdicional,
   anuncio,
+  mensagem,
   usuarioRelations,
   anuncioRelations
 }
