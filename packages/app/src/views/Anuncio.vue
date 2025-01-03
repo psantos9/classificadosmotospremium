@@ -22,9 +22,16 @@
       </swiper-container>
     </div>
     <div v-if="anuncio" class="flex flex-col gap-2 p-4">
-      <div class="uppercase font-light text-xs text-gray-500">
-        Código: {{ anuncio.id }}
+      <div class="flex items-center justify-between">
+        <div class="uppercase font-light text-xs text-gray-500">
+          Código: {{ anuncio.id }}
+        </div>
+        <div class="uppercase font-light text-xs text-gray-500 flex gap-2 items-center">
+          <FontAwesomeIcon :icon="faLocationDot" />
+          {{ anuncio.localidade }} / {{ anuncio.uf }}
+        </div>
       </div>
+
       <div class="text-4xl font-black">
         {{ anuncio.marca }}
       </div>
@@ -88,8 +95,13 @@
           <img src="@/assets/images/logo_dark.svg" class="h-24 mx-auto">
         </div>
         <div class="flex flex-col justify-between gap-3">
-          <span class="font-black text-base">Particular</span>
-          <span class="font-thin">Brasília - DF</span>
+          <span class="font-black text-base">{{ anuncio?.usuario.nomeFantasia ?? 'Particular' }}</span>
+          <span class="flex items-center gap-2">
+            <FontAwesomeIcon :icon="faLocationDot" />
+            <span class="font-thin">{{ anuncio?.usuario.localidade }} - {{ anuncio?.usuario.uf }}</span>
+          </span>
+          <span class="font-thin text-xs">No site desde {{ format(parseISO(anuncio?.usuario.createdAt ?? ''), 'MMMM \'de\' yyyy', { locale: ptBR }) }}</span>
+          <!--
           <button
             type="button"
             class="flex items-center gap-1 text-[var(--primary-text)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] font-medium rounded-md text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
@@ -97,6 +109,7 @@
             <FontAwesomeIcon :icon="faPhone" />
             Ver telefone
           </button>
+          -->
         </div>
       </div>
     </div>
@@ -140,8 +153,10 @@ import type { PublicAd } from '@cmp/shared/models/database/models'
 import type { SwiperOptions } from 'swiper/types'
 import ExpandableImage from '@/components/ExpandableImage.vue'
 import { useApp } from '@/composables/useApp'
-import { faCalendarAlt, faChevronRight, faPalette, faPhone, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
+import { faCalendarAlt, faChevronRight, faLocationDot, faPalette, faPhone, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { format, parseISO } from 'date-fns'
+import { ptBR } from 'date-fns/locale/pt-BR'
 import { register } from 'swiper/element/bundle'
 import { type Component, ref, unref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -159,7 +174,7 @@ const getCaracteristicas = (anuncio: PublicAd | null): ICaracteristica[] => {
   const { ano, anoModelo, quilometragem, cor } = anuncio
   const caracteristicas: ICaracteristica[] = [
     { icon: faCalendarAlt, label: 'Ano', value: `${ano}/${anoModelo}` },
-    { icon: faTachometerAlt, label: 'Quilometragem', value: quilometragem.toString() },
+    { icon: faTachometerAlt, label: 'Quilometragem', value: `${new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(quilometragem)} km` },
     { icon: faPalette, label: 'Cor', value: cor.label.toString() }
   ]
   return caracteristicas

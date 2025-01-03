@@ -7,40 +7,6 @@
         Cadastro do Anúncio
       </div>
       <div class="card-section">
-        <span class="title">Localização da moto</span>
-        <div class="flex">
-          <div>
-            <label for="cep" class="block text-sm/6 font-medium">CEP</label>
-            <div class="mt-2 flex gap-4 items-center">
-              <div class="relative">
-                <input
-                  id="cep"
-                  v-model="cep"
-                  v-bind="cepAttrs"
-                  v-maska="{ mask: '#####-###' }"
-                  class="form-input"
-                >
-                <div class="absolute top-1/2 -translate-y-1/2 right-2">
-                  <FontAwesomeIcon v-if="errors.cep" :icon="faExclamationTriangle" fixed-width size="lg" class="text-[var(--danger)]" />
-                  <FontAwesomeIcon v-if="loadingCepRequests > 0" :icon="faSpinner" fixed-width size="lg" class="text-gray-100" />
-                  <FontAwesomeIcon v-if="localidade && !errors.cep" :icon="faCheckCircle" fixed-width size="lg" class="text-[var(--success)]" />
-                </div>
-
-                <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
-                  {{ errors.cep }}
-                </p>
-              </div>
-              <div v-if="cep && localidade && !loadingCepRequests" class="shrink-0 font-semibold flex items-center gap-1 text-gray-500">
-                <FontAwesomeIcon :icon="faLocationDot" size="xl" fixed-width :spin="loadingCepRequests > 0" />
-                <span>
-                  {{ localidade }} / {{ uf }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card-section">
         <span class="title">Dados do Veículo</span>
         <div class="grid grid-cols-1 gap-8 sm:grid-cols-6">
           <Combobox
@@ -59,6 +25,13 @@
             label-key="modelo"
             :loading="loadingMarcas"
           />
+          <Combobox
+            v-model="anoModelo"
+            class="sm:col-span-3"
+            label="Ano Modelo"
+            :data="anosModelo"
+            :loading="loadingMarcas"
+          />
           <div class="sm:col-span-3">
             <label for="name" class="block text-sm/6 font-medium">Ano Fabricação</label>
             <div class="mt-2 relative">
@@ -73,13 +46,6 @@
               </p>
             </div>
           </div>
-          <Combobox
-            v-model="anoModelo"
-            class="sm:col-span-3"
-            label="Ano Modelo"
-            :data="anosModelo"
-            :loading="loadingMarcas"
-          />
 
           <div class="sm:col-span-3">
             <label for="name" class="block text-sm/6 font-medium">Quilometragem (km)</label>
@@ -130,29 +96,11 @@
                 }"
                 data-maska-tokens="9:[0-9]:repeated"
                 data-maska="9.99#"
-                type="text"
                 autocomplete="off"
                 class="form-input pl-8"
               >
             </div>
           </div>
-        </div>
-      </div>
-      <div class="card-section">
-        <span class="title">Placa</span>
-        <span class="text-xs text-gray-500 mb-2">A placa é obrigatória, mas fique tranquilo, pois não será exibida no seu anúncio. Utilizamos a placa do veículo apenas para verificações de segurança.</span>
-        <div class="relative md:max-w-xs">
-          <input
-            v-model="placa"
-            v-bind="placaAttrs"
-            v-maska="{ mask: '*** ****', preProcess: val => val.toUpperCase() }"
-            type="text"
-            autocomplete="off"
-            class="form-input"
-          >
-          <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
-            {{ errors.placa }}
-          </p>
         </div>
       </div>
       <div class="card-section">
@@ -193,6 +141,56 @@
           rows="4"
           class="block w-full rounded-md bg-white px-3 py-1.5 text-base outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-[var(--primary)] sm:text-sm/6"
         />
+      </div>
+      <div class="card-section">
+        <span class="title">Placa</span>
+        <span class="text-xs text-gray-500 mb-2">A placa é obrigatória, mas fique tranquilo, pois não será exibida no seu anúncio. Utilizamos a placa do veículo apenas para verificações de segurança.</span>
+        <div class="relative md:max-w-xs">
+          <input
+            v-model="placa"
+            v-bind="placaAttrs"
+            v-maska="{ mask: '*** ****', preProcess: val => val.toUpperCase() }"
+            autocomplete="off"
+            class="form-input"
+          >
+          <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+            {{ errors.placa }}
+          </p>
+        </div>
+      </div>
+      <div class="card-section">
+        <span class="title">Localização da moto</span>
+        <div class="flex">
+          <div>
+            <label for="cep" class="block text-sm/6 font-medium">CEP</label>
+            <div class="mt-2 flex gap-4 items-center">
+              <div class="relative">
+                <input
+                  id="cep"
+                  v-model="cep"
+                  v-bind="cepAttrs"
+                  v-maska="{ mask: '#####-###' }"
+                  class="form-input"
+                >
+                <div class="absolute top-1/2 -translate-y-1/2 right-2">
+                  <FontAwesomeIcon v-if="errors.cep" :icon="faExclamationTriangle" fixed-width size="lg" class="text-[var(--danger)]" />
+                  <FontAwesomeIcon v-if="loadingCepRequests > 0" :icon="faSpinner" fixed-width size="lg" class="text-gray-100" />
+                  <FontAwesomeIcon v-if="localidade && !errors.cep" :icon="faCheckCircle" fixed-width size="lg" class="text-[var(--success)]" />
+                </div>
+
+                <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                  {{ errors.cep }}
+                </p>
+              </div>
+              <div v-if="cep && localidade && !loadingCepRequests" class="shrink-0 font-semibold flex items-center gap-1 text-gray-500">
+                <FontAwesomeIcon :icon="faLocationDot" size="xl" fixed-width :spin="loadingCepRequests > 0" />
+                <span>
+                  {{ localidade }} / {{ uf }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div v-if="anuncio !== null" class="card-section">
         <span class="title">Fotos</span>
@@ -494,6 +492,11 @@ const setAdState = async (ad: Anuncio | null) => {
   ano.value = ad?.ano ?? undefined
   quilometragem.value = ad?.quilometragem ?? undefined
   cor.value = ad === null ? null : unref(cores).find(cor => cor.id === ad.cor) ?? null
+
+  setFieldValue('cep', ad?.cep)
+  setFieldValue('localidade', ad?.localidade)
+  setFieldError('uf', ad?.uf)
+
   nextTick(() => {
     preco.value = ad?.preco.toString() ?? null
   })
@@ -653,6 +656,9 @@ const debouncedValidateCEP = debounce(async (cep: string) => {
     return
   }
 
+  setFieldValue('localidade', '')
+  setFieldValue('uf', '')
+
   try {
     loadingCepRequests.value++
     const openCEP = await api.validateCEP(cep)
@@ -662,8 +668,6 @@ const debouncedValidateCEP = debounce(async (cep: string) => {
     }
     else {
       setFieldError('cep', 'CEP inválido')
-      setFieldValue('localidade', '')
-      setFieldValue('uf', '')
     }
   }
   finally {

@@ -3,17 +3,24 @@
     <div class="overflow-hidden">
       <img :src="api.getImageUrl(anuncio.fotos[0])" class="h-full w-full aspect-video object-cover transition-all duration-200">
     </div>
-
-    <div class="flex flex-col p-4 text-sm gap-1">
-      <span class="font-extralight">{{ anuncio.ano }}/{{ anuncio.anoModelo }} - {{ anuncio.quilometragem }}km</span>
-      <span class="mt-2 font-bold text-base">{{ anuncio.marca }}</span>
+    <div class="flex flex-col p-4 text-sm gap-2">
+      <span class="font-bold text-base">{{ anuncio.marca }}</span>
       <span>{{ anuncio.modelo }}</span>
-      <span class="font-black text-[var(--primary-lighter)] group-hover:text-[var(--primary)] transition-colors text-2xl py-2">
+      <span class="text-xs">
+        <FontAwesomeIcon :icon="faCalendarAlt" />
+        {{ anuncio.ano }}/{{ anuncio.anoModelo }}
+      </span>
+      <span class="text-xs">
+        <FontAwesomeIcon :icon="faTachometerAlt" />
+        {{ new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(anuncio.quilometragem) }} km
+      </span>
+
+      <span class="py-1 font-black text-[var(--primary-lighter)] group-hover:text-[var(--primary)] transition-colors text-2xl">
         {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(anuncio.preco) }}
       </span>
       <div class="mt-1 flex gap-2 items-center">
         <FontAwesomeIcon :icon="faLocationDot" />
-        <span>Brasília DF</span>
+        <span>{{ anuncio.localidade }} / {{ anuncio.uf }}</span>
       </div>
     </div>
   </div>
@@ -22,7 +29,7 @@
 <script lang="ts" setup>
 import type { PublicAd } from '@cmp/shared/models/database/models'
 import { useApp } from '@/composables/useApp'
-import { faLocationDot } from '@fortawesome/free-solid-svg-icons'
+import { faCalendar, faCalendarAlt, faLocationDot, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 defineProps<{ anuncio: PublicAd }>()

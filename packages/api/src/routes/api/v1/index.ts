@@ -41,13 +41,11 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
       else if (!response.ok) {
         throw new StatusError(500, 'Erro ao buscar o CEP')
       }
-      console.log('RESPONSE', response.status)
       const cepResult = openCEPSchema.parse(await response.json())
       await env.CEP.put(cep.toString(), JSON.stringify(cepResult))
       return json(cepResult)
     }
     catch (err) {
-      console.log('ERR', err)
       if (err instanceof ZodError) {
         throw new StatusError(404, 'CEP inválido')
       }
@@ -143,8 +141,12 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
         cor: true,
         usuario: {
           columns: {
+            createdAt: true,
             nomeFantasia: true,
-            nomeRazaoSocial: true
+            nomeRazaoSocial: true,
+            cep: true,
+            localidade: true,
+            uf: true
           }
         }
       }
@@ -168,8 +170,12 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
         cor: true,
         usuario: {
           columns: {
+            createdAt: true,
             nomeFantasia: true,
-            nomeRazaoSocial: true
+            nomeRazaoSocial: true,
+            cep: true,
+            localidade: true,
+            uf: true
           }
         }
       }

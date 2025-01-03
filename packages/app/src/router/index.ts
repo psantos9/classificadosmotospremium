@@ -34,7 +34,7 @@ const checkIfThereAreDraftAds: NavigationGuardWithThis<any> = async (to, from, n
     next()
   }
   else {
-    const ad = await api.fetchAnuncio(adId)
+    const ad = await api.fetchMeuAnuncio(adId)
     if (ad == null) {
       to.params.adId = 'novo'
     }

@@ -40,6 +40,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
     const [anuncio = null] = await db.select({ ...anuncioColumns }).from(schema.anuncio).where(and(...filters)).limit(1)
+    console.log('ANUNCIO', anuncio)
     return { ...anuncio, ...anuncio?.atualizacao ?? null }
   })
   .post('/', async (req, env) => {
@@ -207,9 +208,9 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
       return error(400, 'error while uploading photos')
     }
 
-    const { codigoFipe, marca, modelo, ano, anoModelo, quilometragem, placa, preco, cor, descricao, acessorios, informacoesAdicionais } = row
+    const { codigoFipe, marca, modelo, ano, anoModelo, quilometragem, placa, preco, cor, descricao, acessorios, informacoesAdicionais, cep, localidade, uf } = row
 
-    const atualizacao: AtualizaAnuncio = { codigoFipe, marca, modelo, ano, anoModelo, quilometragem, placa, preco, cor, descricao: descricao ?? '', acessorios, informacoesAdicionais, fotos: novasFotos }
+    const atualizacao: AtualizaAnuncio = { codigoFipe, marca, modelo, ano, anoModelo, quilometragem, placa, preco, cor, descricao: descricao ?? '', acessorios, informacoesAdicionais, cep, localidade, uf, fotos: novasFotos }
 
     const update: Partial<NovoAnuncio> = row.status === 'draft'
       ? { fotos: atualizacao.fotos, atualizacao }
@@ -240,8 +241,8 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     }
     await env.AD_IMAGES_BUCKET.delete(imagesToDelete)
 
-    const { codigoFipe, marca, modelo, ano, anoModelo, quilometragem, placa, preco, cor, descricao, acessorios, informacoesAdicionais } = anuncio
-    const atualizacao: AtualizaAnuncio = { codigoFipe, marca, modelo, ano, anoModelo, quilometragem, placa, preco, cor, descricao: descricao ?? '', acessorios, informacoesAdicionais, fotos: imagesToKeep }
+    const { codigoFipe, marca, modelo, ano, anoModelo, quilometragem, placa, preco, cor, descricao, acessorios, informacoesAdicionais, cep, localidade, uf } = anuncio
+    const atualizacao: AtualizaAnuncio = { codigoFipe, marca, modelo, ano, anoModelo, quilometragem, placa, preco, cor, descricao: descricao ?? '', acessorios, informacoesAdicionais, cep, localidade, uf, fotos: imagesToKeep }
 
     const update: Partial<NovoAnuncio> = anuncio.status === 'draft'
       ? { fotos: atualizacao.fotos, atualizacao }

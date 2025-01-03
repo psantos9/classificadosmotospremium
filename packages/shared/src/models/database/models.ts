@@ -11,4 +11,4 @@ export type InformacaoAdicional = typeof schema.informacaoAdicional.$inferSelect
 export type Anuncio = Omit<typeof schema.anuncio.$inferSelect, 'userId'>
 export type NovoAnuncio = typeof schema.anuncio.$inferInsert
 
-export type PublicAd = Omit<Anuncio, 'userId' | 'atualizacao' | 'reviewWorkflowId' | 'expiresAt' | 'publishedAd' | 'revision'> & { cor: Cor, usuario: { nomeRazaoSocial: string, nomeFantasia: string | null } }
+export type PublicAd = Omit<Anuncio, 'userId' | 'atualizacao' | 'reviewWorkflowId' | 'expiresAt' | 'publishedAd' | 'revision'> & { cor: Cor, usuario: { nomeRazaoSocial: string, nomeFantasia: string | null, cep: string, localidade: string, uf: string, createdAt: string } }

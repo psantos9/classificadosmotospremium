@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "79e44e39-c9ab-475d-b188-89d4b81b192c",
+  "id": "c2148994-4936-4abc-b427-6473a7f3d48f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "acessorio": {
@@ -175,6 +175,27 @@
         "fotos": {
           "name": "fotos",
           "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cep": {
+          "name": "cep",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "localidade": {
+          "name": "localidade",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "uf": {
+          "name": "uf",
+          "type": "text(2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
