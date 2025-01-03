@@ -89,7 +89,7 @@
         </div>
       </div>
     </div>
-    <div v-else class="w-full h-full rounded-md bg-gray-100 animate-pulse" />
+    <div v-else class="w-full h-full rounded-md shadow bg-gray-100 animate-pulse" />
     <div class="rounded-md shadow border bg-gray-100 p-4 flex flex-col gap-4">
       <div class="text-lg font-black">
         Sobre o anunciante
