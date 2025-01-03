@@ -1,5 +1,9 @@
 <template>
-  <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md md:grid md:grid-cols-2 items-center gap-4 w-full">
+  <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md md:grid md:grid-cols-2 gap-4 w-full grid-rows-[50px_1fr_1fr]">
+    <div class="col-span-full flex items-center gap-2 cursor-pointer" @click="$router.back()">
+      <FontAwesomeIcon :icon="faArrowLeft" size="2xl" />
+      <span class="text-2xl font-black">Voltar</span>
+    </div>
     <transition
       mode="out-in"
       enter-from-class="opacity-0"
@@ -227,7 +231,7 @@ import type { SwiperOptions } from 'swiper/types'
 import ExpandableImage from '@/components/ExpandableImage.vue'
 import { useApp } from '@/composables/useApp'
 import { getUnauthenticatedMessageSenderSchema } from '@cmp/shared/models/nova-mensagem'
-import { faCalendarAlt, faChevronRight, faLocationDot, faPalette, faSpinner, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faBackward, faCalendarAlt, faChevronRight, faLocationDot, faPalette, faSpinner, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { format, parseISO } from 'date-fns'
