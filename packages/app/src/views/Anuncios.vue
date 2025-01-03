@@ -16,11 +16,17 @@
         <div>Aplicad filtros</div>
       </div>
       <div class="flex-1 grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] gap-4 overflow-y-auto items-start">
-        <VehicleCard
-          v-for="anuncio in anuncios" :key="anuncio.id"
-          :anuncio="anuncio"
-          @click="$router.push({ name: 'anuncio', params: { id: anuncio.id } })"
-        />
+        <template v-if="loading">
+          <div v-for="i in [...Array(10).keys()]" :key="i" class="bg-gray-200 w-full h-full rounded-md border animate-pulse min-h-[335px]" />
+        </template>
+        <template v-else>
+          <VehicleCard
+            v-for="anuncio in anuncios"
+            :key="anuncio.id"
+            :anuncio="anuncio"
+            @click="$router.push({ name: 'anuncio', params: { id: anuncio.id } })"
+          />
+        </template>
       </div>
     </div>
   </div>
@@ -35,10 +41,16 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref } from 'vue'
 
 const { api } = useApp()
-
+const loading = ref(false)
 const anuncios = ref<PublicAd[]>([])
 const fetchAds = async () => {
-  anuncios.value = await api.fetchAnuncios()
+  try {
+    loading.value = true
+    anuncios.value = await api.fetchAnuncios()
+  }
+  finally {
+    loading.value = false
+  }
 }
 
 fetchAds()
