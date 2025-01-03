@@ -7,6 +7,40 @@
         Cadastro do Anúncio
       </div>
       <div class="card-section">
+        <span class="title">Localização da moto</span>
+        <div class="flex">
+          <div>
+            <label for="cep" class="block text-sm/6 font-medium">CEP</label>
+            <div class="mt-2 flex gap-4 items-center">
+              <div class="relative">
+                <input
+                  id="cep"
+                  v-model="cep"
+                  v-bind="cepAttrs"
+                  v-maska="{ mask: '#####-###' }"
+                  class="form-input"
+                >
+                <div class="absolute top-1/2 -translate-y-1/2 right-2">
+                  <FontAwesomeIcon v-if="errors.cep" :icon="faExclamationTriangle" fixed-width size="lg" class="text-[var(--danger)]" />
+                  <FontAwesomeIcon v-if="loadingCepRequests > 0" :icon="faSpinner" fixed-width size="lg" class="text-gray-100" />
+                  <FontAwesomeIcon v-if="localidade && !errors.cep" :icon="faCheckCircle" fixed-width size="lg" class="text-[var(--success)]" />
+                </div>
+
+                <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                  {{ errors.cep }}
+                </p>
+              </div>
+              <div v-if="cep && localidade && !loadingCepRequests" class="shrink-0 font-semibold flex items-center gap-1 text-gray-500">
+                <FontAwesomeIcon :icon="faLocationDot" size="xl" fixed-width :spin="loadingCepRequests > 0" />
+                <span>
+                  {{ localidade }} / {{ uf }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-section">
         <span class="title">Dados do Veículo</span>
         <div class="grid grid-cols-1 gap-8 sm:grid-cols-6">
           <Combobox
@@ -266,7 +300,7 @@ import Combobox from '@/components/Combobox.vue'
 import ImageUpload from '@/components/ImageUpload.vue'
 import { useApp } from '@/composables/useApp'
 import { type AtualizaAnuncio, getAtualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
-import { faArrowLeft, faArrowRight, faExclamationTriangle, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faArrowRight, faCheckCircle, faExclamationTriangle, faLocationDot, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import debounce from 'lodash.debounce'
@@ -288,14 +322,18 @@ const anuncio = ref<Anuncio | null>(null)
 const cores = ref<Cor[]>([])
 const listaAcessorios = ref<Acessorio[]>([])
 const listaInformacoesAdicionais = ref<InformacaoAdicional[]>([])
+const loadingCepRequests = ref(0)
 
 const anuncioFormSchema = toTypedSchema(getAtualizaAnuncioSchema())
 
-const { errors, defineField, values, setFieldValue, meta, resetForm, validate } = useForm({
+const { errors, defineField, values, setFieldValue, setFieldError, meta, resetForm, validate } = useForm({
   validationSchema: anuncioFormSchema,
   initialValues: { fotos: [], informacoesAdicionais: [], acessorios: [], descricao: '' }
 })
 
+const [cep, cepAttrs] = defineField('cep', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
+const [localidade] = defineField('localidade', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
+const [uf] = defineField('uf', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
 const [ano, anoAttrs] = defineField('ano', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
 const [placa, placaAttrs] = defineField('placa', { validateOnBlur: true, validateOnChange: false, validateOnInput: false })
 const [quilometragem, quilometragemAttrs] = defineField('quilometragem')
@@ -609,6 +647,30 @@ const uploadPhotos = async (files: FileList) => {
   }
 }
 
+const debouncedValidateCEP = debounce(async (cep: string) => {
+  const cepOk = unref(errors).cep === undefined
+  if (!cepOk) {
+    return
+  }
+
+  try {
+    loadingCepRequests.value++
+    const openCEP = await api.validateCEP(cep)
+    if (openCEP !== null) {
+      setFieldValue('localidade', openCEP.localidade)
+      setFieldValue('uf', openCEP.uf)
+    }
+    else {
+      setFieldError('cep', 'CEP inválido')
+      setFieldValue('localidade', '')
+      setFieldValue('uf', '')
+    }
+  }
+  finally {
+    loadingCepRequests.value--
+  }
+}, 500)
+
 watch(marca, () => atualizaModelos())
 watch(modelo, () => atualizaAnosModelo())
 
@@ -693,6 +755,10 @@ const init = async () => {
 
 watch(anuncio, (anuncio) => {
   setAdState(anuncio)
+})
+
+watch(cep, async () => {
+  await debouncedValidateCEP(unref(cep)?.toString() as string)
 })
 
 watch(route, (route) => {

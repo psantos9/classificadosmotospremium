@@ -21,7 +21,7 @@ const loginSchema = z.object({
   password: z.string()
 })
 
-const cepSchema = z.string().transform(val => Number.parseInt(val.replace(/\D+/g, ''))).refine(val => val.toString().length === 8)
+const cepSchema = z.string().transform(val => val.replace(/\D+/g, '')).refine(val => val.length === 8)
 
 const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' })
   .get<IRequest, [Env, ExecutionContext]>('/healthcheck', () => {
@@ -41,11 +41,13 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
       else if (!response.ok) {
         throw new StatusError(500, 'Erro ao buscar o CEP')
       }
+      console.log('RESPONSE', response.status)
       const cepResult = openCEPSchema.parse(await response.json())
       await env.CEP.put(cep.toString(), JSON.stringify(cepResult))
       return json(cepResult)
     }
     catch (err) {
+      console.log('ERR', err)
       if (err instanceof ZodError) {
         throw new StatusError(404, 'CEP inválido')
       }

@@ -16,7 +16,11 @@ export const getAtualizaAnuncioSchema = () => z.object({
   descricao: z.string({ required_error: REQUIRED_ERROR }),
   acessorios: z.array(z.number()),
   informacoesAdicionais: z.array(z.number()),
-  fotos: z.array(z.string())
+  fotos: z.array(z.string()),
+  cep: z.string({ required_error: REQUIRED_ERROR }).transform(val => val.replace(/\D+/g, '')).refine(val => val.length === 8, { message: 'CEP inválido' }),
+  localidade: z.string({ required_error: REQUIRED_ERROR }).nonempty(REQUIRED_ERROR),
+  uf: z.string({ required_error: REQUIRED_ERROR }).length(2, '2 caracteres')
+
 })
 
 export type AtualizaAnuncio = z.infer<ReturnType<typeof getAtualizaAnuncioSchema>>

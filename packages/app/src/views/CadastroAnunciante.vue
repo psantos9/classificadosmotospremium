@@ -296,7 +296,7 @@
 <script lang="ts" setup>
 import { CpfCnpjConflictError, EmailConflictError } from '@/composables/api-client'
 import { useApp } from '@/composables/useApp'
-import { type NovoUsuario, novoUsuarioSchema } from '@cmp/shared/models/novo-usuario'
+import { novoUsuarioSchema } from '@cmp/shared/models/novo-usuario'
 import { faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -401,6 +401,7 @@ watch(cpfCnpj, (cpfCnpj = '') => {
 watch(cep, async () => {
   await debouncedValidateCEP(unref(cep)?.toString() as string)
 })
+
 onMounted(() => {
   unref(nomeEl)?.focus?.()
 })
