@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md md:grid md:grid-cols-2 gap-4">
+  <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md md:grid md:grid-cols-2 gap-4 w-full">
     <div
       class="flex flex-col w-full h-full rounded-md"
       :class="[loading ? 'bg-gray-100 animate-pulse' : '']"
