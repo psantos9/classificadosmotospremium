@@ -245,34 +245,30 @@
           <button
             v-if="adId !== null && anuncio.status !== 'archived'"
             type="button"
-            class="w-full md:w-40 hidden md:flex items-center justify-center gap-x-2 rounded-md bg-[var(--danger)] hover:bg-[var(--danger-lighter)] text-[var(--danger-text)] border border-[var(--danger)] px-3.5 py-2.5 text-sm font-semibold shadow-sm transition-all"
+            class="text-white bg-[var(--danger)] hover:bg-[var(--danger-lighter)] focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center inline-flex items-center gap-2 me-2"
             @click="removeAnuncio"
           >
-            <FontAwesomeIcon :icon="faTrash" size="lg" />
+            <FontAwesomeIcon :icon="faTrash" />
             Arquivar
           </button>
           <button
             v-if="anuncio.atualizacao !== null"
             type="button"
-            class="w-full md:w-40 hidden md:flex items-center justify-center gap-x-2 rounded-md bg-[var(--danger)] hover:bg-[var(--danger-lighter)] text-[var(--danger-text)] border border-[var(--danger)] px-3.5 py-2.5 text-sm font-semibold shadow-sm transition-all"
+            class="text-white bg-[var(--secondary)] hover:bg-[var(--secondary-lighter)] focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center inline-flex items-center gap-2 me-2"
             @click="resetAdChanges"
           >
-            <FontAwesomeIcon :icon="faTrash" size="lg" />
-            Remove Alterações
+            <FontAwesomeIcon :icon="faRotateLeft" />
+            Remover alteracoes
           </button>
           <div class="flex-1" />
           <button
             v-if="anuncio.atualizacao"
             type="button"
-            class="w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] px-3.5 py-2.5 text-sm font-semibold shadow-sm transition-all"
-            :class="{
-              'opacity-40': submitting || !meta.valid,
-            }"
-            :disabled="submitting || !meta.valid"
+            class="text-[var(--primary-text)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center inline-flex items-center gap-2 me-2"
             @click="submitForReview"
           >
-            Publicar
             <FontAwesomeIcon :icon="submitting ? faSpinner : faArrowRight" size="lg" :spin="submitting" fixed-width />
+            Publicar
           </button>
         </div>
       </div>
@@ -298,7 +294,7 @@ import Combobox from '@/components/Combobox.vue'
 import ImageUpload from '@/components/ImageUpload.vue'
 import { useApp } from '@/composables/useApp'
 import { type AtualizaAnuncio, getAtualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
-import { faArrowLeft, faArrowRight, faCheckCircle, faExclamationTriangle, faLocationDot, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faArrowRight, faCheckCircle, faExclamationTriangle, faLocationDot, faRotateLeft, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import debounce from 'lodash.debounce'
