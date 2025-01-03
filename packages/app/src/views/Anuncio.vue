@@ -1,111 +1,140 @@
 <template>
-  <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md md:grid md:grid-cols-2 gap-4 w-full">
-    <div
-      class="flex flex-col w-full h-full rounded-md"
-      :class="[loading ? 'bg-gray-100 animate-pulse shadow border' : '']"
+  <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md md:grid md:grid-cols-2 items-center gap-4 w-full">
+    <transition
+      mode="out-in"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      enter-active-class="transition-opacity"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+      leave-active-class="transition-opacity"
     >
-      <swiper-container v-bind="options" class="w-full">
-        <swiper-slide v-for="(foto, i) in fotos" :key="i">
-          <ExpandableImage
-            :src="foto"
-            container-class="rounded-md bg-black aspect-video mx-auto w-full"
-            class="h-full mx-auto rounded-md shadow-md"
-          />
-        </swiper-slide>
-      </swiper-container>
+      <div v-if="loading || !anuncio" class="bg-gray-200 animate-pulse border shadow rounded-md h-full" />
+      <div v-else class="flex flex-col w-full h-full rounded-md">
+        <swiper-container v-bind="options" class="w-full">
+          <swiper-slide v-for="(foto, i) in fotos" :key="i">
+            <ExpandableImage
+              :src="foto"
+              container-class="rounded-md bg-black aspect-video mx-auto w-full"
+              class="h-full mx-auto rounded-md shadow-md"
+            />
+          </swiper-slide>
+        </swiper-container>
 
-      <swiper-container
-        class="thumbs-swiper w-full"
-        v-bind="optionsThumbs"
-        style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff"
-      >
-        <swiper-slide v-for="(thumbnail, j) in fotos" :key="j">
-          <img :src="thumbnail" class="cursor-pointer rounded-md object-fit">
-        </swiper-slide>
-      </swiper-container>
-    </div>
-    <div v-if="anuncio" class="flex flex-col gap-2 p-4 w-full h-full rounded-md">
-      <div class="flex items-center justify-between">
-        <div class="uppercase font-light text-xs text-gray-500">
-          Código: {{ anuncio.id }}
-        </div>
-        <div class="uppercase font-light text-xs text-gray-500 flex gap-2 items-center">
-          <FontAwesomeIcon :icon="faLocationDot" />
-          {{ anuncio.localidade }} / {{ anuncio.uf }}
-        </div>
+        <swiper-container
+          class="thumbs-swiper w-full"
+          v-bind="optionsThumbs"
+          style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff"
+        >
+          <swiper-slide v-for="(thumbnail, j) in fotos" :key="j">
+            <img :src="thumbnail" class="cursor-pointer rounded-md object-fit">
+          </swiper-slide>
+        </swiper-container>
       </div>
+    </transition>
 
-      <div class="text-4xl font-black">
-        {{ anuncio.marca }}
-      </div>
-      <div class="text-2xl">
-        {{ anuncio.modelo }}
-      </div>
-      <div class="text-4xl font-black text-[var(--success)]">
-        {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(anuncio.preco) }}
-      </div>
-      <div class="py-8 flex justify-between md:grid md:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
-        <div v-for="(caracteristica, i) in caracteristicas" :key="i" class="flex items-center gap-4">
-          <FontAwesomeIcon :icon="caracteristica.icon" class="text-[var(--primary)]" size="2x" />
-          <div class="flex flex-col">
-            <div class="text-sm font-light">
-              {{ caracteristica.label }}
-            </div>
-            <div class="text-sm font-semibold">
-              {{ caracteristica.value }}
-            </div>
+    <transition
+      mode="out-in"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      enter-active-class="transition-opacity"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+      leave-active-class="transition-opacity"
+    >
+      <div v-if="loading || !anuncio" class="bg-gray-200 animate-pulse border shadow rounded-md h-full" />
+      <div v-else class="flex flex-col gap-2 p-4 w-full h-full rounded-md">
+        <div class="flex items-center justify-between">
+          <div class="uppercase font-light text-xs text-gray-500">
+            Código: {{ anuncio.id }}
           </div>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-6">
-        <div class="flex flex-col gap-2 text-sm">
-          <div class="font-semibold text-sm">
-            Acessórios
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <div v-for="id in anuncio.acessorios" :key="id" class="border px-1 rounded-md text-xs font-light bg-green-100 border-green-200 shadow">
-              {{ acessorios.find(acessorio => acessorio.id === id)?.label }}
-            </div>
-          </div>
-        </div>
-        <div class="flex flex-col gap-2">
-          <div class="font-semibold text-sm">
-            Informações adicionais
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <div v-for="id in anuncio.informacoesAdicionais" :key="id" class="border px-1 rounded-md text-xs font-light bg-yellow-100 border-yellow-200 shadow">
-              {{ informacoesAdicionais.find(informacaoAdicional => informacaoAdicional.id === id)?.label }}
-            </div>
-          </div>
-        </div>
-        <div class="flex flex-col gap-2">
-          <div class="font-semibold text-sm">
-            Mais sobre a moto
-          </div>
-          <div class="font-light text-xs">
-            {{ anuncio.descricao || 'Sem descrição' }}
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-else class="w-full h-full rounded-md shadow border bg-gray-100 animate-pulse" />
-    <div class="rounded-md shadow border bg-gray-100 p-4 flex flex-col gap-4">
-      <div class="text-lg font-black">
-        Sobre o anunciante
-      </div>
-      <div class="flex gap-4 item-center">
-        <div class="bg-black rounded-md shadow aspect-square flex items-center justify-center">
-          <img src="@/assets/images/logo_dark.svg" class="h-24 mx-auto">
-        </div>
-        <div class="flex flex-col justify-between gap-3">
-          <span class="font-black text-base">{{ anuncio?.usuario.nomeFantasia ?? 'Particular' }}</span>
-          <span class="flex items-center gap-2">
+          <div class="uppercase font-light text-xs text-gray-500 flex gap-2 items-center">
             <FontAwesomeIcon :icon="faLocationDot" />
-            <span class="font-thin">{{ anuncio?.usuario.localidade }} - {{ anuncio?.usuario.uf }}</span>
-          </span>
-          <span v-if="anuncio" class="font-thin text-xs">No site desde  {{ format(parseISO(anuncio.usuario.createdAt), 'MM \'de\' MMMM yyyy', { locale: ptBR }) }}</span>
-        <!--
+            {{ anuncio.localidade }} / {{ anuncio.uf }}
+          </div>
+        </div>
+
+        <div class="text-4xl font-black">
+          {{ anuncio.marca }}
+        </div>
+        <div class="text-2xl">
+          {{ anuncio.modelo }}
+        </div>
+        <div class="text-4xl font-black text-[var(--success)]">
+          {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(anuncio.preco) }}
+        </div>
+        <div class="py-8 flex justify-between md:grid md:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
+          <div v-for="(caracteristica, i) in caracteristicas" :key="i" class="flex items-center gap-4">
+            <FontAwesomeIcon :icon="caracteristica.icon" class="text-[var(--primary)]" size="2x" />
+            <div class="flex flex-col">
+              <div class="text-sm font-light">
+                {{ caracteristica.label }}
+              </div>
+              <div class="text-sm font-semibold">
+                {{ caracteristica.value }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-6">
+          <div class="flex flex-col gap-2 text-sm">
+            <div class="font-semibold text-sm">
+              Acessórios
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <div v-for="id in anuncio.acessorios" :key="id" class="border px-1 rounded-md text-xs font-light bg-green-100 border-green-200 shadow">
+                {{ acessorios.find(acessorio => acessorio.id === id)?.label }}
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <div class="font-semibold text-sm">
+              Informações adicionais
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <div v-for="id in anuncio.informacoesAdicionais" :key="id" class="border px-1 rounded-md text-xs font-light bg-yellow-100 border-yellow-200 shadow">
+                {{ informacoesAdicionais.find(informacaoAdicional => informacaoAdicional.id === id)?.label }}
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <div class="font-semibold text-sm">
+              Mais sobre a moto
+            </div>
+            <div class="font-light text-xs">
+              {{ anuncio.descricao || 'Sem descrição' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+    <transition
+      mode="out-in"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      enter-active-class="transition-opacity"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+      leave-active-class="transition-opacity"
+    >
+      <div v-if="loading || !anuncio" class="bg-gray-200 animate-pulse border shadow rounded-md h-full" />
+      <div v-else class="rounded-md shadow border bg-gray-100 p-4 flex flex-col gap-4 h-full w-full">
+        <div class="text-lg font-black">
+          Sobre o anunciante
+        </div>
+        <div class="flex gap-4 item-center">
+          <div class="bg-black rounded-md shadow aspect-square flex items-center justify-center">
+            <img src="@/assets/images/logo_dark.svg" class="h-24 mx-auto">
+          </div>
+          <div class="flex flex-col justify-between gap-3">
+            <span class="font-black text-base">{{ anuncio?.usuario.nomeFantasia ?? 'Particular' }}</span>
+            <span class="flex items-center gap-2">
+              <FontAwesomeIcon :icon="faLocationDot" />
+              <span class="font-thin">{{ anuncio?.usuario.localidade }} - {{ anuncio?.usuario.uf }}</span>
+            </span>
+            <span v-if="anuncio" class="font-thin text-xs">No site desde  {{ format(parseISO(anuncio.usuario.createdAt), 'MM \'de\' MMMM yyyy', { locale: ptBR }) }}</span>
+            <!--
           <button
             type="button"
             class="flex items-center gap-1 text-[var(--primary-text)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] font-medium rounded-md text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
@@ -114,69 +143,81 @@
             Ver telefone
           </button>
           -->
+          </div>
         </div>
       </div>
-    </div>
-    <div class="rounded-md shadow border p-4 flex flex-col gap-4 bg-gray-100">
-      <div class="text-lg font-black">
-        Enviar proposta
-      </div>
-      <div class="grid gap-3 md:grid-cols-2">
-        <template v-if="!signedIn">
-          <div class="col-span-full relative">
-            <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome</label>
-            <input id="name" v-model="name" class="form-input" v-bind="nameAttrs">
-            <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
-              {{ errors.name }}
-            </p>
-          </div>
-          <div class="ol-span-full relative">
-            <label for="mobile" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Telefone</label>
-            <input
-              id="mobile"
-              v-model="mobile"
-              v-maska="{ mask: '(##) #########' }"
-              v-bind="mobileAttrs"
-              type="text"
-              autocomplete="off"
-              class="form-input"
-            >
-            <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
-              {{ errors.mobile }}
-            </p>
-          </div>
-          <div class="ol-span-full relative">
-            <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
-            <input id="email" v-model="email" class="form-input" v-bind="emailAttrs">
-            <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
-              {{ errors.email }}
-            </p>
-          </div>
-        </template>
+    </transition>
+    <transition
+      mode="out-in"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      enter-active-class="transition-opacity"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+      leave-active-class="transition-opacity"
+    >
+      <div v-if="loading || !anuncio" class="bg-gray-200 animate-pulse border shadow rounded-md h-full" />
+      <div v-else class="rounded-md shadow border p-4 flex flex-col gap-4 bg-gray-100">
+        <div class="text-lg font-black">
+          Enviar proposta
+        </div>
+        <div class="grid gap-3 md:grid-cols-2">
+          <template v-if="!signedIn">
+            <div class="col-span-full relative">
+              <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome</label>
+              <input id="name" v-model="name" class="form-input" v-bind="nameAttrs">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.name }}
+              </p>
+            </div>
+            <div class="ol-span-full relative">
+              <label for="mobile" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Telefone</label>
+              <input
+                id="mobile"
+                v-model="mobile"
+                v-maska="{ mask: '(##) #########' }"
+                v-bind="mobileAttrs"
+                type="text"
+                autocomplete="off"
+                class="form-input"
+              >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.mobile }}
+              </p>
+            </div>
+            <div class="ol-span-full relative">
+              <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+              <input id="email" v-model="email" class="form-input" v-bind="emailAttrs">
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.email }}
+              </p>
+            </div>
+          </template>
 
-        <div class="col-span-full">
-          <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mensagem</label>
-          <textarea
-            id="message"
-            v-model="message"
-            rows="4"
-            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border-2 border-gray-300 focus:border-[var(--primary)] !ring-0" :placeholder="`Gostei do seu anúncio da ${anuncio?.marca} ${anuncio?.modelo} e gostaria de mais informações.`"
-          />
+          <div class="col-span-full">
+            <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mensagem</label>
+            <textarea
+              id="message"
+              v-model="message"
+              rows="4"
+              class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border-2 border-gray-300 focus:border-[var(--primary)] !ring-0" :placeholder="`Gostei do seu anúncio da ${anuncio?.marca} ${anuncio?.modelo} e gostaria de mais informações.`"
+            />
+          </div>
+        </div>
+        <div class="mt-4 flex justify-center items-center">
+          <button
+            type="button"
+            :disabled="sendingMessageDisabled"
+            class="flex items-center justify-center gap-1 text-[var(--primary-text)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] font-medium rounded-md text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none transition-all"
+            :class="[sendingMessageDisabled ? 'opacity-70 pointer-events-none' : '']"
+            @click="enviarMensagem"
+          >
+            Enviar mensagem
+            <FontAwesomeIcon :icon="sendingMessage ? faSpinner : faChevronRight" :spin="sendingMessage" fixed-width />
+          </button>
         </div>
       </div>
-      <div class="mt-4 flex justify-center items-center">
-        <button
-          type="button"
-          :disabled="sendingMessageDisabled"
-          class="flex items-center justify-center gap-1 text-[var(--primary-text)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] font-medium rounded-md text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none transition-all"
-          :class="[sendingMessageDisabled ? 'opacity-70 pointer-events-none' : '']"
-          @click="enviarMensagem"
-        >
-          Enviar mensagem
-          <FontAwesomeIcon :icon="sendingMessage ? faSpinner : faChevronRight" :spin="sendingMessage" fixed-width />
-        </button>
-      </div>
-    </div>
+    </transition>
   </div>
 </template>
 
