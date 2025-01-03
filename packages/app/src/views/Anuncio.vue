@@ -34,24 +34,49 @@
       <div class="text-4xl font-black text-[var(--success)]">
         {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(anuncio.preco) }}
       </div>
-      <div class="py-8 grid md:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
+      <div class="py-8 flex justify-between md:grid md:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
         <div v-for="(caracteristica, i) in caracteristicas" :key="i" class="flex items-center gap-4">
           <FontAwesomeIcon :icon="caracteristica.icon" class="text-[var(--primary)]" size="2x" />
           <div class="flex flex-col">
             <div class="text-sm font-light">
               {{ caracteristica.label }}
             </div>
-            <div class="text-sm font-bold">
+            <div class="text-sm font-semibold">
               {{ caracteristica.value }}
             </div>
           </div>
         </div>
       </div>
-      <div class="flex flex-col gap-2 text-sm">
-        <div class="font-bold ">
-          Mais sobre a moto
+
+      <div class="flex flex-col gap-6">
+        <div class="flex flex-col gap-2 text-sm">
+          <div class="font-semibold text-sm">
+            Acessórios
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <div v-for="id in anuncio.acessorios" :key="id" class="border px-1 rounded-md text-xs font-light bg-green-100 border-green-200 shadow">
+              {{ acessorios.find(acessorio => acessorio.id === id)?.label }}
+            </div>
+          </div>
         </div>
-        <div>{{ anuncio.descricao || 'Sem descrição' }}</div>
+        <div class="flex flex-col gap-2">
+          <div class="font-semibold text-sm">
+            Informações adicionais
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <div v-for="id in anuncio.informacoesAdicionais" :key="id" class="border px-1 rounded-md text-xs font-light bg-yellow-100 border-yellow-200 shadow">
+              {{ informacoesAdicionais.find(informacaoAdicional => informacaoAdicional.id === id)?.label }}
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <div class="font-semibold text-sm">
+            Mais sobre a moto
+          </div>
+          <div class="font-light text-xs">
+            {{ anuncio.descricao || 'Sem descrição' }}
+          </div>
+        </div>
       </div>
     </div>
     <div class="rounded-md shadow border bg-gray-100 p-4 flex flex-col gap-4">
@@ -111,7 +136,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { PublicAd } from '@cmp/shared/models/database/schema'
+import type { PublicAd } from '@cmp/shared/models/database/models'
 import type { SwiperOptions } from 'swiper/types'
 import ExpandableImage from '@/components/ExpandableImage.vue'
 import { useApp } from '@/composables/useApp'
@@ -134,8 +159,8 @@ const getCaracteristicas = (anuncio: PublicAd | null): ICaracteristica[] => {
   const { ano, anoModelo, quilometragem, cor } = anuncio
   const caracteristicas: ICaracteristica[] = [
     { icon: faCalendarAlt, label: 'Ano', value: `${ano}/${anoModelo}` },
-    { icon: faTachometerAlt, label: 'KM', value: quilometragem.toString() },
-    { icon: faPalette, label: 'Cor', value: cor.toString() }
+    { icon: faTachometerAlt, label: 'Quilometragem', value: quilometragem.toString() },
+    { icon: faPalette, label: 'Cor', value: cor.label.toString() }
   ]
   return caracteristicas
 }
@@ -143,7 +168,7 @@ const getCaracteristicas = (anuncio: PublicAd | null): ICaracteristica[] => {
 register()
 
 const router = useRouter()
-const { api } = useApp()
+const { api, informacoesAdicionais, acessorios } = useApp()
 
 const adId = Number.parseInt(unref(router.currentRoute).params.id as string ?? '')
 

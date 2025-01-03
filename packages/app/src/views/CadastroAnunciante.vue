@@ -296,7 +296,7 @@
 <script lang="ts" setup>
 import { CpfCnpjConflictError, EmailConflictError } from '@/composables/api-client'
 import { useApp } from '@/composables/useApp'
-import { type NovoCadastro, novoCadastroSchema } from '@cmp/shared/models/novo-cadastro'
+import { type NovoUsuario, novoUsuarioSchema } from '@cmp/shared/models/novo-usuario'
 import { faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -322,7 +322,7 @@ const initalEmail = unref(cadastraEmail)
 if (unref(cadastraEmail)) {
   cadastraEmail.value = undefined
 }
-const validationSchema = toTypedSchema(novoCadastroSchema)
+const validationSchema = toTypedSchema(novoUsuarioSchema)
 const { errors, defineField, values, setFieldError, validate } = useForm({ validationSchema, initialValues: { email: initalEmail } })
 const [cpfCnpj, cpfCnpjAttrs] = defineField('cpfCnpj', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
 const [nomeRazaoSocial, nomeRazaoSocialAttrs] = defineField('nomeRazaoSocial')
@@ -344,10 +344,10 @@ const submitting = ref(false)
 const submit = async () => {
   const { valid } = await validate()
   if (valid) {
-    const cadastro = novoCadastroSchema.parse(unref(values))
+    const usuario = novoUsuarioSchema.parse(unref(values))
     try {
       submitting.value = true
-      await api.criaNovoCadastro(cadastro)
+      await api.criaNovoUsuario(usuario)
       router.push({ name: 'home' })
       $toast.success('Conta criada com sucesso')
     }

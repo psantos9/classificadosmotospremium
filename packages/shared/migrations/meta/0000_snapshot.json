@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "e5f31ba1-5bfb-4f66-b2d4-c0146e5a68e2",
+  "id": "79e44e39-c9ab-475d-b188-89d4b81b192c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "acessorio": {
@@ -196,10 +196,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "anuncio_user_id_cadastro_id_fk": {
-          "name": "anuncio_user_id_cadastro_id_fk",
+        "anuncio_user_id_usuario_id_fk": {
+          "name": "anuncio_user_id_usuario_id_fk",
           "tableFrom": "anuncio",
-          "tableTo": "cadastro",
+          "tableTo": "usuario",
           "columnsFrom": [
             "user_id"
           ],
@@ -207,6 +207,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "anuncio_cor_cor_id_fk": {
+          "name": "anuncio_cor_cor_id_fk",
+          "tableFrom": "anuncio",
+          "tableTo": "cor",
+          "columnsFrom": [
+            "cor"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
           "onUpdate": "no action"
         }
       },
@@ -219,8 +232,56 @@
         }
       }
     },
-    "cadastro": {
-      "name": "cadastro",
+    "cor": {
+      "name": "cor",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "informacao_adicional": {
+      "name": "informacao_adicional",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "usuario": {
+      "name": "usuario",
       "columns": {
         "id": {
           "name": "id",
@@ -366,69 +427,21 @@
         }
       },
       "indexes": {
-        "cadastro_cpfCnpj_unique": {
-          "name": "cadastro_cpfCnpj_unique",
+        "usuario_cpfCnpj_unique": {
+          "name": "usuario_cpfCnpj_unique",
           "columns": [
             "cpf_cnpj"
           ],
           "isUnique": true
         },
-        "cadastro_email_unique": {
-          "name": "cadastro_email_unique",
+        "usuario_email_unique": {
+          "name": "usuario_email_unique",
           "columns": [
             "email"
           ],
           "isUnique": true
         }
       },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "cor": {
-      "name": "cor",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "label": {
-          "name": "label",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "informacao_adicional": {
-      "name": "informacao_adicional",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "label": {
-          "name": "label",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},

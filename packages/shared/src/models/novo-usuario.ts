@@ -78,7 +78,7 @@ export const dataNascimentoSchema = z.string({ required_error: requiredError }).
   return value
 })
 
-export const novoCadastroSchema = z.object({
+export const novoUsuarioSchema = z.object({
   cpfCnpj: z.string({ required_error: requiredError }).transform(val => val.replace(/\D+/g, '')).refine(val => cpf.isValid(val, true) || cnpj.isValid(val, true), { message: 'CPF ou CNPJ inválido' }),
   nomeRazaoSocial: z.string({ required_error: requiredError }).nonempty(requiredError),
   dataNascimento: dataNascimentoSchema.optional(),
@@ -114,4 +114,4 @@ export const novoCadastroSchema = z.object({
   return !hasIssues
 })
 
-export type NovoCadastro = z.infer<typeof novoCadastroSchema>
+export type NovoUsuario = z.infer<typeof novoUsuarioSchema>

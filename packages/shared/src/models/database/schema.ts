@@ -4,7 +4,7 @@ import { relations, sql } from 'drizzle-orm'
 import { check, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { anuncioStatusType } from './custom-types'
 
-export const cadastro = sqliteTable('cadastro', {
+export const usuario = sqliteTable('usuario', {
   id: integer().primaryKey({ autoIncrement: true }),
   createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
@@ -48,7 +48,7 @@ export const anuncio = sqliteTable('anuncio', () => ({
   updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
   expiresAt: integer({ mode: 'timestamp' }),
   publishedAt: integer({ mode: 'timestamp' }),
-  userId: integer().notNull().references(() => cadastro.id, { onDelete: 'cascade' }),
+  userId: integer().notNull().references(() => usuario.id, { onDelete: 'cascade' }),
   status: anuncioStatusType().notNull().default(anuncioStatusSchema.enum.draft),
   revision: integer({ mode: 'number' }).notNull().$defaultFn(() => 0),
   codigoFipe: text().notNull(),
@@ -59,34 +59,41 @@ export const anuncio = sqliteTable('anuncio', () => ({
   placa: text().notNull(),
   quilometragem: integer().notNull(),
   preco: integer().notNull(),
-  cor: integer().notNull(),
+  cor: integer().notNull().references(() => cor.id, { onDelete: 'restrict' }),
   descricao: text(),
   informacoesAdicionais: text({ mode: 'json' }).notNull().$type<number[]>().$defaultFn(() => []),
   acessorios: text({ mode: 'json' }).notNull().$type<number[]>().$defaultFn(() => []),
   fotos: text({ mode: 'json' }).notNull().$type<string[]>().$defaultFn(() => []),
+  cep: text().notNull(),
+  localidade: text().notNull(),
+  uf: text({ length: 2 }).notNull(),
   atualizacao: text({ mode: 'json' }).$type<AtualizaAnuncio | null>().$defaultFn(() => null),
   reviewWorkflowId: text()
 }), table => [
   check('anuncioStatus', sql.raw(`${table.status.name} IN (${Object.values(anuncioStatusSchema.enum).map(value => `'${value}'`).join(',')})`))
 ])
 
-export const cadastroRelations = relations(cadastro, ({ many }) => ({
+export const usuarioRelations = relations(usuario, ({ many }) => ({
   anuncios: many(anuncio)
 }))
 
 export const anuncioRelations = relations(anuncio, ({ one }) => ({
-  cadastro: one(cadastro, {
+  cor: one(cor, {
+    fields: [anuncio.cor],
+    references: [cor.id]
+  }),
+  usuario: one(usuario, {
     fields: [anuncio.userId],
-    references: [cadastro.id]
+    references: [usuario.id]
   })
 }))
 
 export const schema = {
-  cadastro,
+  usuario,
   cor,
   acessorio,
   informacaoAdicional,
   anuncio,
-  cadastroRelations,
+  usuarioRelations,
   anuncioRelations
 }

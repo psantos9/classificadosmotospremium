@@ -241,10 +241,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { Cadastro } from '@cmp/shared/models/database/schema'
+import type { Usuario } from '@cmp/shared/models/database/models'
 import { CpfCnpjConflictError, EmailConflictError } from '@/composables/api-client'
 import { useApp } from '@/composables/useApp'
-import { atualizaCadastroSchema } from '@cmp/shared/models/atualiza-cadastro'
+import { atualizaUsuarioSchema } from '@cmp/shared/models/atualiza-usuario'
 import { faArrowLeft, faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -265,12 +265,12 @@ const $toast = useToast()
 const { api } = useApp()
 const router = useRouter()
 
-const cadastroId = ref<number | null>(null)
+const userId = ref<number | null>(null)
 const originalHash = ref('')
 const skipCepCheck = ref(true)
 const submitting = ref(false)
 
-const validationSchema = toTypedSchema(atualizaCadastroSchema)
+const validationSchema = toTypedSchema(atualizaUsuarioSchema)
 const { errors, defineField, values, setFieldError, validate, setFieldValue, meta } = useForm({ validationSchema })
 const [cpfCnpj, cpfCnpjAttrs] = defineField('cpfCnpj')
 const [nomeRazaoSocial, nomeRazaoSocialAttrs] = defineField('nomeRazaoSocial')
@@ -285,18 +285,18 @@ const [bairro, bairroAttrs] = defineField('bairro')
 const [localidade, localidadeAttrs] = defineField('localidade')
 const [uf, ufAttrs] = defineField('uf')
 
-const syncCadastro = async (_cadastro?: Omit<Cadastro, 'password'>) => {
-  if (!_cadastro) {
+const syncUsuario = async (_usuario?: Omit<Usuario, 'password'>) => {
+  if (!_usuario) {
     try {
       submitting.value = true
-      _cadastro = await api.fetchCadastro()
+      _usuario = await api.fetchUsuario()
     }
     finally {
       submitting.value = false
     }
   }
-  const { id, cpfCnpj, nomeRazaoSocial, nomeFantasia, email, celular, cep, logradouro, numero, complemento, bairro, localidade, uf } = _cadastro
-  cadastroId.value = id
+  const { id, cpfCnpj, nomeRazaoSocial, nomeFantasia, email, celular, cep, logradouro, numero, complemento, bairro, localidade, uf } = _usuario
+  userId.value = id
   setFieldValue('nomeRazaoSocial', nomeRazaoSocial)
   setFieldValue('nomeFantasia', nomeFantasia ?? '')
   setFieldValue('cpfCnpj', cpfCnpj)
@@ -325,17 +325,17 @@ const tipoEntidade = computed(() => {
 })
 
 const submit = async () => {
-  const id = unref(cadastroId)
+  const id = unref(userId)
   if (!id) {
     return
   }
   const { valid } = await validate()
   if (valid) {
-    const cadastro = JSON.parse(JSON.stringify(unref(values)))
+    const usuario = JSON.parse(JSON.stringify(unref(values)))
     try {
       submitting.value = true
-      const cadastroAtualizado = await api.atualizaCadastro({ id, cadastro })
-      await syncCadastro(cadastroAtualizado)
+      const usuarioAtualizado = await api.atualizaUsuario({ id, usuario })
+      await syncUsuario(usuarioAtualizado)
       $toast.success('Dados atualizados com sucesso')
       router.push({ name: 'minha-conta' })
     }
@@ -379,5 +379,5 @@ watch(cep, async () => {
   await debouncedValidateCEP(unref(cep)?.toString() as string)
 })
 
-syncCadastro()
+syncUsuario()
 </script>

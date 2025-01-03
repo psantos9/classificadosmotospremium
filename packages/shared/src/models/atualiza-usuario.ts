@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 const requiredError = 'Obrigatório'
 
-export const atualizaCadastroSchema = z.object({
+export const atualizaUsuarioSchema = z.object({
   cpfCnpj: z.string({ required_error: requiredError }).transform(val => val.replace(/\D+/g, '')).refine(val => cpf.isValid(val, true) || cnpj.isValid(val, true), { message: 'CPF ou CNPJ inválido' }),
   nomeRazaoSocial: z.string({ required_error: requiredError }).nonempty(requiredError),
   nomeFantasia: z.string({ required_error: requiredError }).optional(),
@@ -18,4 +18,4 @@ export const atualizaCadastroSchema = z.object({
   uf: z.string({ required_error: requiredError }).length(2, '2 caracteres')
 })
 
-export type AtualizaCadastro = z.infer<typeof atualizaCadastroSchema>
+export type AtualizaUsuario = z.infer<typeof atualizaUsuarioSchema>

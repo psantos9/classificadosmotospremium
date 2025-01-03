@@ -1,7 +1,7 @@
 import { getTableColumns } from 'drizzle-orm'
-import * as tables from './tables'
+import { anuncio } from './schema'
 
 export const getPublicAdColumns = () => {
-  const { userId, atualizacao, reviewWorkflowId, expiresAt, publishedAt, revision, ...anuncioColumns } = getTableColumns(tables.anuncio)
+  const { userId, atualizacao, reviewWorkflowId, expiresAt, publishedAt, revision, ...anuncioColumns } = getTableColumns(anuncio)
   return anuncioColumns
 }

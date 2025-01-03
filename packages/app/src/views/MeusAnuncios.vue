@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Anuncio } from '@cmp/shared/models/database/schema'
+import type { Anuncio } from '@cmp/shared/models/database/models'
 import { useApp } from '@/composables/useApp'
 import { format } from 'date-fns'
 import { ref } from 'vue'

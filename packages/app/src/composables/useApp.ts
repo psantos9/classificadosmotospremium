@@ -1,3 +1,4 @@
+import type { Acessorio, Cor, InformacaoAdicional } from '@cmp/shared/models/database/models'
 import { APIClient, APIClientEvent } from '@/composables/api-client'
 import { computed, nextTick, ref, unref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -13,12 +14,25 @@ const signedIn = ref(false)
 
 const cadastraEmail = ref<string | undefined>(undefined)
 
+const acessorios = ref<Acessorio[]>([])
+const informacoesAdicionais = ref<InformacaoAdicional[]>([])
+const cores = ref<Cor[]>([])
+
 let signedInWatcher: null | ReturnType<typeof watch> = null
 const api = new APIClient({ baseURL: __API_BASE_URL__ })
 
 api.on(APIClientEvent.SIGNED_IN, (_signedIn) => {
   signedIn.value = _signedIn
 })
+
+const initApp = async () => {
+  const [_acessorios, _informacoesAdicionais, _cores] = await Promise.all([api.fetchAcessorios(), api.fetchInformacoesAdicionais(), api.fetchCores()])
+  acessorios.value = _acessorios
+  informacoesAdicionais.value = _informacoesAdicionais
+  cores.value = _cores
+}
+
+void initApp()
 
 export const useApp = () => {
   if (signedInWatcher === null) {
@@ -43,6 +57,9 @@ export const useApp = () => {
     sidebarOpen: computed(() => unref(sidebarOpen)),
     openSidebar: (value: boolean) => {
       sidebarOpen.value = value
-    }
+    },
+    cores: computed(() => unref(cores)),
+    acessorios: computed(() => unref(acessorios)),
+    informacoesAdicionais: computed(() => unref(informacoesAdicionais))
   }
 }

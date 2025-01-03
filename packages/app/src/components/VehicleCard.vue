@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { PublicAd } from '@cmp/shared/models/database/schema'
+import type { PublicAd } from '@cmp/shared/models/database/models'
 import { useApp } from '@/composables/useApp'
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'

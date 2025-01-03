@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { PublicAd } from '@cmp/shared/models/database/schema'
+import type { PublicAd } from '@cmp/shared/models/database/models'
 import VehicleCard from '@/components/VehicleCard.vue'
 import { useApp } from '@/composables/useApp'
 import { faFilter } from '@fortawesome/free-solid-svg-icons'

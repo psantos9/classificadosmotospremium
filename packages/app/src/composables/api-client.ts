@@ -1,9 +1,9 @@
 import type { AnoModelo, CodigoTipoCombustivel, Marca, Modelo, Preco } from '@cmp/api/clients/fipe-api-client'
 import type { AnuncioStatus } from '@cmp/shared/models/anuncio-status'
 import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
-import type { AtualizaCadastro } from '@cmp/shared/models/atualiza-cadastro'
-import type { Acessorio, Anuncio, Cadastro, Cor, InformacaoAdicional, PublicAd } from '@cmp/shared/models/database/models'
-import type { NovoCadastro } from '@cmp/shared/models/novo-cadastro'
+import type { AtualizaUsuario } from '@cmp/shared/models/atualiza-usuario'
+import type { Acessorio, Anuncio, Cor, InformacaoAdicional, PublicAd, Usuario } from '@cmp/shared/models/database/models'
+import type { NovoUsuario } from '@cmp/shared/models/novo-usuario'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
 import { computeFileHash } from '@/helpers/computeFileSha256'
 import { getImageStorageKey } from '@cmp/api/helpers/get-image-storage-key'
@@ -49,8 +49,8 @@ export interface IAPIClient {
   logout: () => Promise<void>
   validateEmail: (email: string) => Promise<boolean>
   validateCEP: (cep: string) => Promise<OpenCEP | null>
-  criaNovoCadastro: (cadastro: NovoCadastro) => Promise<void>
-  fetchCadastro: () => Promise<Omit<Cadastro, 'password' | 'confirmPassword'>>
+  criaNovoUsuario: (cadastro: NovoUsuario) => Promise<void>
+  fetchUsuario: () => Promise<Omit<Usuario, 'password' | 'confirmPassword'>>
 }
 
 const getAxiosInstance = (params: { baseURL: string, ctx: APIClient }) => {
@@ -164,7 +164,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return openCEP
   }
 
-  async criaNovoCadastro(cadastro: NovoCadastro) {
+  async criaNovoUsuario(cadastro: NovoUsuario) {
     const bearerToken = await this.axios.post<{ bearerToken: string }>('/api/v1/signup', cadastro)
       .then(({ data: { bearerToken } }) => bearerToken)
       .catch((err) => {
@@ -184,9 +184,9 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     await this.emit(APIClientEvent.SIGNED_IN, true)
   }
 
-  async atualizaCadastro(params: { id: number, cadastro: AtualizaCadastro }) {
-    const { id, cadastro } = params
-    const cadastroAtualizado = await this.axios.put<Omit<Cadastro, 'password'>>(`/api/v1/users/${id}`, cadastro)
+  async atualizaUsuario(params: { id: number, usuario: AtualizaUsuario }) {
+    const { id, usuario } = params
+    const usuarioAtualizado = await this.axios.put<Omit<Usuario, 'password'>>(`/api/v1/users/${id}`, usuario)
       .then(({ data }) => data)
       .catch((err) => {
         if (err instanceof AxiosError && err.status === 409) {
@@ -200,7 +200,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
         }
         throw err
       })
-    return cadastroAtualizado
+    return usuarioAtualizado
   }
 
   async atualizaSenha(params: { currentPassword: string, password: string }) {
@@ -217,11 +217,11 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     }
   }
 
-  async fetchCadastro() {
+  async fetchUsuario() {
     this._fetchToken()
-    const cadastro = await this.axios.get<Omit<Cadastro, 'password'>>('/api/v1/users')
+    const usuario = await this.axios.get<Omit<Usuario, 'password'>>('/api/v1/users')
       .then(({ data }) => data)
-    return cadastro
+    return usuario
   }
 
   async fetchMarcas() {
@@ -251,46 +251,21 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
   }
 
   async fetchCores(): Promise<Cor[]> {
-    const cores: Cor[] = [
-      { id: 1, label: 'Amarelo' },
-      { id: 2, label: 'Azul' },
-      { id: 3, label: 'Branco' },
-      { id: 4, label: 'Cinza' },
-      { id: 5, label: 'Laranja' },
-      { id: 6, label: 'Outra' },
-      { id: 7, label: 'Prata' },
-      { id: 8, label: 'Preto' },
-      { id: 9, label: 'Verde' },
-      { id: 10, label: 'Vermelho' }
-    ]
+    const cores = await this.axios.get<Cor[]>('/api/v1/cores')
+      .then(({ data }) => data)
     return cores
   }
 
   async fetchAcessorios(): Promise<Acessorio[]> {
-    const acessorios: Acessorio[] = [
-      { id: 1, label: 'ABS' },
-      { id: 2, label: 'Amortecedor de direção' },
-      { id: 3, label: 'Bolsa / Baú / Bauleto' },
-      { id: 4, label: 'Computador de bordo' },
-      { id: 5, label: 'Contrapeso no guidon' },
-      { id: 6, label: 'Escapamento esportivo' },
-      { id: 7, label: 'Faróis de neblina' },
-      { id: 8, label: 'GPS' },
-      { id: 9, label: 'Som' }
-    ]
+    const acessorios = await this.axios.get<Acessorio[]>('/api/v1/acessorios')
+      .then(({ data }) => data)
     return acessorios
   }
 
   async fetchInformacoesAdicionais(): Promise<InformacaoAdicional[]> {
-    const informacaoAdicional: InformacaoAdicional[] = [
-      { id: 1, label: 'Com multas' },
-      { id: 2, label: 'De leilão' },
-      { id: 3, label: 'IPVA pago' },
-      { id: 4, label: 'Único dono' },
-      { id: 5, label: 'Veículo em financiamento' },
-      { id: 6, label: 'Veículo quitado' }
-    ]
-    return informacaoAdicional
+    const informacoesAdicionais = await this.axios.get<InformacaoAdicional[]>('/api/v1/informacoes-adicionais')
+      .then(({ data }) => data)
+    return informacoesAdicionais
   }
 
   async criaAnuncio(anuncio: AtualizaAnuncio) {
@@ -346,7 +321,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
 
   async fetchAnuncio(id: number) {
     const pathname = `/api/v1/anuncios/${id}`
-    const anuncio = await this.axios.get<PublicAd>(pathname)
+    const anuncio = await this.axios.get<PublicAd & { cor: Cor }>(pathname)
       .then(({ data }) => data)
     return anuncio
   }

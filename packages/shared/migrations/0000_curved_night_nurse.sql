@@ -27,11 +27,22 @@ CREATE TABLE `anuncio` (
 	`fotos` text NOT NULL,
 	`atualizacao` text,
 	`review_workflow_id` text,
-	FOREIGN KEY (`user_id`) REFERENCES `cadastro`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`user_id`) REFERENCES `usuario`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`cor`) REFERENCES `cor`(`id`) ON UPDATE no action ON DELETE restrict,
 	CONSTRAINT "anuncioStatus" CHECK(status IN ('draft','rejected','published','paused','expired','finished','archived'))
 );
 --> statement-breakpoint
-CREATE TABLE `cadastro` (
+CREATE TABLE `cor` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`label` text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE `informacao_adicional` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`label` text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE `usuario` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
@@ -54,14 +65,5 @@ CREATE TABLE `cadastro` (
 	`password` text NOT NULL
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `cadastro_cpfCnpj_unique` ON `cadastro` (`cpf_cnpj`);--> statement-breakpoint
-CREATE UNIQUE INDEX `cadastro_email_unique` ON `cadastro` (`email`);--> statement-breakpoint
-CREATE TABLE `cor` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`label` text NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE `informacao_adicional` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`label` text NOT NULL
-);
+CREATE UNIQUE INDEX `usuario_cpfCnpj_unique` ON `usuario` (`cpf_cnpj`);--> statement-breakpoint
+CREATE UNIQUE INDEX `usuario_email_unique` ON `usuario` (`email`);
