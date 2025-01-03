@@ -2,7 +2,7 @@
   <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md md:grid md:grid-cols-2 gap-4 w-full">
     <div
       class="flex flex-col w-full h-full rounded-md"
-      :class="[loading ? 'bg-gray-100 animate-pulse' : '']"
+      :class="[loading ? 'bg-gray-100 animate-pulse shadow border' : '']"
     >
       <swiper-container v-bind="options" class="w-full">
         <swiper-slide v-for="(foto, i) in fotos" :key="i">
@@ -89,7 +89,7 @@
         </div>
       </div>
     </div>
-    <div v-else class="w-full h-full rounded-md shadow bg-gray-100 animate-pulse" />
+    <div v-else class="w-full h-full rounded-md shadow border bg-gray-100 animate-pulse" />
     <div class="rounded-md shadow border bg-gray-100 p-4 flex flex-col gap-4">
       <div class="text-lg font-black">
         Sobre o anunciante
