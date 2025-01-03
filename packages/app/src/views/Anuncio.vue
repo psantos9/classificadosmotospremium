@@ -1,11 +1,14 @@
 <template>
   <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md md:grid md:grid-cols-2 gap-4">
-    <div class="flex flex-col">
+    <div
+      class="flex flex-col w-full h-full rounded-md"
+      :class="[loading ? 'bg-gray-100 animate-pulse' : '']"
+    >
       <swiper-container v-bind="options" class="w-full">
         <swiper-slide v-for="(foto, i) in fotos" :key="i">
           <ExpandableImage
             :src="foto"
-            container-class="rounded-md bg-black aspect-video mx-auto"
+            container-class="rounded-md bg-black aspect-video mx-auto w-full"
             class="h-full mx-auto rounded-md shadow-md"
           />
         </swiper-slide>
@@ -235,6 +238,7 @@ if (Number.isNaN(adId)) {
   router.push({ name: 'anuncios' })
 }
 
+const loading = ref(false)
 const sendingMessage = ref(false)
 const message = ref('')
 const fotos = ref<string[]>([])
@@ -255,9 +259,15 @@ const optionsThumbs: SwiperOptions = {
 }
 
 const fetchAnuncio = async () => {
-  anuncio.value = await api.fetchAnuncio(adId)
-  fotos.value = (unref(anuncio)?.fotos ?? []).map(foto => api.getImageUrl(foto))
-  caracteristicas.value = getCaracteristicas(unref(anuncio))
+  try {
+    loading.value = true
+    anuncio.value = await api.fetchAnuncio(adId)
+    fotos.value = (unref(anuncio)?.fotos ?? []).map(foto => api.getImageUrl(foto))
+    caracteristicas.value = getCaracteristicas(unref(anuncio))
+  }
+  finally {
+    loading.value = false
+  }
 }
 
 const enviarMensagem = async () => {
