@@ -241,7 +241,7 @@
           </div>
         </div>
 
-        <div class="mt-4 md:mt-14 flex flex-col md:flex-row gap-4 justify-between">
+        <div class="mt-4 md:mt-14 flex flex-col items-center md:flex-row gap-4 justify-between">
           <button
             v-if="adId !== null && anuncio.status !== 'archived'"
             type="button"
