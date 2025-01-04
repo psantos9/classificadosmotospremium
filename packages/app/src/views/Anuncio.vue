@@ -91,7 +91,7 @@
       </div>
 
       <div class="flex flex-col gap-6">
-        <div v-if="anuncio !== null && anuncio.acessorios.length > 0" class="flex flex-col gap-2 text-sm">
+        <div class="flex flex-col gap-2 text-sm">
           <div class="font-semibold text-sm">
             Acessórios
           </div>
@@ -109,7 +109,7 @@
           </div>
         </div>
         <div class="flex flex-col gap-2">
-          <div v-if="anuncio !== null && anuncio.informacoesAdicionais.length > 0" class="font-semibold text-sm">
+          <div class="font-semibold text-sm">
             Informações adicionais
           </div>
           <div class="flex flex-wrap gap-2">
