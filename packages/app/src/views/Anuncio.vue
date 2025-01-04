@@ -9,7 +9,7 @@
       leave-to-class="opacity-0"
       leave-active-class="transition-opacity"
     >
-      <div v-if="!anuncio" role="status" class="w-full flex items-center justify-center bg-gray-300 rounded-md animate-pulse">
+      <div v-if="!anuncio" role="status" class="w-full flex items-center justify-center bg-gray-300 rounded-md animate-pulse aspect-square">
         <FontAwesomeIcon :icon="faImage" class="text-gray-200" size="3x" />
         <span class="sr-only">Loading...</span>
       </div>
