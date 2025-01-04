@@ -9,7 +9,10 @@
       leave-to-class="opacity-0"
       leave-active-class="transition-opacity"
     >
-      <div v-if="loading || !anuncio" class="bg-gray-200 animate-pulse border shadow rounded-md h-full" />
+      <div v-if="loading || !anuncio" role="status" class="w-full flex items-center justify-center bg-gray-300 rounded-md animate-pulse">
+        <FontAwesomeIcon :icon="faImage" class="text-gray-200" size="3x" />
+        <span class="sr-only">Loading...</span>
+      </div>
       <div v-else class="flex flex-col">
         <swiper-container v-bind="{ slidesPerView: 1, spaceBetween: 10, navigation: true }" class="w-full md:hidden">
           <swiper-slide v-for="(foto, i) in fotos" :key="i">
@@ -237,7 +240,7 @@ import type { SwiperOptions } from 'swiper/types'
 import ExpandableImage from '@/components/ExpandableImage.vue'
 import { useApp } from '@/composables/useApp'
 import { getUnauthenticatedMessageSenderSchema } from '@cmp/shared/models/nova-mensagem'
-import { faCalendarAlt, faChevronRight, faLocationDot, faPalette, faSpinner, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
+import { faCalendarAlt, faChevronRight, faImage, faLocationDot, faPalette, faSpinner, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { format, parseISO } from 'date-fns'
