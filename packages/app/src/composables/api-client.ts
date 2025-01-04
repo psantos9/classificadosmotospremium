@@ -11,7 +11,6 @@ import { getImageStorageKey } from '@cmp/api/helpers/get-image-storage-key'
 import axios, { type Axios, AxiosError, type AxiosProgressEvent } from 'axios'
 import Emittery from 'emittery'
 import { decodeJwt } from 'jose'
-import mimeDB from 'mime-db'
 
 export const API_PERSISTENCE_KEY = 'CPM:SESSION'
 
@@ -334,13 +333,11 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     let i = 0
 
     for (const file of files) {
-      const ext = mimeDB[file.type]?.extensions?.[0] ?? ''
       const sha256 = await computeFileHash(file)
       const url = URL.createObjectURL(file)
-      const imageKey = getImageStorageKey({ adId, file: { sha256, ext } })
-      if (!adImageKeys.includes(imageKey)) {
+      if (!adImageKeys.includes(sha256)) {
         formData.append(`file[${i}]`, file)
-        previewIndex[imageKey] = url
+        previewIndex[sha256] = url
       }
       i++
     }
