@@ -5,7 +5,7 @@
     :data-expanded="expanded"
     @click="clickHandler"
   >
-    <img v-bind="$attrs">
+    <img :src="api.getImageUrl({ imageId, thumbnail: false })" class="mx-auto object-fit h-full">
   </div>
   <Teleport to="body">
     <Transition
@@ -16,17 +16,20 @@
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
-      <div v-if="expanded" class="fixed inset-0 w-full h-full bg-black z-50 cursor-zoom-out" @click="expanded = false">
-        <img v-bind="$attrs" class="object-contain">
+      <div v-if="expanded" class="fixed inset-0 bg-black z-50 cursor-zoom-out flex flex-col items-center justify-center" @click="expanded = false">
+        <img :src="api.getImageUrl({ imageId })" class="max-h-full object-contain">
       </div>
     </Transition>
   </Teleport>
 </template>
 
 <script lang="ts" setup>
+import { useApp } from '@/composables/useApp'
 import { ref, unref } from 'vue'
 
-defineProps<{ containerClass?: string }>()
+defineProps<{ imageId: string, imgClass?: string, containerClass?: string }>()
+
+const { api } = useApp()
 const expanded = ref(false)
 
 const clickHandler = () => {

@@ -15,21 +15,19 @@
       </div>
       <div v-else class="flex flex-col">
         <swiper-container v-bind="{ slidesPerView: 1, spaceBetween: 10, navigation: true }" class="w-full md:hidden">
-          <swiper-slide v-for="(foto, i) in fotos" :key="i">
+          <swiper-slide v-for="(foto, i) in anuncio.fotos" :key="i">
             <ExpandableImage
-              :src="foto"
+              :image-id="foto"
               container-class="rounded-md bg-black aspect-square mx-auto w-full"
-              class="h-full mx-auto rounded-md shadow-md"
             />
           </swiper-slide>
         </swiper-container>
 
         <swiper-container v-bind="options" class="w-full hidden md:block">
-          <swiper-slide v-for="(foto, i) in fotos" :key="i">
+          <swiper-slide v-for="(foto, i) in anuncio.fotos" :key="i">
             <ExpandableImage
-              :src="foto"
+              :image-id="foto"
               container-class="rounded-md bg-black aspect-video mx-auto w-full"
-              class="h-full mx-auto"
             />
           </swiper-slide>
         </swiper-container>
@@ -39,8 +37,8 @@
           v-bind="optionsThumbs"
           style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff"
         >
-          <swiper-slide v-for="(thumbnail, j) in fotos" :key="j">
-            <img :src="thumbnail" class="cursor-pointer rounded-md object-fit">
+          <swiper-slide v-for="(imageId, j) in anuncio.fotos" :key="j">
+            <img :src="api.getImageUrl({ imageId, thumbnail: true })" class="cursor-pointer rounded-md object-fit">
           </swiper-slide>
         </swiper-container>
       </div>
@@ -289,7 +287,6 @@ if (Number.isNaN(adId)) {
 const loading = ref(false)
 const sendingMessage = ref(false)
 const message = ref('')
-const fotos = ref<string[]>([])
 const anuncio = ref<PublicAd | null>(null)
 const caracteristicas = ref<ICaracteristica[]>([])
 
@@ -310,7 +307,6 @@ const fetchAnuncio = async () => {
   try {
     loading.value = true
     anuncio.value = await api.fetchAnuncio(adId)
-    fotos.value = (unref(anuncio)?.fotos ?? []).map(foto => api.getImageUrl({ imageId: foto, thumbnail: true }))
     caracteristicas.value = getCaracteristicas(unref(anuncio))
   }
   finally {
