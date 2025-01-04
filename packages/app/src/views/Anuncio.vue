@@ -139,7 +139,7 @@
       </div>
     </div>
 
-    <div class="rounded-md shadow border bg-gray-100 p-4 flex flex-col gap-4">
+    <div class="rounded-md shadow border bg-gray-100 p-4 flex flex-col gap-4 self-start">
       <div class="text-lg font-black">
         Sobre o anunciante
       </div>
@@ -163,7 +163,7 @@
       </div>
     </div>
 
-    <div v-if="anuncio" class="rounded-md shadow border p-4 flex flex-col gap-4 bg-gray-100">
+    <div v-if="anuncio" class="rounded-md shadow border p-4 flex flex-col gap-4 bg-gray-100 ">
       <div class="text-lg font-black">
         Enviar proposta
       </div>
