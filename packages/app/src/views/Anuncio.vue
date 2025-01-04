@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md md:grid md:grid-cols-2 gap-4 w-full">
+  <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md flex flex-col md:grid md:grid-cols-2 gap-4 w-full">
     <transition
       mode="out-in"
       enter-from-class="opacity-0"
@@ -10,8 +10,18 @@
       leave-active-class="transition-opacity"
     >
       <div v-if="loading || !anuncio" class="bg-gray-200 animate-pulse border shadow rounded-md h-full" />
-      <div v-else class="flex flex-col w-full h-full rounded-md">
-        <swiper-container v-bind="options" class="w-full">
+      <div v-else class="flex flex-col">
+        <swiper-container v-bind="{ slidesPerView: 1, spaceBetween: 10, navigation: true }" class="w-full md:hidden">
+          <swiper-slide v-for="(foto, i) in fotos" :key="i">
+            <ExpandableImage
+              :src="foto"
+              container-class="rounded-md bg-black aspect-sqare mx-auto w-full"
+              class="h-full mx-auto rounded-md shadow-md"
+            />
+          </swiper-slide>
+        </swiper-container>
+
+        <swiper-container v-bind="options" class="w-full hidden md:block">
           <swiper-slide v-for="(foto, i) in fotos" :key="i">
             <ExpandableImage
               :src="foto"
@@ -22,7 +32,7 @@
         </swiper-container>
 
         <swiper-container
-          class="thumbs-swiper w-full"
+          class="thumbs-swiper w-full hidden md:block"
           v-bind="optionsThumbs"
           style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff"
         >
@@ -33,82 +43,72 @@
       </div>
     </transition>
 
-    <transition
-      mode="out-in"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      enter-active-class="transition-opacity"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-      leave-active-class="transition-opacity"
-    >
-      <div v-if="loading || !anuncio" class="bg-gray-200 animate-pulse border shadow rounded-md h-full" />
-      <div v-else class="flex flex-col gap-2 p-4 w-full h-full rounded-md">
-        <div class="flex items-center justify-between">
-          <div class="uppercase font-light text-xs text-gray-500">
-            Código: {{ anuncio.id }}
-          </div>
-          <div class="uppercase font-light text-xs text-gray-500 flex gap-2 items-center">
-            <FontAwesomeIcon :icon="faLocationDot" />
-            {{ anuncio.localidade }} / {{ anuncio.uf }}
-          </div>
+    <div class="flex flex-col gap-2 md:p-2">
+      <div class="flex items-center justify-between">
+        <div class="uppercase font-light text-xs text-gray-500">
+          Código: {{ anuncio.id }}
         </div>
+        <div class="uppercase font-light text-xs text-gray-500 flex gap-2 items-center">
+          <FontAwesomeIcon :icon="faLocationDot" />
+          {{ anuncio.localidade }} / {{ anuncio.uf }}
+        </div>
+      </div>
 
-        <div class="text-4xl font-black">
-          {{ anuncio.marca }}
-        </div>
-        <div class="text-2xl">
-          {{ anuncio.modelo }}
-        </div>
-        <div class="text-4xl font-black text-[var(--success)]">
-          {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(anuncio.preco) }}
-        </div>
-        <div class="py-8 flex justify-between md:grid md:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
-          <div v-for="(caracteristica, i) in caracteristicas" :key="i" class="flex items-center gap-4">
-            <FontAwesomeIcon :icon="caracteristica.icon" class="text-[var(--primary)]" size="2x" />
-            <div class="flex flex-col">
-              <div class="text-sm font-light">
-                {{ caracteristica.label }}
-              </div>
-              <div class="text-sm font-semibold">
-                {{ caracteristica.value }}
-              </div>
+      <div class="text-4xl font-black">
+        {{ anuncio.marca }}
+      </div>
+      <div class="text-2xl">
+        {{ anuncio.modelo }}
+      </div>
+      <div class="text-4xl font-black text-[var(--success)]">
+        {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(anuncio.preco) }}
+      </div>
+      <div class="py-8 flex justify-between md:grid md:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
+        <div v-for="(caracteristica, i) in caracteristicas" :key="i" class="flex items-center gap-4">
+          <FontAwesomeIcon :icon="caracteristica.icon" class="text-[var(--primary)]" size="2x" />
+          <div class="flex flex-col">
+            <div class="text-sm font-light">
+              {{ caracteristica.label }}
             </div>
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-6">
-          <div class="flex flex-col gap-2 text-sm">
-            <div class="font-semibold text-sm">
-              Acessórios
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <div v-for="id in anuncio.acessorios" :key="id" class="border px-1 rounded-md text-xs font-light bg-green-100 border-green-200 shadow">
-                {{ acessorios.find(acessorio => acessorio.id === id)?.label }}
-              </div>
-            </div>
-          </div>
-          <div class="flex flex-col gap-2">
-            <div class="font-semibold text-sm">
-              Informações adicionais
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <div v-for="id in anuncio.informacoesAdicionais" :key="id" class="border px-1 rounded-md text-xs font-light bg-yellow-100 border-yellow-200 shadow">
-                {{ informacoesAdicionais.find(informacaoAdicional => informacaoAdicional.id === id)?.label }}
-              </div>
-            </div>
-          </div>
-          <div class="flex flex-col gap-2">
-            <div class="font-semibold text-sm">
-              Mais sobre a moto
-            </div>
-            <div class="font-light text-xs">
-              {{ anuncio.descricao || 'Sem descrição' }}
+            <div class="text-sm font-semibold">
+              {{ caracteristica.value }}
             </div>
           </div>
         </div>
       </div>
-    </transition>
+
+      <div class="flex flex-col gap-6">
+        <div class="flex flex-col gap-2 text-sm">
+          <div class="font-semibold text-sm">
+            Acessórios
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <div v-for="id in anuncio.acessorios" :key="id" class="border px-1 rounded-md text-xs font-light bg-green-100 border-green-200 shadow">
+              {{ acessorios.find(acessorio => acessorio.id === id)?.label }}
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <div class="font-semibold text-sm">
+            Informações adicionais
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <div v-for="id in anuncio.informacoesAdicionais" :key="id" class="border px-1 rounded-md text-xs font-light bg-yellow-100 border-yellow-200 shadow">
+              {{ informacoesAdicionais.find(informacaoAdicional => informacaoAdicional.id === id)?.label }}
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <div class="font-semibold text-sm">
+            Mais sobre a moto
+          </div>
+          <div class="font-light text-xs">
+            {{ anuncio.descricao || 'Sem descrição' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
     <transition
       mode="out-in"
       enter-from-class="opacity-0"
@@ -119,7 +119,7 @@
       leave-active-class="transition-opacity"
     >
       <div v-if="loading || !anuncio" class="bg-gray-200 animate-pulse border shadow rounded-md h-full" />
-      <div v-else class="rounded-md shadow border bg-gray-100 p-4 flex flex-col gap-4 h-full w-full">
+      <div v-else class="rounded-md shadow border bg-gray-100 p-4 flex flex-col gap-4">
         <div class="text-lg font-black">
           Sobre o anunciante
         </div>
@@ -227,7 +227,7 @@ import type { SwiperOptions } from 'swiper/types'
 import ExpandableImage from '@/components/ExpandableImage.vue'
 import { useApp } from '@/composables/useApp'
 import { getUnauthenticatedMessageSenderSchema } from '@cmp/shared/models/nova-mensagem'
-import { faArrowLeft, faBackward, faCalendarAlt, faChevronRight, faLocationDot, faPalette, faSpinner, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
+import { faCalendarAlt, faChevronRight, faLocationDot, faPalette, faSpinner, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { format, parseISO } from 'date-fns'
