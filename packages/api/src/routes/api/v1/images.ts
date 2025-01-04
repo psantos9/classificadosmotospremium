@@ -6,7 +6,12 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   base: '/api/v1/images',
   catch: defaultErrorHandler
 })
-  .get('/:b64ImageKey', async (req, env) => {
+  .get('/:b64ImageKey', async (req, env, ctx) => {
+    const cache = caches.default
+    let res = await cache.match(req)
+    if (res) {
+      return res
+    }
     const imageKey = atob(req.params.b64ImageKey)
     const object = await env.AD_IMAGES_BUCKET.get(imageKey)
     if (object === null) {
@@ -19,8 +24,14 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     headers.set('size', object.size.toString())
     headers.set('Access-Control-Expose-Headers', 'etag')
     headers.set('access-control-allow-origin', '*')
+    // add caching header, configured here for 1-year
+    headers.set('cache-control', `public, max-age=31536000`)
+    // vary header so cache respects content-negotiation/auto-format
+    headers.set('vary', 'Accept')
     if (contentType !== null) {
       headers.set('Content-Type', contentType)
     }
-    return new Response(object.body, { headers })
+    res = new Response(object.body, { headers })
+    ctx.waitUntil(cache.put(req, res.clone()))
+    return res
   })

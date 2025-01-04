@@ -29,7 +29,7 @@
             <ExpandableImage
               :src="foto"
               container-class="rounded-md bg-black aspect-video mx-auto w-full"
-              class="h-full mx-auto rounded-md shadow-md"
+              class="h-full mx-auto"
             />
           </swiper-slide>
         </swiper-container>
