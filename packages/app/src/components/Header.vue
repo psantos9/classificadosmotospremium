@@ -7,8 +7,7 @@
       <div class="flex items-center gap-4">
         <SidebarButton class="block md:hidden" />
         <RouterLink :to="{ name: 'home' }" class="w-36 md:w-52 md:pl-4">
-          <img src="@/assets/images/full_logo_dark.svg" class="hidden md:block">
-          <img src="@/assets/images/logo_dark.svg" class="md:hidden h-12">
+          <img src="@/assets/images/full_logo_dark.svg" class="h-12 md:h-full">
         </RouterLink>
       </div>
 

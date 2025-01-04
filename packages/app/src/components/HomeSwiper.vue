@@ -2,10 +2,10 @@
   <div class="bg-black">
     <div class="max-w-[1980px] mx-auto">
       <swiper-container v-bind="options">
-        <swiper-slide v-for="(slide, i) in slidesDesktop" :key="i" class="hidden md:block">
+        <swiper-slide v-for="(slide, i) in slidesDesktop" :key="i" class="hidden sm:block">
           <img :src="slide">
         </swiper-slide>
-        <swiper-slide v-for="(slide, i) in slidesMobile" :key="i" class="block md:hidden">
+        <swiper-slide v-for="(slide, i) in slidesMobile" :key="i" class="block sm:hidden">
           <img :src="slide">
         </swiper-slide>
       </swiper-container>
