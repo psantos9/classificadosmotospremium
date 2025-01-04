@@ -28,7 +28,7 @@
           </RouterLink>
         </div>
         <AdvertiseHereButton
-          :flat="true"
+          :outline="true"
           class="block md:hidden"
         />
         <AdvertiseHereButton

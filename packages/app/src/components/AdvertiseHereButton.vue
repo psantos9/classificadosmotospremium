@@ -3,7 +3,7 @@
     <RouterLink
       :to="{ name: 'anuncie' }"
       class="rounded h-[2.5rem] px-4 flex items-center gap-2 transition-colors"
-      :class="[flat ? 'text-[var(--primary)]' : 'bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] font-semibold']"
+      :class="[outline ? 'border border-[var(--primary)] text-[var(--primary)]' : 'bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] font-semibold']"
     >
       <span>Anuncie aqui</span>
       <FontAwesomeIcon :icon="faBullhorn" size="lg" />
@@ -15,5 +15,5 @@
 import { faBullhorn } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-defineProps<{ flat?: boolean }>()
+defineProps<{ outline?: boolean }>()
 </script>
