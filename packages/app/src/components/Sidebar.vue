@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar" :open="sidebarOpen">
+  <div ref="target" class="sidebar" :open="sidebarOpen">
     <div class="flex flex-col items-center gap-8 py-8">
       <SignInButton @click="openSidebar(false)" />
       <div class="flex flex-col items-center gap-4">
@@ -16,15 +16,24 @@
 import AdvertiseHereButton from '@/components/AdvertiseHereButton.vue'
 import SignInButton from '@/components/SignInButton.vue'
 import { useApp } from '@/composables/useApp'
-import { onUnmounted, unref } from 'vue'
+import { onClickOutside } from '@vueuse/core'
+import { onUnmounted, ref, unref } from 'vue'
 
 const { sidebarOpen, openSidebar, menuItems } = useApp()
+
+const target = ref<HTMLElement | null>(null)
 
 const onResizeHandler = () => {
   if (window.innerWidth > 960 && unref(sidebarOpen) === true) {
     openSidebar(false)
   }
 }
+
+onClickOutside(target, () => {
+  if (unref(sidebarOpen)) {
+    openSidebar(false)
+  }
+})
 
 window.addEventListener('resize', onResizeHandler)
 onUnmounted(() => window.removeEventListener('resize', onResizeHandler))

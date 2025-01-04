@@ -20,6 +20,7 @@
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "@headlessui/vue": "^1.7.23",
     "@vee-validate/zod": "^4.14.7",
+    "@vueuse/core": "^12.3.0",
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "cpf-cnpj-validator": "^1.0.3",
