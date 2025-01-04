@@ -1,6 +1,6 @@
 <template>
   <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md flex flex-col md:grid md:grid-cols-2 gap-4 w-full">
-    <div v-if="!anuncio" role="status" class="w-full flex items-center justify-center bg-gray-300 rounded-md animate-pulse aspect-square">
+    <div v-if="!anuncio" role="status" class="w-full flex items-center justify-center bg-gray-300 rounded-md animate-pulse aspect-[4/3]">
       <FontAwesomeIcon :icon="faImage" class="text-gray-200" size="3x" />
       <span class="sr-only">Loading...</span>
     </div>
@@ -9,7 +9,7 @@
         <swiper-slide v-for="(foto, i) in anuncio.fotos" :key="i">
           <ExpandableImage
             :image-id="foto"
-            container-class="rounded-md bg-black aspect-square mx-auto w-full"
+            container-class="rounded-md bg-black aspect-[4/3] mx-auto w-full"
           />
         </swiper-slide>
       </swiper-container>
@@ -18,7 +18,7 @@
         <swiper-slide v-for="(foto, i) in anuncio.fotos" :key="i">
           <ExpandableImage
             :image-id="foto"
-            container-class="rounded-md bg-black aspect-video mx-auto w-full"
+            container-class="rounded-md bg-black aspect-[4/3] mx-auto w-full"
           />
         </swiper-slide>
       </swiper-container>

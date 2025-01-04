@@ -234,7 +234,7 @@
             v-for="([photoKey, url]) in Object.entries(photoUploadIndex).filter(([photoKey]) => !anuncio?.fotos.includes(photoKey))" :key="photoKey"
             class="group rounded-md overflow-hidden data-[index=0]:col-span-2 data-[index=0]:row-span-2 h-full flex items-center justify-center relative bg-black cursor-pointer shadow data-[dragover]:scale-105 transition-all"
           >
-            <img :src="url" class="aspect-video">
+            <img :src="url" class="aspect-[4/3]">
             <div class="absolute inset text-white w-full h-full flex items-center justify-center bg-black/50 transition-colors">
               <FontAwesomeIcon :icon="faSpinner" size="lg" spin />
             </div>
