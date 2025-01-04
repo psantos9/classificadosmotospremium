@@ -58,7 +58,6 @@ export class ImageService {
       throw new Error('could not upload file')
     }
     const image = body as IImage
-    console.log('GOT IMAGE', image)
     return image
   }
 
