@@ -53,7 +53,7 @@
       leave-active-class="transition-opacity"
     >
       <div v-if="loading || !anuncio" class="bg-gray-200 animate-pulse border shadow rounded-md h-full" />
-      <div class="flex flex-col gap-2 md:p-2">
+      <div v-else class="flex flex-col gap-2 md:p-2">
         <div class="flex items-center justify-between">
           <div class="uppercase font-light text-xs text-gray-500">
             Código: {{ anuncio.id }}
