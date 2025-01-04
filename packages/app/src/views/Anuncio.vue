@@ -139,7 +139,7 @@
       </div>
     </div>
 
-    <div class="rounded-md shadow border bg-gray-100 p-4 flex flex-col gap-4 self-start">
+    <div class="rounded-md shadow border bg-gray-100 p-4 flex flex-col gap-4 self-start w-full">
       <div class="text-lg font-black">
         Sobre o anunciante
       </div>
