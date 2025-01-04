@@ -29,15 +29,12 @@ const options: SwiperOptions = {
 }
 
 const slidesMobile = [
-  '/images/banner-square-1.png',
-  '/images/banner-square-2.png',
-  '/images/banner-square-3.png'
+  '/images/banner-square-01.png',
+  '/images/banner-square-02.png',
+  '/images/banner-square-03.png'
 ]
 
 const slidesDesktop = [
-  '/images/banner-01.png',
-  '/images/banner-02.png',
-  '/images/banner-03.png',
   '/images/banner-04.png',
   '/images/banner-05.png',
   '/images/banner-06.png'
