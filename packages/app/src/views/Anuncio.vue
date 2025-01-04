@@ -1,48 +1,38 @@
 <template>
   <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md flex flex-col md:grid md:grid-cols-2 gap-4 w-full">
-    <transition
-      mode="out-in"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      enter-active-class="transition-opacity"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-      leave-active-class="transition-opacity"
-    >
-      <div v-if="!anuncio" role="status" class="w-full flex items-center justify-center bg-gray-300 rounded-md animate-pulse aspect-square">
-        <FontAwesomeIcon :icon="faImage" class="text-gray-200" size="3x" />
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div v-else class="flex flex-col">
-        <swiper-container v-bind="{ slidesPerView: 1, spaceBetween: 10, navigation: true }" class="w-full md:hidden">
-          <swiper-slide v-for="(foto, i) in anuncio.fotos" :key="i">
-            <ExpandableImage
-              :image-id="foto"
-              container-class="rounded-md bg-black aspect-square mx-auto w-full"
-            />
-          </swiper-slide>
-        </swiper-container>
+    <div v-if="!anuncio" role="status" class="w-full flex items-center justify-center bg-gray-300 rounded-md animate-pulse aspect-square">
+      <FontAwesomeIcon :icon="faImage" class="text-gray-200" size="3x" />
+      <span class="sr-only">Loading...</span>
+    </div>
+    <div v-else class="flex flex-col">
+      <swiper-container v-bind="{ slidesPerView: 1, spaceBetween: 10, navigation: true }" class="w-full md:hidden">
+        <swiper-slide v-for="(foto, i) in anuncio.fotos" :key="i">
+          <ExpandableImage
+            :image-id="foto"
+            container-class="rounded-md bg-black aspect-square mx-auto w-full"
+          />
+        </swiper-slide>
+      </swiper-container>
 
-        <swiper-container v-bind="options" class="w-full hidden md:block">
-          <swiper-slide v-for="(foto, i) in anuncio.fotos" :key="i">
-            <ExpandableImage
-              :image-id="foto"
-              container-class="rounded-md bg-black aspect-video mx-auto w-full"
-            />
-          </swiper-slide>
-        </swiper-container>
+      <swiper-container v-bind="options" class="w-full hidden md:block">
+        <swiper-slide v-for="(foto, i) in anuncio.fotos" :key="i">
+          <ExpandableImage
+            :image-id="foto"
+            container-class="rounded-md bg-black aspect-video mx-auto w-full"
+          />
+        </swiper-slide>
+      </swiper-container>
 
-        <swiper-container
-          class="thumbs-swiper w-full hidden md:block"
-          v-bind="optionsThumbs"
-          style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff"
-        >
-          <swiper-slide v-for="(imageId, j) in anuncio.fotos" :key="j">
-            <img :src="api.getImageUrl({ imageId, thumbnail: true })" class="cursor-pointer rounded-md object-fit">
-          </swiper-slide>
-        </swiper-container>
-      </div>
-    </transition>
+      <swiper-container
+        class="thumbs-swiper w-full hidden md:block"
+        v-bind="optionsThumbs"
+        style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff"
+      >
+        <swiper-slide v-for="(imageId, j) in anuncio.fotos" :key="j">
+          <img :src="api.getImageUrl({ imageId, thumbnail: true })" class="cursor-pointer rounded-md object-fit">
+        </swiper-slide>
+      </swiper-container>
+    </div>
 
     <div class="flex flex-col gap-2 md:p-2">
       <div class="flex items-center justify-between">
