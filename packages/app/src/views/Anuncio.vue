@@ -18,7 +18,7 @@
           <swiper-slide v-for="(foto, i) in fotos" :key="i">
             <ExpandableImage
               :src="foto"
-              container-class="rounded-md bg-black aspect-sqare mx-auto w-full"
+              container-class="rounded-md bg-black aspect-square mx-auto w-full"
               class="h-full mx-auto rounded-md shadow-md"
             />
           </swiper-slide>
