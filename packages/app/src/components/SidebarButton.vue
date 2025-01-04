@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <button class="bg-[var(--primary)] text-black h-[var(--main-header-size)] w-[var(--main-header-size)] flex items-center justify-center" @click="openSidebar(!sidebarOpen)">
+  <div class="sidebar-button">
+    <button class="bg-[var(--primary)] text-black h-[var(--main-header-size)] w-[var(--main-header-size)] flex items-center justify-center" @click.stop="openSidebar(!sidebarOpen)">
       <FontAwesomeIcon v-if="!sidebarOpen" :icon="faBars" size="xl" />
       <FontAwesomeIcon v-else :icon="faTimes" size="xl" />
     </button>

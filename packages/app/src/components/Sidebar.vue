@@ -33,7 +33,7 @@ onClickOutside(target, () => {
   if (unref(sidebarOpen)) {
     openSidebar(false)
   }
-})
+}, { ignore: ['.sidebar-button'] })
 
 window.addEventListener('resize', onResizeHandler)
 onUnmounted(() => window.removeEventListener('resize', onResizeHandler))
