@@ -43,72 +43,82 @@
       </div>
     </transition>
 
-    <div class="flex flex-col gap-2 md:p-2">
-      <div class="flex items-center justify-between">
-        <div class="uppercase font-light text-xs text-gray-500">
-          Código: {{ anuncio.id }}
+    <transition
+      mode="out-in"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      enter-active-class="transition-opacity"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+      leave-active-class="transition-opacity"
+    >
+      <div v-if="loading || !anuncio" class="bg-gray-200 animate-pulse border shadow rounded-md h-full" />
+      <div class="flex flex-col gap-2 md:p-2">
+        <div class="flex items-center justify-between">
+          <div class="uppercase font-light text-xs text-gray-500">
+            Código: {{ anuncio.id }}
+          </div>
+          <div class="uppercase font-light text-xs text-gray-500 flex gap-2 items-center">
+            <FontAwesomeIcon :icon="faLocationDot" />
+            {{ anuncio.localidade }} / {{ anuncio.uf }}
+          </div>
         </div>
-        <div class="uppercase font-light text-xs text-gray-500 flex gap-2 items-center">
-          <FontAwesomeIcon :icon="faLocationDot" />
-          {{ anuncio.localidade }} / {{ anuncio.uf }}
-        </div>
-      </div>
 
-      <div class="text-4xl font-black">
-        {{ anuncio.marca }}
-      </div>
-      <div class="text-2xl">
-        {{ anuncio.modelo }}
-      </div>
-      <div class="text-4xl font-black text-[var(--success)]">
-        {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(anuncio.preco) }}
-      </div>
-      <div class="py-8 flex justify-between md:grid md:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
-        <div v-for="(caracteristica, i) in caracteristicas" :key="i" class="flex items-center gap-4">
-          <FontAwesomeIcon :icon="caracteristica.icon" class="text-[var(--primary)]" size="2x" />
-          <div class="flex flex-col">
-            <div class="text-sm font-light">
-              {{ caracteristica.label }}
-            </div>
-            <div class="text-sm font-semibold">
-              {{ caracteristica.value }}
+        <div class="text-4xl font-black">
+          {{ anuncio.marca }}
+        </div>
+        <div class="text-2xl">
+          {{ anuncio.modelo }}
+        </div>
+        <div class="text-4xl font-black text-[var(--success)]">
+          {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(anuncio.preco) }}
+        </div>
+        <div class="py-8 flex justify-between md:grid md:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
+          <div v-for="(caracteristica, i) in caracteristicas" :key="i" class="flex items-center gap-4">
+            <FontAwesomeIcon :icon="caracteristica.icon" class="text-[var(--primary)]" size="2x" />
+            <div class="flex flex-col">
+              <div class="text-sm font-light">
+                {{ caracteristica.label }}
+              </div>
+              <div class="text-sm font-semibold">
+                {{ caracteristica.value }}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="flex flex-col gap-6">
-        <div class="flex flex-col gap-2 text-sm">
-          <div class="font-semibold text-sm">
-            Acessórios
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <div v-for="id in anuncio.acessorios" :key="id" class="border px-1 rounded-md text-xs font-light bg-green-100 border-green-200 shadow">
-              {{ acessorios.find(acessorio => acessorio.id === id)?.label }}
+        <div class="flex flex-col gap-6">
+          <div class="flex flex-col gap-2 text-sm">
+            <div class="font-semibold text-sm">
+              Acessórios
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <div v-for="id in anuncio.acessorios" :key="id" class="border px-1 rounded-md text-xs font-light bg-green-100 border-green-200 shadow">
+                {{ acessorios.find(acessorio => acessorio.id === id)?.label }}
+              </div>
             </div>
           </div>
-        </div>
-        <div class="flex flex-col gap-2">
-          <div class="font-semibold text-sm">
-            Informações adicionais
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <div v-for="id in anuncio.informacoesAdicionais" :key="id" class="border px-1 rounded-md text-xs font-light bg-yellow-100 border-yellow-200 shadow">
-              {{ informacoesAdicionais.find(informacaoAdicional => informacaoAdicional.id === id)?.label }}
+          <div class="flex flex-col gap-2">
+            <div class="font-semibold text-sm">
+              Informações adicionais
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <div v-for="id in anuncio.informacoesAdicionais" :key="id" class="border px-1 rounded-md text-xs font-light bg-yellow-100 border-yellow-200 shadow">
+                {{ informacoesAdicionais.find(informacaoAdicional => informacaoAdicional.id === id)?.label }}
+              </div>
             </div>
           </div>
-        </div>
-        <div class="flex flex-col gap-2">
-          <div class="font-semibold text-sm">
-            Mais sobre a moto
-          </div>
-          <div class="font-light text-xs">
-            {{ anuncio.descricao || 'Sem descrição' }}
+          <div class="flex flex-col gap-2">
+            <div class="font-semibold text-sm">
+              Mais sobre a moto
+            </div>
+            <div class="font-light text-xs">
+              {{ anuncio.descricao || 'Sem descrição' }}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-
+    </transition>
     <transition
       mode="out-in"
       enter-from-class="opacity-0"
