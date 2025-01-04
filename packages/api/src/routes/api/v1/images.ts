@@ -21,7 +21,8 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     if (image === null) {
       return error(404, 'image not found')
     }
-    res = await fetch(variant === 'thumbnail' ? image.thumbnail : image.url)
+    const transformation = variant === 'thumbnail' ? 'tr:n-ik_ml_thumbnail,bg-black' : undefined
+    res = await fetch(imageService.getImageUrl(image, transformation))
     if (res.status === 200 && res.ok) {
       const headers = new Headers(res.headers)
       headers.delete('x-server')

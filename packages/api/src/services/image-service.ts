@@ -20,20 +20,25 @@ export interface IImage {
 
 export class ImageService {
   private readonly _authorizationHeader: string
-  private readonly _urlEndpoint: string
+  readonly urlEndpoint: string
   readonly kv: KVNamespace
   readonly environment: string
 
   constructor(params: { imageKit: { privateKey: string, urlEndpoint: string }, kv: KVNamespace, environment: string }) {
     const { imageKit: { privateKey, urlEndpoint }, kv, environment } = params
     this._authorizationHeader = `Basic ${btoa(`${privateKey}:`)}`
-    this._urlEndpoint = urlEndpoint
+    this.urlEndpoint = urlEndpoint
     this.kv = kv
     this.environment = environment
   }
 
   private _getAdFolder(adId: number) {
     return `classificadosmotospremium/${this.environment}/${adId}`
+  }
+
+  getImageUrl(image: IImage, transformation?: string) {
+    const url = `${this.urlEndpoint}${transformation ? `/${transformation}/` : '/'}${image.filePath}`
+    return url
   }
 
   async upload(params: { adId: number, file: File }): Promise<IImage> {
@@ -53,6 +58,7 @@ export class ImageService {
       throw new Error('could not upload file')
     }
     const image = body as IImage
+    console.log('GOT IMAGE', image)
     return image
   }
 
