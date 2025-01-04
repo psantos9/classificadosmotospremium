@@ -24,6 +24,7 @@ name = "cmp-api-dev"
 
 [env.dev.vars]
 ENVIRONMENT="dev"
+IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/ezehndeqw/"
 
 [[env.dev.kv_namespaces]]
 binding = "CEP"
@@ -58,6 +59,7 @@ route = { pattern = "backend.preview.classificadosmotospremium.com.br", custom_d
 
 [env.preview.vars]
 ENVIRONMENT="preview"
+IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/ezehndeqw/"
 
 [[env.preview.kv_namespaces]]
 binding = "CEP"
@@ -91,6 +93,7 @@ route = { pattern = "backend.classificadosmotospremium.com.br", custom_domain = 
 
 [env.production.vars]
 ENVIRONMENT="production"
+IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/ezehndeqw/"
 
 [[env.production.kv_namespaces]]
 binding = "CEP"
