@@ -1,6 +1,5 @@
 <template>
   <div class="flex-1 p-4 md:my-8 md:max-w-screen-lg md:mx-auto bg-white rounded-md md:grid md:grid-cols-2 gap-4 w-full grid-rows-[50px_1fr_1fr]">
-    {{ anuncio }}
     <div class="col-span-full flex items-center gap-2 cursor-pointer" @click="$router.back()">
       <FontAwesomeIcon :icon="faArrowLeft" size="2xl" />
       <span class="text-2xl font-black">Voltar</span>
