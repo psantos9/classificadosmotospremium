@@ -386,19 +386,10 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     await this.axios.post('/api/v1/messages', params)
   }
 
-  getImageUrl(imageKey: string) {
-    let baseURL = ''
-    switch (import.meta.env.MODE) {
-      case 'preview':
-        baseURL = 'https://cdn.preview.classificadosmotospremium.com.br'
-        break
-      case 'production':
-        baseURL = 'https://cdn.classificadosmotospremium.com.br'
-        break
-      default:
-        baseURL = `${this.axios.defaults.baseURL ?? ''}/api/v1/images`
-        imageKey = btoa(imageKey)
-    }
-    return `${baseURL}/${imageKey}`
+  getImageUrl(params: { imageId: string, thumbnail?: boolean }) {
+    const { imageId, thumbnail } = params
+    const baseURL = this.axios.defaults.baseURL ?? ''
+    const url = `${baseURL}/api/v1/images/${imageId}${thumbnail ? '/thumbnail' : ''}`
+    return url
   }
 }

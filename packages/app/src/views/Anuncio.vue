@@ -310,7 +310,7 @@ const fetchAnuncio = async () => {
   try {
     loading.value = true
     anuncio.value = await api.fetchAnuncio(adId)
-    fotos.value = (unref(anuncio)?.fotos ?? []).map(foto => api.getImageUrl(foto))
+    fotos.value = (unref(anuncio)?.fotos ?? []).map(foto => api.getImageUrl({ imageId: foto, thumbnail: true }))
     caracteristicas.value = getCaracteristicas(unref(anuncio))
   }
   finally {

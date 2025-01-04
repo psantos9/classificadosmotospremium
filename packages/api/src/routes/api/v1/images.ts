@@ -1,66 +1,41 @@
 import type { Env, IAppAuthenticatedRequest } from '@/types'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
+import { ImageService } from '@/services/image-service'
 import { AutoRouter, error } from 'itty-router'
+import { z } from 'zod'
 
 export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContext]>({
   base: '/api/v1/images',
   catch: defaultErrorHandler
 })
-  .get('/:b64ImageKey', async (req, env, ctx) => {
+  .get('/:imageId/:variant?', async (req, env, ctx) => {
+    const paramsSchema = z.object({ imageId: z.string(), variant: z.enum(['thumbnail']).optional() })
+    const { imageId, variant } = paramsSchema.parse(req.params)
+    const imageService = ImageService.getInstance(env)
     const cache = caches.default
     let res = await cache.match(req.clone())
     if (res) {
       return res
     }
-    const imageKey = atob(req.params.b64ImageKey)
-    const object = await env.AD_IMAGES_BUCKET.get(imageKey)
-    if (object === null) {
-      return error(400, 'image not found')
+    const image = await imageService.get(imageId)
+    if (image === null) {
+      return error(404, 'image not found')
     }
-    const contentType = object.customMetadata?.type ?? null
-    const headers = new Headers()
-    object.writeHttpMetadata(headers)
-    headers.set('etag', object.httpEtag)
-    headers.set('size', object.size.toString())
-    headers.set('Access-Control-Expose-Headers', 'etag')
-    headers.set('access-control-allow-origin', '*')
-    // add caching header, configured here for 1-year
-    headers.set('cache-control', `public, max-age=31536000`)
-    // vary header so cache respects content-negotiation/auto-format
-    headers.set('vary', 'Accept')
-    if (contentType !== null) {
-      headers.set('Content-Type', contentType)
-    }
-    res = new Response(object.body, { headers })
-    ctx.waitUntil(cache.put(req.clone(), res.clone()))
-    return res
-  })
-  .get('/:b64ImageKey/thumbnail', async (req, env, ctx) => {
-    const cache = caches.default
-    let res = await cache.match(req.clone())
-    if (res) {
+    res = await fetch(variant === 'thumbnail' ? image.thumbnail : image.url)
+    if (res.status === 200 && res.ok) {
+      const headers = new Headers(res.headers)
+      headers.delete('x-server')
+      headers.delete('X-Amz-Cf-Id')
+      headers.delete('X-Amz-Cf-Pop')
+      headers.delete('X-Cache')
+      // add caching header, configured here for 1-year
+      headers.set('cache-control', `public, max-age=31536000`)
+      // vary header so cache respects content-negotiation/auto-format
+      headers.set('vary', 'Accept')
+      // create response and add to the cache if successful
+      res = new Response(res.body, { ...res, headers })
+      ctx.waitUntil(cache.put(req.clone(), res.clone()))
       return res
     }
-    const imageKey = atob(req.params.b64ImageKey)
-    const object = await env.AD_IMAGES_BUCKET.get(imageKey)
-    if (object === null) {
-      return error(400, 'image not found')
-    }
-    const contentType = object.customMetadata?.type ?? null
-    const headers = new Headers()
-    object.writeHttpMetadata(headers)
-    headers.set('etag', object.httpEtag)
-    headers.set('size', object.size.toString())
-    headers.set('Access-Control-Expose-Headers', 'etag')
-    headers.set('access-control-allow-origin', '*')
-    // add caching header, configured here for 1-year
-    headers.set('cache-control', `public, max-age=31536000`)
-    // vary header so cache respects content-negotiation/auto-format
-    headers.set('vary', 'Accept')
-    if (contentType !== null) {
-      headers.set('Content-Type', contentType)
-    }
-    res = new Response(object.body, { headers })
-    ctx.waitUntil(cache.put(req.clone(), res.clone()))
-    return res
+    return error(500, 'an error occurred while fetching image')
   })

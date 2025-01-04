@@ -5,9 +5,12 @@ import type { AdReviewEvent } from './workflows/AdReviewWorkflow'
 export interface Env {
   DB: D1Database
   CEP: KVNamespace
+  IMAGES: KVNamespace
   FIPE_DO: DurableObjectNamespace<FipeClient>
+  ENVIRONMENT: string
   API_SECRET: string
-  AD_IMAGES_BUCKET: R2Bucket
+  IMAGEKIT_PRIVATE_KEY: string
+  IMAGEKIT_URL_ENDPOINT: string
   AD_REVIEW_WORKFLOW: Workflow<AdReviewEvent>
 }
 

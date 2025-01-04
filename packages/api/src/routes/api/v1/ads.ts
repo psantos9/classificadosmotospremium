@@ -3,8 +3,7 @@ import type { AnuncioStatus } from '@cmp/shared/models/anuncio-status'
 import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
 import type { Anuncio, NovoAnuncio } from '@cmp/shared/models/database/models'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
-import { getImageStorageKey } from '@/helpers/get-image-storage-key'
-import { sha256 } from '@cmp/api/helpers/shsa256'
+import { ImageService } from '@/services/image-service'
 import { ALLOWED_IMAGE_MIME_TYPES as allowedImageMimeTypes } from '@cmp/shared/constants'
 import { getDb } from '@cmp/shared/helpers/get-db'
 import { anuncioStatusSchema } from '@cmp/shared/models/anuncio-status'
@@ -13,7 +12,6 @@ import { schema } from '@cmp/shared/models/database/schema'
 import { and, eq, type SQL } from 'drizzle-orm'
 import { getTableColumns } from 'drizzle-orm'
 import { AutoRouter, error, status, StatusError } from 'itty-router'
-import mimeDB from 'mime-db'
 import { z } from 'zod'
 
 const { userId, ...anuncioColumns } = getTableColumns(schema.anuncio)
@@ -173,8 +171,10 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     }
     const fotos = row.status === 'draft' ? row.fotos : row.atualizacao?.fotos ?? row.fotos
 
+    const imageService = ImageService.getInstance(env)
+
     const formData = (await req.formData()) as FormData
-    const r2Keys: string[] = []
+    const imageIds: string[] = []
     for (const [key, value] of Array.from(formData.entries())) {
       const file = value as unknown
       const [, type, i] = key.match(/(\w+)\[(\d+)\]/) ?? []
@@ -185,23 +185,12 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
             console.warn(`discarding file ${file.name}, mime type ${file.type} not allowed`)
             throw new StatusError(400, `mime_type_not_allowed: ${file.type}`)
           }
-          const { type } = file
-          const hash = await sha256(file)
-          const ext = mimeDB[file.type].extensions?.[0] ?? ''
-          const storageKey = getImageStorageKey({ adId, file: { sha256: hash, ext } })
-          if (await env.AD_IMAGES_BUCKET.head(storageKey) === null) {
-            await env.AD_IMAGES_BUCKET.put(storageKey, await file.arrayBuffer(), {
-              sha256: hash,
-              httpMetadata: { contentType: type }
-            })
-          }
-          if (!fotos.includes(storageKey)) {
-            r2Keys.push(storageKey)
-          }
+          const image = await imageService.upload({ adId, file })
+          imageIds.push(image.fileId)
         }
       }
     }
-    const novasFotos = Array.from(new Set([...fotos, ...r2Keys]))
+    const novasFotos = [...fotos, ...imageIds]
     ;[row = null] = await db.select().from(schema.anuncio).where(and(eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId))).limit(1)
     if (row === null) {
       return error(400, 'error while uploading photos')
@@ -238,7 +227,9 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     if (imagesToKeep.length === 0) {
       return error(400, 'o anúncio tem de ter pelo menos uma foto')
     }
-    await env.AD_IMAGES_BUCKET.delete(imagesToDelete)
+
+    const imageService = ImageService.getInstance(env)
+    await imageService.deleteMultiple(imagesToDelete)
 
     const { codigoFipe, marca, modelo, ano, anoModelo, quilometragem, placa, preco, cor, descricao, acessorios, informacoesAdicionais, cep, localidade, uf } = anuncio
     const atualizacao: AtualizaAnuncio = { codigoFipe, marca, modelo, ano, anoModelo, quilometragem, placa, preco, cor, descricao: descricao ?? '', acessorios, informacoesAdicionais, cep, localidade, uf, fotos: imagesToKeep }

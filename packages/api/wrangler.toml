@@ -23,11 +23,15 @@ new_classes = [ "FipeClient" ]
 name = "cmp-api-dev"
 
 [env.dev.vars]
-API_SECRET = "ceb9cf82-e516-44f8-8c61-3207a4f7c7ae-f8fdd7e1-4a0d-4542-8931-eb0c744c8995"
+ENVIRONMENT="dev"
 
 [[env.dev.kv_namespaces]]
 binding = "CEP"
 id = "98be910dd2ea46c8a65657864c208bf7"
+
+[[env.dev.kv_namespaces]]
+binding = "IMAGES"
+id = "9c422aa95cb14975a9e24f1ef7692a91"
 
 [[env.dev.durable_objects.bindings]]
 name = "FIPE_DO"
@@ -41,11 +45,6 @@ database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 preview_database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 migrations_dir = "../shared/migrations"
 
-[[env.dev.r2_buckets]]
-binding = "AD_IMAGES_BUCKET"
-bucket_name = "cmp-ad-images-preview"
-preview_bucket_name = "cmp-ad-images-preview"
-
 [[env.dev.workflows]]
 name = "workflow-ad-review"
 binding = "AD_REVIEW_WORKFLOW"
@@ -57,9 +56,16 @@ name = "cmp-api-preview"
 logpush = true # https://developers.cloudflare.com/workers/observability/logpush/
 route = { pattern = "backend.preview.classificadosmotospremium.com.br", custom_domain = true, zone_name = "classificadosmotospremium.com.br" }
 
+[env.preview.vars]
+ENVIRONMENT="preview"
+
 [[env.preview.kv_namespaces]]
 binding = "CEP"
 id = "98be910dd2ea46c8a65657864c208bf7"
+
+[[env.preview.kv_namespaces]]
+binding = "IMAGES"
+id = "f7314f5155a54fc9a6b73d505933e9b3"
 
 [[env.preview.durable_objects.bindings]]
 name = "FIPE_DO"
@@ -72,11 +78,6 @@ database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 preview_database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 migrations_dir = "../shared/migrations"
 
-[[env.preview.r2_buckets]]
-binding = "AD_IMAGES_BUCKET"
-bucket_name = "cmp-ad-images-preview"
-preview_bucket_name = "cmp-ad-images-preview"
-
 [[env.preview.workflows]]
 name = "workflow-ad-review"
 binding = "AD_REVIEW_WORKFLOW"
@@ -88,9 +89,16 @@ name = "cmp-api"
 logpush = true # https://developers.cloudflare.com/workers/observability/logpush/
 route = { pattern = "backend.classificadosmotospremium.com.br", custom_domain = true, zone_name = "classificadosmotospremium.com.br" }
 
+[env.production.vars]
+ENVIRONMENT="production"
+
 [[env.production.kv_namespaces]]
 binding = "CEP"
 id = "98be910dd2ea46c8a65657864c208bf7"
+
+[[env.production.kv_namespaces]]
+binding = "IMAGES"
+id = "a84a7fef19c84f839afdc59550fbffca"
 
 [[env.production.durable_objects.bindings]]
 name = "FIPE_DO"
@@ -102,11 +110,6 @@ database_name = "cmp"
 database_id = "04e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 preview_database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 migrations_dir = "../shared/migrations"
-
-[[env.production.r2_buckets]]
-binding = "AD_IMAGES_BUCKET"
-bucket_name = "cmp-ad-images"
-preview_bucket_name = "cmp-ad-images-preview"
 
 [[env.production.workflows]]
 name = "workflow-ad-review"
