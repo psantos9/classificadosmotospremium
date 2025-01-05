@@ -25,8 +25,8 @@
 </template>
 
 <script lang="ts" setup>
-import { UnauthorizedError } from '@/composables/api-client'
 import { useApp } from '@/composables/useApp'
+import { UnauthorizedError } from '@/services/api-client'
 import { faArrowRight, faEye, faEyeSlash, faKey, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { onBeforeUnmount, onMounted, ref, toRefs, unref, watch } from 'vue'

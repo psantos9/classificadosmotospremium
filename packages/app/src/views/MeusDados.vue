@@ -242,8 +242,8 @@
 
 <script lang="ts" setup>
 import type { Usuario } from '@cmp/shared/models/database/models'
-import { CpfCnpjConflictError, EmailConflictError } from '@/composables/api-client'
 import { useApp } from '@/composables/useApp'
+import { CpfCnpjConflictError, EmailConflictError } from '@/services/api-client'
 import { atualizaUsuarioSchema } from '@cmp/shared/models/atualiza-usuario'
 import { faArrowLeft, faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'

@@ -7,6 +7,7 @@ import { router as fipeRouter } from '@cmp/api/routes/api/v1/fipe'
 import { router as imagesRouter } from '@cmp/api/routes/api/v1/images'
 import { router as messagesRouter } from '@cmp/api/routes/api/v1/messages'
 import { router as usersRouter } from '@cmp/api/routes/api/v1/users'
+import { router as wsRouter } from '@cmp/api/routes/api/v1/ws'
 import { getDb } from '@cmp/shared/helpers/get-db'
 import { schema } from '@cmp/shared/models/database/schema'
 import { novoUsuarioSchema } from '@cmp/shared/models/novo-usuario'
@@ -187,6 +188,7 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
   })
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/images/*', imagesRouter.fetch)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/messages/*', messagesRouter.fetch)
+  .all<IRequest, [Env, IAppAuthenticatedRequest]>('/ws/*', wsRouter.fetch)
   .all<IRequest, CF>('*', authenticateRequest)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/fipe/*', fipeRouter.fetch)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/users/*', usersRouter.fetch)

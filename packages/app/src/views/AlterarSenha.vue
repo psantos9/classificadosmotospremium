@@ -92,8 +92,8 @@
 </template>
 
 <script lang="ts" setup>
-import { UnauthorizedError } from '@/composables/api-client'
 import { useApp } from '@/composables/useApp'
+import { UnauthorizedError } from '@/services/api-client'
 import { confirmPasswordSchema, passwordSchema } from '@cmp/shared/models/novo-usuario'
 import { faArrowLeft, faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'

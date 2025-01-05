@@ -10,6 +10,7 @@ import { computeFileHash } from '@/helpers/computeFileSha256'
 import axios, { type Axios, AxiosError, type AxiosProgressEvent } from 'axios'
 import Emittery from 'emittery'
 import { decodeJwt } from 'jose'
+import { attach as retryAttach } from 'retry-axios'
 
 export const API_PERSISTENCE_KEY = 'CPM:SESSION'
 
@@ -62,11 +63,19 @@ const getAxiosInstance = (params: { baseURL: string, ctx: APIClient }) => {
     }
     throw error
   })
+
+  instance.defaults.raxConfig = {
+    instance,
+    retry: 8,
+    backoffType: 'exponential'
+  }
+
+  retryAttach(instance)
   return instance
 }
 
 export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient {
-  private axios: Axios
+  readonly axios: Axios
   private _signedIn: boolean = false
   private _authInterceptor: number | null = null
   private _bearerToken: string | null = null
@@ -80,7 +89,6 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     this.on(APIClientEvent.SIGNED_IN, (value) => {
       this._signedIn = value
     })
-    this._fetchToken()
   }
 
   private _setAuthorizationHeader(bearerToken: string | null) {
@@ -137,6 +145,10 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
 
   get signedIn() {
     return this._signedIn
+  }
+
+  init() {
+    this._fetchToken()
   }
 
   async login(params: { email: string, password: string }) {

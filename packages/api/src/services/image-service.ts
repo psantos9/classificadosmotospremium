@@ -21,14 +21,12 @@ export interface IImage {
 export class ImageService {
   private readonly _authorizationHeader: string
   readonly urlEndpoint: string
-  readonly kv: KVNamespace
   readonly environment: string
 
-  constructor(params: { imageKit: { privateKey: string, urlEndpoint: string }, kv: KVNamespace, environment: string }) {
-    const { imageKit: { privateKey, urlEndpoint }, kv, environment } = params
+  constructor(params: { imageKit: { privateKey: string, urlEndpoint: string }, environment: string }) {
+    const { imageKit: { privateKey, urlEndpoint }, environment } = params
     this._authorizationHeader = `Basic ${btoa(`${privateKey}:`)}`
     this.urlEndpoint = urlEndpoint
-    this.kv = kv
     this.environment = environment
   }
 
@@ -104,7 +102,7 @@ export class ImageService {
 
   static getInstance(env: Env) {
     const { IMAGEKIT_PRIVATE_KEY: privateKey, IMAGEKIT_URL_ENDPOINT: urlEndpoint } = env
-    const instance = new ImageService({ imageKit: { privateKey, urlEndpoint }, kv: env.IMAGES, environment: env.ENVIRONMENT })
+    const instance = new ImageService({ imageKit: { privateKey, urlEndpoint }, environment: env.ENVIRONMENT })
     return instance
   }
 }

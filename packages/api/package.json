@@ -18,6 +18,7 @@
     "cpf-cnpj-validator": "^1.0.3",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.38.2",
+    "hono": "^4.6.16",
     "itty-router": "^5.0.18",
     "jose": "^5.9.6",
     "zod": "^3.24.1"

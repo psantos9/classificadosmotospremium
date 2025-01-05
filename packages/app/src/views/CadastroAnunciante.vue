@@ -294,8 +294,8 @@
 </template>
 
 <script lang="ts" setup>
-import { CpfCnpjConflictError, EmailConflictError } from '@/composables/api-client'
 import { useApp } from '@/composables/useApp'
+import { CpfCnpjConflictError, EmailConflictError } from '@/services/api-client'
 import { novoUsuarioSchema } from '@cmp/shared/models/novo-usuario'
 import { faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'

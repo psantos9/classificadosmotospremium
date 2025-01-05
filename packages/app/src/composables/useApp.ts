@@ -1,5 +1,7 @@
 import type { Acessorio, Cor, InformacaoAdicional } from '@cmp/shared/models/database/models'
-import { APIClient, APIClientEvent } from '@/composables/api-client'
+import { APIClient, APIClientEvent } from '@/services/api-client'
+import { WebSocketMessageProcessor } from '@/services/websocket-message-processor'
+import { WebSocketService, WebSocketServiceEvent } from '@/services/websocket-service'
 import { computed, nextTick, ref, unref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -19,11 +21,40 @@ const informacoesAdicionais = ref<InformacaoAdicional[]>([])
 const cores = ref<Cor[]>([])
 
 let signedInWatcher: null | ReturnType<typeof watch> = null
+
 const api = new APIClient({ baseURL: __API_BASE_URL__ })
 
-api.on(APIClientEvent.SIGNED_IN, (_signedIn) => {
-  signedIn.value = _signedIn
+const webSocketMessageProcessor = new WebSocketMessageProcessor({})
+const websocketService = new WebSocketService({ api, webSocketMessageProcessor })
+
+websocketService.on(WebSocketServiceEvent.STATE_UPDATE, (webSocketServiceState) => {
+  console.log('GOT WEBSOCKET SERVICE', webSocketServiceState)
+  /*
+  state.webSocketServiceState = webSocketServiceState
+  if (webSocketServiceState === WebSocketClientState.CONNECTED && geolocationService.lastReportedPosition !== null) {
+    void websocketService.sendPosition(geolocationService.lastReportedPosition)
+  }
+    */
 })
+
+websocketService.on(WebSocketServiceEvent.RTT, (rtt) => {
+  console.log('GOT SOCKET RTT', rtt)
+})
+
+console.log('CHECKING')
+api.on(APIClientEvent.SIGNED_IN, (_signedIn) => {
+  console.log('SIGNED IN')
+  signedIn.value = _signedIn
+  console.log('SIGNED IN', _signedIn)
+  if (_signedIn) {
+    void websocketService.start()
+  }
+  else {
+    void websocketService.stop()
+  }
+})
+
+api.init()
 
 const initApp = async () => {
   const [_acessorios, _informacoesAdicionais, _cores] = await Promise.all([api.fetchAcessorios(), api.fetchInformacoesAdicionais(), api.fetchCores()])
