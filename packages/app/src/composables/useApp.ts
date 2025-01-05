@@ -41,11 +41,8 @@ websocketService.on(WebSocketServiceEvent.RTT, (rtt) => {
   console.log('GOT SOCKET RTT', rtt)
 })
 
-console.log('CHECKING')
 api.on(APIClientEvent.SIGNED_IN, (_signedIn) => {
-  console.log('SIGNED IN')
   signedIn.value = _signedIn
-  console.log('SIGNED IN', _signedIn)
   if (_signedIn) {
     void websocketService.start()
   }

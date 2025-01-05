@@ -1,6 +1,7 @@
 import type { IRequest } from 'itty-router'
 import type { FipeClient } from './durable-objects/fipe'
 import type { UserDO } from './durable-objects/UserDO'
+import type { UsersDO } from './durable-objects/UsersDO'
 import type { AdReviewEvent } from './workflows/AdReviewWorkflow'
 
 export interface Env {
@@ -9,6 +10,7 @@ export interface Env {
   SOCKET_AUTH: KVNamespace
   FIPE_DO: DurableObjectNamespace<FipeClient>
   USER_DO: DurableObjectNamespace<UserDO>
+  USERS_DO: DurableObjectNamespace<UsersDO>
   ENVIRONMENT: string
   API_SECRET: string
   IMAGEKIT_PRIVATE_KEY: string

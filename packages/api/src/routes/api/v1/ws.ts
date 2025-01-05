@@ -2,11 +2,13 @@ import type { CF, Env, IAppAuthenticatedRequest } from '@/types'
 import type { IUserSocketMetadata } from '@cmp/shared/models/user-socket-metadata'
 import { PING_PERIOD_MS, SOCKET_TIMEOUT_MS } from '@/constants'
 import { getUserDO } from '@/durable-objects/UserDO'
+import { defaultErrorHandler } from '@/helpers/default-error-handler'
 import { authenticateRequest } from '@/middleware/authenticate-request'
 import { AutoRouter, type IRequest, json, StatusError } from 'itty-router'
 
 export const router = AutoRouter<IAppAuthenticatedRequest, CF>({
-  base: '/api/v1/ws'
+  base: '/api/v1/ws',
+  catch: defaultErrorHandler
 })
   .post<IAppAuthenticatedRequest, [Env, ExecutionContext]>('/', authenticateRequest, async (req, env) => {
     const { userId = null } = req
@@ -61,7 +63,6 @@ export const router = AutoRouter<IAppAuthenticatedRequest, CF>({
 
     const { userId } = metadata
     const stub = await getUserDO(userId, env.USER_DO)
-    // const response = await stub.fetch(new Request(`http://users/ws/${userId}`, { headers: { upgrade: 'websocket' } }))
-    const response = await stub.fetch(req.clone())
+    const response = await stub.fetch(new Request('http://users/ws', { headers: { upgrade: 'websocket' }, cf: req.cf }))
     return response
   })

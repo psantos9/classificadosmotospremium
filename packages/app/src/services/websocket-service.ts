@@ -40,7 +40,9 @@ export class WebSocketService extends Emittery<WebSocketServiceEventMap> {
     })
 
     this.webSocketClient.on('disconnected', () => {
-      void this.start()
+      if (api.signedIn) {
+        void this.start()
+      }
     })
 
     this.webSocketClient.on('rtt', (rtt) => {

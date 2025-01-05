@@ -1,5 +1,6 @@
 import type { CF, Env, IAppAuthenticatedRequest } from '@/types'
 import type { SQL } from 'drizzle-orm'
+import { getUsersDO } from '@/durable-objects/UsersDO'
 import { getBearerToken } from '@/helpers/getBearerToken'
 import { authenticateRequest } from '@/middleware/authenticate-request'
 import { router as adsRouter } from '@cmp/api/routes/api/v1/ads'
@@ -52,6 +53,11 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
       }
       else { throw err }
     }
+  })
+  // FIXME: REMOVE
+  .get<IRequest, [Env, ExecutionContext]>('/online', async (req, env) => {
+    const usersDO = getUsersDO(env)
+    return usersDO.onlineUsersIndex
   })
   .post<IRequest, [Env, ExecutionContext]>('/login/check', async (req, env) => {
     const db = getDb(env.DB)

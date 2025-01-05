@@ -1,5 +1,6 @@
 import type { Env } from '@/types'
 import type { Context } from 'hono'
+import { getUsersDO } from '@/durable-objects/UsersDO'
 import { DurableObject } from 'cloudflare:workers'
 import { Hono } from 'hono'
 
@@ -17,22 +18,23 @@ export class UserAlreadyInitializedError extends Error {
 }
 
 export class UserDO extends DurableObject<Env> {
-  private _id = -1
+  private _userId = -1
   private _createdAt = new Date()
   private _app: Hono = new Hono()
-    .get('/ws', (c) => {
-      console.log('GOTOT')
-      return this.upgradeWebSocket(c)
-    })
+    .get('/ws', c => this.upgradeWebSocket(c))
 
   fetch = this._app.fetch
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env)
+    this.ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair('ping', 'pong'))
+    this.ctx.blockConcurrencyWhile(async () => {
+      await this.load()
+    })
   }
 
-  get id() {
-    return this._id
+  get userId() {
+    return this._userId
   }
 
   get createdAt() {
@@ -41,19 +43,28 @@ export class UserDO extends DurableObject<Env> {
 
   async init(params: { userId: number }) {
     const { userId } = params
-    if (this._id > -1) {
+    if (this._userId > -1) {
       throw new UserAlreadyInitializedError()
     }
 
-    this._id = userId
+    this._userId = userId
     this._createdAt = new Date()
 
     await this.ctx.blockConcurrencyWhile(async () => {
       await Promise.all([
-        this.ctx.storage.put(STORAGE_KEY_PREFIX.ID, this._id),
+        this.ctx.storage.put(STORAGE_KEY_PREFIX.ID, this._userId),
         this.ctx.storage.put<Date>(STORAGE_KEY_PREFIX.CREATED_AT, this._createdAt)
       ])
     })
+  }
+
+  async load() {
+    const [userId = -1, createdAt = new Date()] = await Promise.all([
+      this.ctx.storage.get<number>(STORAGE_KEY_PREFIX.ID),
+      this.ctx.storage.get<Date>(STORAGE_KEY_PREFIX.CREATED_AT)
+    ])
+    this._userId = userId
+    this._createdAt = createdAt
   }
 
   async destroy() {
@@ -61,29 +72,27 @@ export class UserDO extends DurableObject<Env> {
   }
 
   async upgradeWebSocket(c: Context) {
-    console.log('COGONGO')
     if (c.req.header('upgrade') !== 'websocket') {
       return c.text('Expected Upgrade: websocket', 426)
     }
     const webSocketPair = new WebSocketPair()
     const [client, ws] = Object.values(webSocketPair)
     this.ctx.acceptWebSocket(ws)
+    await getUsersDO(this.env).setUserOnline(this.userId, c.req.raw.cf)
 
-    const currentAlarm = await this.ctx.storage.getAlarm()
-    if (currentAlarm === null) {
-      this.ctx.storage.setAlarm(Date.now() + 5 * 1e3)
-    }
-    console.log('CONNECTED WEBSOCKET')
     const responseInit: ResponseInit = { status: 101, webSocket: client }
     return new Response(null, responseInit)
   }
 
   async webSocketMessage(ws: WebSocket, msg: unknown) {
-    console.log('GOT MESSAGE', msg)
+    if (msg !== 'ping') {
+      console.log('GOT MESSAGE', msg)
+    }
   }
 
   async closeOrErrorHandler(params: { ws: WebSocket, close?: { code: number, reason: string, wasClean: boolean }, error?: unknown }) {
     const { ws, close, error } = params
+    await getUsersDO(this.env).setUserOffline(this.userId)
     console.log('CLOSED', ws, close, error)
   }
 
@@ -99,7 +108,7 @@ export class UserDO extends DurableObject<Env> {
 export const getUserDO = async (userId: number, userDO: DurableObjectNamespace<UserDO>) => {
   const id: DurableObjectId = userDO.idFromName(userId.toString())
   const stub = userDO.get(id)
-  if (!(await stub.id)) {
+  if (await stub.userId === -1) {
     await stub.init({ userId })
   }
   return stub

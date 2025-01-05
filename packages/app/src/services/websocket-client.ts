@@ -149,7 +149,6 @@ export default class WebSocketClient extends Emittery<WebSocketClientEventMap> i
     this.ws.addEventListener('open', () => {
       void this.emit('state-update', WebSocketClientState.CONNECTED)
       void this.sendPing()
-      this.ws?.send(JSON.stringify({ type: 'registration' }))
     })
 
     this.ws.addEventListener('close', (event: CloseEvent) => {
