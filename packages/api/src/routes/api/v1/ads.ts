@@ -175,19 +175,15 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
 
     const formData = (await req.formData()) as FormData
     const imageIds: string[] = []
-    for (const [key, value] of Array.from(formData.entries())) {
-      const file = value as unknown
-      const [, type, i] = key.match(/(\w+)\[(\d+)\]/) ?? []
-      const idx = Number.parseInt(i)
-      if (!Number.isNaN(idx)) {
-        if (type === 'file' && file instanceof File) {
-          if (!allowedImageMimeTypes.includes(file.type)) {
-            console.warn(`discarding file ${file.name}, mime type ${file.type} not allowed`)
-            throw new StatusError(400, `mime_type_not_allowed: ${file.type}`)
-          }
-          const image = await imageService.upload({ adId, file })
-          imageIds.push(image.fileId)
+    for (const [, value] of Array.from(formData.entries())) {
+      if (value as unknown instanceof File) {
+        const file = value as unknown as File
+        if (!allowedImageMimeTypes.includes(file.type)) {
+          console.warn(`discarding file ${file.name}, mime type ${file.type} not allowed`)
+          throw new StatusError(400, `mime_type_not_allowed: ${file.type}`)
         }
+        const image = await imageService.upload({ adId, file })
+        imageIds.push(image.fileId)
       }
     }
     const novasFotos = [...fotos, ...imageIds]

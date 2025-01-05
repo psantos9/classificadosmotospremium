@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white shadow rounded-md h-auto flex flex-col overflow-hidden group cursor-pointer hover:shadow-lg transition-all">
     <div class="overflow-hidden bg-black">
-      <img :src="api.getImageUrl({ imageId: anuncio.fotos[0], thumbnail: true })" class="h-full w-full aspect-[4/3] object-contain transition-all duration-200">
+      <img :src="api.getImageUrl({ imageId: anuncio.fotos[0], thumbnail: true })" class="h-full w-full aspect-[4/3] object-cover transition-all duration-200">
     </div>
     <div class="flex flex-col p-4 text-sm gap-2">
       <span class="font-bold text-base">{{ anuncio.marca }}</span>

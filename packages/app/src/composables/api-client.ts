@@ -7,7 +7,6 @@ import type { NovoUsuario } from '@cmp/shared/models/novo-usuario'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
 import type { UnauthenticatedMessageSender } from '@cmp/shared/models/unauthenticated-message-sender'
 import { computeFileHash } from '@/helpers/computeFileSha256'
-import { getImageStorageKey } from '@cmp/api/helpers/get-image-storage-key'
 import axios, { type Axios, AxiosError, type AxiosProgressEvent } from 'axios'
 import Emittery from 'emittery'
 import { decodeJwt } from 'jose'
@@ -70,10 +69,13 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
   private axios: Axios
   private _signedIn: boolean = false
   private _authInterceptor: number | null = null
+  private _bearerToken: string | null = null
+  readonly baseURL: string
 
   constructor(params: { baseURL: string }) {
     super()
     const { baseURL } = params
+    this.baseURL = baseURL
     this.axios = getAxiosInstance({ baseURL, ctx: this })
     this.on(APIClientEvent.SIGNED_IN, (value) => {
       this._signedIn = value
@@ -82,6 +84,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
   }
 
   private _setAuthorizationHeader(bearerToken: string | null) {
+    this._bearerToken = bearerToken
     if (this._authInterceptor !== null) {
       this.axios.interceptors.request.eject(this._authInterceptor)
       this._authInterceptor = null
@@ -92,6 +95,10 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
         return config
       })
     }
+  }
+
+  get bearerToken() {
+    return this._bearerToken
   }
 
   private getTokenExpirationDeltaSeconds(exp: null | number) {
@@ -324,6 +331,10 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     const anuncio = await this.axios.get<PublicAd & { cor: Cor }>(pathname)
       .then(({ data }) => data)
     return anuncio
+  }
+
+  getAdImageUploadURL(adId: number) {
+    return `${this.baseURL}/api/v1/ads/${adId}/images`
   }
 
   async uploadImages(params: { adId: number, files: FileList, adImageKeys?: string[], onUploadProgress?: (event: AxiosProgressEvent) => void, onPreviewIndex?: (index: { [imageKey: string]: string }) => void }): Promise<Anuncio> {

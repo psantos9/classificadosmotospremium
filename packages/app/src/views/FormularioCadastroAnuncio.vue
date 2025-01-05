@@ -193,8 +193,19 @@
         </div>
       </div>
       <div v-if="anuncio !== null" class="card-section">
-        <span class="title">Fotos</span>
-        <ImageUpload @files="uploadPhotos" />
+        <div class="flex items-center justify-between">
+          <span class="title">
+            Fotos
+          </span>
+          <button
+            type="button"
+            class="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-md text-sm px-5 py-2.5 text-center inline-flex items-center gap-2"
+            @click="(uppy.getPlugin('Dashboard') as any)?.openModal?.()"
+          >
+            Adicionar Fotos
+            <FontAwesomeIcon :icon="faPlus" />
+          </button>
+        </div>
         <div class="grid grid-cols-1 gap-4 md:grid-cols-4 items-start justify-center">
           <div
             v-for="(foto, i) in fotos.filter(foto => !photosToDelete.includes(foto))"
@@ -204,7 +215,7 @@
             :data-index="i"
             class="group rounded-md overflow-hidden md:data-[index=0]:col-span-2 md:data-[index=0]:row-span-2 h-full flex items-center justify-center relative cursor-pointer data-[dragover]:scale-105 transition-all"
           >
-            <img :src="api.getImageUrl({ imageId: foto, thumbnail: true })" class="border border-gray-300 rounded-md">
+            <img :src="api.getImageUrl({ imageId: foto, thumbnail: i !== 0 })" class="border border-gray-300 rounded-md object-cover h-full">
             <div class="absolute top-0 left-0 bg-white/90 text-xs rounded-md shadow px-2 py-1 m-1 font-light">
               {{ i === 0 ? 'Foto principal' : i + 1 }}
             </div>
@@ -291,11 +302,15 @@ import type { Marca, Modelo } from '@cmp/api/clients/fipe-api-client'
 import type { Acessorio, Anuncio, Cor, InformacaoAdicional } from '@cmp/shared/models/database/models'
 import type { AxiosProgressEvent } from 'axios'
 import Combobox from '@/components/Combobox.vue'
-import ImageUpload from '@/components/ImageUpload.vue'
 import { useApp } from '@/composables/useApp'
 import { type AtualizaAnuncio, getAtualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
-import { faArrowLeft, faArrowRight, faCheckCircle, faExclamationTriangle, faLocationDot, faRotateLeft, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faArrowRight, faCheckCircle, faExclamationTriangle, faLocationDot, faPlus, faRotateLeft, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import Uppy from '@uppy/core'
+import Dashboard from '@uppy/dashboard'
+import ImageEditor from '@uppy/image-editor'
+import ptBR from '@uppy/locales/lib/pt_BR'
+import XHR from '@uppy/xhr-upload'
 import { toTypedSchema } from '@vee-validate/zod'
 import debounce from 'lodash.debounce'
 import { vMaska } from 'maska/vue'
@@ -305,18 +320,58 @@ import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
 import { ZodError } from 'zod'
 
+import '@uppy/core/dist/style.css'
+import '@uppy/dashboard/dist/style.css'
+import '@uppy/image-editor/dist/style.min.css'
+
 const router = useRouter()
 const route = useRoute()
 const { api } = useApp()
 const toast = useToast()
 
 const adId = ref<number | null>(null)
+
 const anuncio = ref<Anuncio | null>(null)
 
 const cores = ref<Cor[]>([])
 const listaAcessorios = ref<Acessorio[]>([])
 const listaInformacoesAdicionais = ref<InformacaoAdicional[]>([])
 const loadingCepRequests = ref(0)
+
+const uppy = new Uppy({ locale: ptBR, allowMultipleUploadBatches: false })
+  .use(Dashboard, { closeAfterFinish: true, closeModalOnClickOutside: true })
+  .use(ImageEditor, {
+    actions: {
+      cropSquare: false,
+      cropWidescreen: false,
+      cropWidescreenVertical: false,
+      rotate: false
+    },
+    cropperOptions: { initialAspectRatio: 4 / 3, aspectRatio: 4 / 3 }
+  })
+  .use(XHR, {
+    endpoint: '',
+    responseType: 'json',
+    bundle: true,
+    formData: true,
+    onBeforeRequest: (xhr) => {
+      xhr.open('POST', api.getAdImageUploadURL(unref(adId) ?? -1))
+      xhr.setRequestHeader('Authorization', `Bearer ${api.bearerToken}`)
+    },
+    getResponseData(xhr) {
+      const data = xhr.response as Anuncio
+      return data
+    },
+    onAfterResponse: (xhr) => {
+      if (xhr.status === 200) {
+        anuncio.value = xhr.response as Anuncio
+      }
+    }
+  })
+
+uppy.on('dashboard:modal-closed', () => {
+  uppy.cancelAll()
+})
 
 const anuncioFormSchema = toTypedSchema(getAtualizaAnuncioSchema())
 
@@ -361,7 +416,6 @@ const informacoesAdicionais = ref<number[]>([])
 
 const fotos = ref<string[]>([])
 const photoUploadIndex = ref<Record<string, string>>({})
-const uploadProgress = ref(0)
 const photosToDelete = ref<string[]>([])
 
 const atualizaMarcas = async () => {
@@ -620,30 +674,6 @@ const swapFotos = async (foto1: string, foto2: string) => {
   [_fotos[index1], _fotos[index2]] = [_fotos[index2], _fotos[index1]]
   const atualizacao = getAtualizaAnuncioSchema().parse(unref(values))
   await atualizaAnuncio(atualizacao)
-}
-
-const uploadPhotos = async (files: FileList) => {
-  const _ad = unref(anuncio)
-  if (_ad === null) {
-    return
-  }
-  const { id: adId, fotos: adImageKeys } = _ad
-
-  const onPreviewIndex = (imageIndex: Record<string, string>) => {
-    photoUploadIndex.value = imageIndex
-  }
-
-  const onUploadProgress = (event: AxiosProgressEvent) => {
-    uploadProgress.value = event.progress ?? 0
-  }
-
-  try {
-    uploadProgress.value = 0
-    anuncio.value = await api.uploadImages({ adId, files, adImageKeys, onPreviewIndex, onUploadProgress })
-  }
-  finally {
-    onPreviewIndex({})
-  }
 }
 
 const debouncedValidateCEP = debounce(async (cep: string) => {
