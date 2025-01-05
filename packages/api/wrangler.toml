@@ -18,6 +18,11 @@ port = 8088
 tag = "v1"
 new_classes = ["FipeClient", "UserDO", "UsersDO"]
 
+[[migrations]]
+tag = "v2"
+new_classes = ["UserDO", "UsersDO"]
+
+
 # DEV
 [env.dev]
 name = "cmp-api-dev"
