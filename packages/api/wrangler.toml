@@ -16,7 +16,7 @@ port = 8088
 
 [[migrations]]
 tag = "v1"
-new_classes = ["FipeClient", "UserDO", "UsersDO"]
+new_classes = ["FipeClient"]
 
 [[migrations]]
 tag = "v2"
