@@ -12,6 +12,9 @@ export default defineConfig(({ mode }) => {
   const releaseTimestamp = new Date().getTime()
 
   const config: UserConfig = {
+    server: {
+      host: '0.0.0.0'
+    },
     plugins: [
       vue({
         template: {

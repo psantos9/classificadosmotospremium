@@ -4,8 +4,8 @@
       {{ signature }}
     </div>
     <SidebarButton class="block md:hidden" />
-    <button class="w-32 md:w-52 md:p-4 justify-self-start" @click="$router.push({ name: 'home' })">
-      <img src="@/assets/images/full_logo_dark.svg" class="h-full">
+    <button class="w-32 md:w-52 md:p-4" @click="$router.push({ name: 'home' })">
+      <img src="@/assets/images/full_logo_dark.svg">
     </button>
 
     <div class="flex items-center gap-6 justify-end pr-4">
@@ -50,5 +50,5 @@ const signature = import.meta.env.MODE !== 'production' ? `release: ${__GIT_COMM
 <style lang="sass" scoped>
 .main-header
   @apply bg-[var(--main-header-bg)] text-white h-[var(--main-header-size)]
-  @apply w-full grid grid-cols-3 md:grid-cols-2 items-center justify-between relative
+  @apply grid grid-cols-3 md:grid-cols-2 items-center justify-between relative
 </style>
