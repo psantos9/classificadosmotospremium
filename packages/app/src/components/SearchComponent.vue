@@ -12,13 +12,6 @@
         <FontAwesomeIcon :icon="faMotorcycle" size="lg" />
         <span>Ver ofertas</span>
       </button>
-
-      <div class="col-span-full mx-auto">
-        <button class="border border-[var(--primary)] hover:border-[var(--primary-lighter)] text-[var(--primary)] hover:text-[var(--primary-lighter)] rounded-md text-base font-semibold flex gap-2 items-center justify-center px-4 py-1 transition-colors">
-          <FontAwesomeIcon :icon="faSliders" />
-          <span>Busca avançada</span>
-        </button>
-      </div>
     </div>
   </div>
 </template>
