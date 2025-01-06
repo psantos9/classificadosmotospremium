@@ -7,10 +7,9 @@
     <div class="p-4 md:p-2 flex flex-col gap-2">
       <span class="text-sm font-bold">Estado</span>
       <Combobox
-        v-model="marca"
-        :data="marcas"
-        label-key="marca"
-        :loading="loadingMarcas"
+        v-model="estado"
+        :data="estados"
+        :loading="loadingEstados"
         :nullable="true"
       />
     </div>
@@ -76,9 +75,27 @@ import { ref } from 'vue'
 
 const { api } = useApp()
 const loadingMarcas = ref(false)
+const loadingEstados = ref(false)
+
+const estados = ref<string[]>([])
+const estado = ref<string | null>(null)
 
 const marcas = ref<Marca[]>([])
 const marca = ref<Marca | null>(null)
+
+const atualizaEstados = async () => {
+  try {
+    loadingEstados.value = true
+    estados.value = await api.fetchEstadosAnuncios()
+  }
+  catch (err) {
+    marcas.value = []
+    throw err
+  }
+  finally {
+    loadingEstados.value = false
+  }
+}
 
 const atualizaMarcas = async () => {
   try {
@@ -95,4 +112,5 @@ const atualizaMarcas = async () => {
 }
 
 atualizaMarcas()
+atualizaEstados()
 </script>

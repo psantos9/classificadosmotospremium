@@ -2,7 +2,7 @@ import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
 import type { UnauthenticatedMessageSender } from '../unauthenticated-message-sender'
 import { anuncioStatusSchema } from '@cmp/shared/models/anuncio-status'
 import { relations, sql } from 'drizzle-orm'
-import { check, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { check, index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { anuncioStatusType } from './custom-types'
 
 export const usuario = sqliteTable('usuario', {
@@ -71,7 +71,10 @@ export const anuncio = sqliteTable('anuncio', () => ({
   atualizacao: text({ mode: 'json' }).$type<AtualizaAnuncio | null>().$defaultFn(() => null),
   reviewWorkflowId: text()
 }), table => [
-  check('anuncioStatus', sql.raw(`${table.status.name} IN (${Object.values(anuncioStatusSchema.enum).map(value => `'${value}'`).join(',')})`))
+  check('anuncioStatus', sql.raw(`${table.status.name} IN (${Object.values(anuncioStatusSchema.enum).map(value => `'${value}'`).join(',')})`)),
+  index('anuncio_marca_idx').on(table.marca),
+  index('anuncio_status_user_id_idx').on(table.status, table.userId),
+  index('anuncio_uf_localidade_idx').on(table.uf, table.localidade)
 ])
 
 export const mensagem = sqliteTable('mensagem', () => ({

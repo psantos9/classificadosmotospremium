@@ -338,6 +338,13 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncios
   }
 
+  async fetchEstadosAnuncios() {
+    const pathname = '/api/v1/anuncios/estados'
+    const estados = await this.axios.get<string[]>(pathname)
+      .then(({ data }) => data)
+    return estados
+  }
+
   async fetchAnuncio(id: number) {
     const pathname = `/api/v1/anuncios/${id}`
     const anuncio = await this.axios.get<PublicAd & { cor: Cor }>(pathname)

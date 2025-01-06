@@ -54,11 +54,6 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
       else { throw err }
     }
   })
-  // FIXME: REMOVE
-  .get<IRequest, [Env, ExecutionContext]>('/online', async (req, env) => {
-    const usersDO = getUsersDO(env)
-    return usersDO.onlineUsersIndex
-  })
   .post<IRequest, [Env, ExecutionContext]>('/login/check', async (req, env) => {
     const db = getDb(env.DB)
 
@@ -131,6 +126,12 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     const db = getDb(env.DB)
     const cores = await db.query.cor.findMany()
     return cores
+  })
+  .get<IRequest, [Env, ExecutionContext]>('/anuncios/estados', async (req, env) => {
+    const db = getDb(env.DB)
+    const filters: SQL[] = [eq(schema.anuncio.status, 'published')]
+    const ufs = await db.selectDistinct({ uf: schema.anuncio.uf }).from(schema.anuncio).where(and(...filters)).then(rows => rows.map(({ uf }) => uf))
+    return ufs
   })
   .get<IRequest, [Env, ExecutionContext]>('/anuncios', async (req, env) => {
     const db = getDb(env.DB)
