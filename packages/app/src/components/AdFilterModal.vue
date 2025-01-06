@@ -34,7 +34,7 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel class="w-full max-w-md transform overflow-hidden rounded-md bg-white text-left align-middle transition-all">
-              <AdsFilter />
+              <AdsFilter :close="closeModal" />
             </DialogPanel>
           </TransitionChild>
         </div>

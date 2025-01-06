@@ -1,6 +1,9 @@
 <template>
-  <div class="bg-white flex flex-col divide-y rounded-md" tabindex="1">
-    <div class="flex flex-col items-center p-4 md:p-2 gap-1">
+  <div class="bg-white flex flex-col divide-y rounded-md relative" tabindex="1">
+    <button v-if="typeof close === 'function'" class="absolute top-0 right-0 m-2 p-2" @click.stop="close?.()">
+      <FontAwesomeIcon :icon="faTimes" size="xl" />
+    </button>
+    <div class="pt-8 flex flex-col items-center p-4 md:p-2 gap-1">
       <FontAwesomeIcon :icon="faFilter" size="2xl" class="text-[var(--primary)]" />
       <span class="uppercase font-black">Filtrar anúncios</span>
     </div>
@@ -69,9 +72,11 @@
 import type { Marca } from '@cmp/api/clients/fipe-api-client'
 import Combobox from '@/components/Combobox.vue'
 import { useApp } from '@/composables/useApp'
-import { faFilter } from '@fortawesome/free-solid-svg-icons'
+import { faFilter, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref } from 'vue'
+
+defineProps<{ close?: () => void }>()
 
 const { api } = useApp()
 const loadingMarcas = ref(false)
