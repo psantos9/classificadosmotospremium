@@ -18,6 +18,6 @@
 
 <script lang="ts" setup>
 import Autocomplete from '@/components/Autocomplete.vue'
-import { faMotorcycle, faSliders } from '@fortawesome/free-solid-svg-icons'
+import { faMotorcycle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 </script>
