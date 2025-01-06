@@ -25,7 +25,7 @@
         </RouterLink>
       </div>
       <button
-        class="bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] mx-2 px-2 py-1 rounded-md text-xs md:text-base font-semibold flex items-center gap-1 md:gap-2"
+        class="bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] mx-2 px-2 py-1 rounded-md text-sm md:text-base font-semibold flex items-center gap-2"
         @click="$router.push({ name: 'anuncie' })"
       >
         <span>Anuncie</span>

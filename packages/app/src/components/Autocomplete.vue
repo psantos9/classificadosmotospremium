@@ -7,7 +7,7 @@
     @update:model-value="query = ''"
   >
     <ComboboxInput
-      class="h-[3.5rem] w-full rounded-md outline-none border border-transparent focus:border-[var(--primary)] px-4 placeholder:font-semibold placeholder:text-sm placeholder:text-gray-500 font-black text-sm"
+      class="md:h-[3.5rem] w-full rounded-md outline-none border border-transparent focus:border-[var(--primary)] px-4 placeholder:font-semibold placeholder:text-sm placeholder:text-gray-500 font-black text-sm"
       placeholder="Digite o nome da marca ou modelo da moto"
       :display-value="(option: any) => typeof option === 'object' ? option?.[labelKey] : option"
       @change="query = $event.target.value"

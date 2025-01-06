@@ -1,23 +1,24 @@
 <template>
-  <div class="relative z-10 flex flex-col items-center justify-center md:rounded-xl bg-black p-4 md:p-12 md:mx-14">
-    <div class="uppercase font-bold text-base md:text-2xl tracking-wide  text-white">
-      Encontre o veículo ideal para você
-    </div>
-    <div class="mt-4 flex flex-col items-center gap-4 md:gap-8 w-full max-w-3xl">
-      <Autocomplete :data="['teste', 'ok']" class="flex-1 w-full" />
+  <div class="w-full flex justify-center items-center z-10 ">
+    <div class="relative z-10 grid grid-cols-6 gap-4 w-full md:max-w-screen-md items-center justify-center md:rounded-xl bg-black p-4">
+      <div class="uppercase font-bold text-base md:text-2xl tracking-wide text-white col-span-full text-center">
+        Encontre o veículo ideal para você
+      </div>
+      <Autocomplete :data="['teste', 'ok']" class="flex-1 w-full col-span-full md:col-span-4 " />
       <button
-        class="bg-[var(--primary)] hover:bg-[var(--primary-lighter)] rounded-md h-[3.5rem] uppercase text-sm font-black flex gap-2 items-center justify-center px-8 transition-colors"
+        class="bg-[var(--primary)] hover:bg-[var(--primary-lighter)] rounded-md md:h-[3.5rem] py-2.5 uppercase text-sm font-black flex gap-2 items-center justify-center px-8 transition-colors col-span-full md:col-span-2"
         @click="$router.push({ name: 'anuncios' })"
       >
         <FontAwesomeIcon :icon="faMotorcycle" size="lg" />
         <span>Ver ofertas</span>
       </button>
-    </div>
-    <div>
-      <button class="mt-4 md:mt-6 border border-[var(--primary)] hover:border-[var(--primary-lighter)] text-[var(--primary)] hover:text-[var(--primary-lighter)] rounded-md text-base font-bold flex gap-2 items-center justify-center px-4 py-1 transition-colors">
-        <FontAwesomeIcon :icon="faSliders" />
-        <span>Busca avançada</span>
-      </button>
+
+      <div class="col-span-full mx-auto">
+        <button class="border border-[var(--primary)] hover:border-[var(--primary-lighter)] text-[var(--primary)] hover:text-[var(--primary-lighter)] rounded-md text-base font-semibold flex gap-2 items-center justify-center px-4 py-1 transition-colors">
+          <FontAwesomeIcon :icon="faSliders" />
+          <span>Busca avançada</span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
