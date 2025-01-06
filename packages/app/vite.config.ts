@@ -2,7 +2,7 @@ import { execSync } from 'node:child_process'
 import { fileURLToPath, URL } from 'node:url'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig, type UserConfig } from 'vite'
-import vueDevTools from 'vite-plugin-vue-devtools'
+// import vueDevTools from 'vite-plugin-vue-devtools'
 
 const branch = execSync('git rev-parse --abbrev-ref HEAD').toString('utf-8')
 const commitHash = execSync('git rev-parse --short HEAD').toString('utf-8')
@@ -19,8 +19,8 @@ export default defineConfig(({ mode }) => {
             isCustomElement: tag => ['swiper-container', 'swiper-slide'].includes(tag)
           }
         }
-      }),
-      vueDevTools()
+      })
+      // vueDevTools()
     ],
     resolve: {
       alias: {
