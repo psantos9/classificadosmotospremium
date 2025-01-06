@@ -3,9 +3,9 @@
     <div v-if="signature" class="hidden md:block absolute bottom-0 right-1 text-xs text-gray-500">
       {{ signature }}
     </div>
-    <SidebarButton class="block md:hidden" />
-    <div class="flex items-center justify-center md:justify-start">
-      <button class="w-32 md:w-52 md:p-4" @click.stop="navigateToHome">
+    <div class="flex items-center">
+      <SidebarButton class="block md:hidden" />
+      <button class="w-44 md:w-60 md:ml-4" @click.stop="navigateToHome">
         <img src="@/assets/images/full_logo_dark.svg">
       </button>
     </div>
@@ -27,7 +27,7 @@
         </RouterLink>
       </div>
       <button
-        class="bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] mx-2 px-2 py-1 rounded-md text-sm md:text-base font-semibold flex items-center gap-2"
+        class="bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] px-4 py-2 rounded-md text-sm md:text-base font-semibold flex items-center gap-2"
         @click="$router.push({ name: 'anuncie' })"
       >
         <span>Anuncie</span>
@@ -59,5 +59,5 @@ const navigateToHome = async () => {
 <style lang="sass" scoped>
 .main-header
   @apply bg-[var(--main-header-bg)] text-white h-[var(--main-header-size)]
-  @apply grid grid-cols-3 md:grid-cols-2 items-center justify-between relative
+  @apply flex items-center justify-between relative
 </style>

@@ -9,9 +9,9 @@
         <AdsFilter class="shadow" />
       </div>
 
-      <div class="md:hidden flex items-center justify-end p-4 gap-4">
-        <SortingDropdown />
+      <div class="md:hidden flex items-center justify-between p-4 gap-4">
         <AdFilterModal />
+        <SortingDropdown />
       </div>
       <div class="flex-1 grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] overflow-y-auto items-start px-4 md:px-2 md:p-0 gap-4 md:gap-2">
         <template v-if="loading">

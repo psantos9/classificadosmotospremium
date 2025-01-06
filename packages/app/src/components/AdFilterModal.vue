@@ -1,6 +1,6 @@
 <template>
   <button
-    class="bg-[var(--secondary)] hover:bg-[var(--secondary-lighter)] text-[var(--secondary-text)] px-2 py-1 rounded-md text-sm md:text-base font-semibold flex items-center gap-2 shadow-md"
+    class="bg-[var(--secondary)] hover:bg-[var(--secondary-lighter)] text-[var(--secondary-text)] px-4 py-2 rounded-md text-sm md:text-base font-semibold flex items-center gap-2 shadow-md"
     @click="openModal"
   >
     <span>Filtrar</span>
