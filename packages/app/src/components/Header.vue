@@ -4,14 +4,14 @@
       {{ signature }}
     </div>
     <SidebarButton class="block md:hidden" />
-    <div class="flex items-center justify-center">
+    <div class="flex items-center justify-center md:justify-start">
       <button class="w-32 md:w-52 md:p-4" @click.stop="navigateToHome">
         <img src="@/assets/images/full_logo_dark.svg">
       </button>
     </div>
 
     <div class="flex items-center gap-6 justify-end pr-4">
-      <div class="hidden md:flex gap-4">
+      <div class="hidden md:flex md:items-center gap-2">
         <RouterLink
           v-for="(item, i) in menuItems" :key="i" v-slot="{ isExactActive, navigate }" :to="item.to" custom
         >

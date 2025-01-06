@@ -17,7 +17,7 @@
     <button
       v-if="y > 0"
       type="button"
-      class="md:hidden fixed bottom-0 right-0 w-10 h-10 m-2 shadow-md bg-[var(--primary)] hover:bg-[var(--primary-darker)] text-[var(--primary-text)] focus:outline-none rounded-full p-2.5 text-center inline-flex items-center"
+      class="fixed bottom-0 right-0 w-10 h-10 m-2 shadow-md bg-[var(--primary)] hover:bg-[var(--primary-darker)] text-[var(--primary-text)] focus:outline-none rounded-full p-2.5 text-center inline-flex items-center"
       @click="scrollToTop"
     >
       <FontAwesomeIcon :icon="faArrowUp" fixed-width size="xl" />
