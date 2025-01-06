@@ -10,6 +10,8 @@
       class="w-full rounded-md outline-none border border-transparent focus:border-[var(--primary)] placeholder:font-semibold placeholder:text-base placeholder:text-gray-500 font-black text-base"
       placeholder="Digite o nome da marca ou modelo da moto"
       :display-value="(option: any) => typeof option === 'object' ? option?.[labelKey] : option"
+      @focus="$emit('focus', $event)"
+      @click="$emit('click', $event)"
       @change="query = $event.target.value"
       @blur="query = ''"
     />
@@ -42,7 +44,12 @@ const props = defineProps<{
   loading?: boolean
   filteringFn?: (query: string, data: Array<T>) => Array<T>
 }>()
-defineEmits<{ (e: 'input', value: T): void }>()
+
+defineEmits<{
+  (e: 'input', value: T): void
+  (e: 'focus', value: FocusEvent): void
+  (e: 'click', value: Event): void
+}>()
 
 const model = defineModel<null | T>()
 const { filteringFn, data, labelKey } = toRefs(props)
