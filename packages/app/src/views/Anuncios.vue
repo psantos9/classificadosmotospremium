@@ -15,7 +15,7 @@
         <div>quilometragem veiculo</div>
         <div>Aplicad filtros</div>
       </div>
-      <div class="md:hidden flex items-center justify-end p-2 gap-2">
+      <div class="md:hidden flex items-center justify-end p-4 gap-4">
         <SortingDropdown />
         <AdFilterModal />
       </div>
