@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="sidebar-button text-[var(--primary)] hover:bg-[var(--primary)] focus:outline-none font-medium text-sm p-2 text-center inline-flex items-center me-2"
+    class="sidebar-button text-[var(--primary)] focus:outline-none font-medium text-sm p-2 text-center inline-flex items-center me-2"
     @click.stop="clickHandler"
   >
     <FontAwesomeIcon v-if="!sidebarOpen" :icon="faBars" size="xl" fixed-width />
