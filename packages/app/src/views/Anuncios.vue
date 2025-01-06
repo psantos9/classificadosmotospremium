@@ -1,7 +1,7 @@
 <template>
   <div class="flex-1 md:p-0 md:my-4 md:container md:mx-auto flex flex-col gap-8 items-center md:overflow-y-hidden">
-    <div class="hidden md:block uppercase text-2xl font-black tracking-wide text-center">
-      Anúncio de veículos
+    <div class="hidden md:flex justify-end w-full">
+      <SortingDropdown />
     </div>
     <div class="w-full flex-1 md:grid md:grid-cols-[19rem_auto] gap-8 overflow-y-hidden">
       <!-- filtros -->

@@ -2,7 +2,7 @@
   <Listbox v-model="sortingOption">
     <div class="relative text-sm">
       <ListboxButton
-        class="w-full min-w-[180px] relative rounded-md text-sm md:text-base font-semibold bg-white px-2 py-1 pr-10 text-left shadow-md focus:outline-none"
+        class="w-full min-w-[180px] relative rounded-md text-sm font-semibold bg-white px-2 py-1 pr-10 text-left shadow-md focus:outline-none"
       >
         <span class="block truncate">{{ sortingOption.label }}</span>
         <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center">
@@ -16,7 +16,7 @@
         leave-to-class="opacity-0"
       >
         <ListboxOptions
-          class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-md focus:outline-none text-sm md:text-base"
+          class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-md focus:outline-none text-sm"
         >
           <ListboxOption
             v-for="option of sortingOptions"
@@ -53,6 +53,7 @@ import {
 import { ref } from 'vue'
 
 const sortingOptions = [
+  { key: 'date-desc', label: 'Mais recentes' },
   { key: 'preco-asc', label: 'Menor Preço' },
   { key: 'preco-desc', label: 'Maior Preço' },
   { key: 'quilometragem-asc', label: 'Menor Quilometragem' },
