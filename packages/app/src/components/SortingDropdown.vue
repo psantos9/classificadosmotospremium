@@ -2,7 +2,7 @@
   <Listbox v-model="sortingOption">
     <div class="relative text-sm">
       <ListboxButton
-        class="w-full min-w-[180px] relative rounded-md text-sm md:text-base font-semibold bg-white px-4 py-2 pr-10 text-left shadow-md focus:outline-none"
+        class="w-full min-w-[180px] relative rounded-md text-sm md:text-base font-bold bg-white px-4 py-2 pr-10 text-left shadow-md focus:outline-none"
       >
         <span class="block truncate">{{ sortingOption.label }}</span>
         <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center">
