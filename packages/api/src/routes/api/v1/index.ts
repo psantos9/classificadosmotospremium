@@ -195,8 +195,8 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/images/*', imagesRouter.fetch)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/messages/*', messagesRouter.fetch)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/ws/*', wsRouter.fetch)
-  .all<IRequest, CF>('*', authenticateRequest)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/fipe/*', fipeRouter.fetch)
+  .all<IRequest, CF>('*', authenticateRequest)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/users/*', usersRouter.fetch)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/ads/*', adsRouter.fetch)
 export default router

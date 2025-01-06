@@ -33,7 +33,7 @@
         <span>Anuncie</span>
         <FontAwesomeIcon :icon="faBullhorn" />
       </button>
-      <SignInButton class="hidden md:block max-w-[150px]" />
+      <SignInButton class="hidden md:block max-w-[150px] shrink-0" />
     </div>
   </header>
 </template>
