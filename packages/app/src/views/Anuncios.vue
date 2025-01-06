@@ -19,7 +19,7 @@
         <SortingDropdown />
         <AdFilterModal />
       </div>
-      <div class="flex-1 grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] overflow-y-auto items-start px-2 md:p-0">
+      <div class="flex-1 grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] overflow-y-auto items-start px-2 md:p-0 gap-2">
         <template v-if="loading">
           <div v-for="i in [...Array(10).keys()]" :key="i" class="bg-gray-200 w-full h-full rounded-md border animate-pulse min-h-[335px]" />
         </template>
