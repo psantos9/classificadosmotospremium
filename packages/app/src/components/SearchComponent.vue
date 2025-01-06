@@ -1,6 +1,6 @@
 <template>
   <div class="w-full flex justify-center items-center z-10 ">
-    <div class="relative z-10 grid grid-cols-6 gap-4 md:gap-8 w-full md:max-w-screen-md items-center justify-center md:rounded-xl bg-black p-10 md:p-8">
+    <div class="relative z-10 grid grid-cols-6 gap-4 md:gap-8 w-full md:max-w-screen-md items-center justify-center md:rounded-xl bg-black p-8">
       <div class="uppercase font-bold text-base md:text-2xl tracking-wide text-white col-span-full text-center">
         Encontre o veículo ideal para você
       </div>
