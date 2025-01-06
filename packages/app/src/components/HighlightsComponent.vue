@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center">
-    <div class="uppercase text-xl md:text-3xl py-8">
+    <div class="uppercase text-xl md:text-3xl py-6 md:py-8">
       <span class="font-light">
         Anúncios em
       </span>
