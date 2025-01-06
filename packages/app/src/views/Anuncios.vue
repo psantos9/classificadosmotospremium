@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-1 p-4 md:p-0 md:my-8 md:container md:mx-auto flex flex-col gap-8 items-center md:overflow-y-hidden">
+  <div class="flex-1 md:p-0 md:my-8 md:container md:mx-auto flex flex-col gap-8 items-center md:overflow-y-hidden">
     <div class="hidden md:block uppercase text-2xl font-black tracking-wide text-center">
       Anúncio de veículos
     </div>
@@ -15,7 +15,11 @@
         <div>quilometragem veiculo</div>
         <div>Aplicad filtros</div>
       </div>
-      <div class="flex-1 grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] gap-4 overflow-y-auto items-start">
+      <div class="md:hidden flex items-center justify-end p-2 gap-2">
+        <SortingDropdown />
+        <AdFilterModal />
+      </div>
+      <div class="flex-1 grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] overflow-y-auto items-start px-2 md:p-0">
         <template v-if="loading">
           <div v-for="i in [...Array(10).keys()]" :key="i" class="bg-gray-200 w-full h-full rounded-md border animate-pulse min-h-[335px]" />
         </template>
@@ -34,6 +38,8 @@
 
 <script lang="ts" setup>
 import type { PublicAd } from '@cmp/shared/models/database/models'
+import AdFilterModal from '@/components/AdFilterModal.vue'
+import SortingDropdown from '@/components/SortingDropdown.vue'
 import VehicleCard from '@/components/VehicleCard.vue'
 import { useApp } from '@/composables/useApp'
 import { faFilter } from '@fortawesome/free-solid-svg-icons'
