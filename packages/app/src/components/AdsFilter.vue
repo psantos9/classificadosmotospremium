@@ -4,22 +4,20 @@
       <FontAwesomeIcon :icon="faFilter" size="2xl" class="text-[var(--primary)]" />
       <span class="uppercase font-black">Filtrar anúncios</span>
     </div>
-    <div class="p-4 md:p-2 grid grid-cols-2 gap-2">
-      <span class="text-sm font-bold col-span-2">Estado</span>
+    <div class="p-4 md:p-2 flex flex-col gap-2">
+      <span class="text-sm font-bold">Estado</span>
       <Combobox
         v-model="marca"
-        class="sm:col-span-3"
         :data="marcas"
         label-key="marca"
         :loading="loadingMarcas"
         :nullable="true"
       />
     </div>
-    <div class="p-4 md:p-2 grid grid-cols-2 gap-2">
-      <span class="text-sm font-bold col-span-2">Marca</span>
+    <div class="p-4 md:p-2 flex flex-col gap-2">
+      <span class="text-sm font-bold ">Marca</span>
       <Combobox
         v-model="marca"
-        class="sm:col-span-3"
         :data="marcas"
         label-key="marca"
         :loading="loadingMarcas"
