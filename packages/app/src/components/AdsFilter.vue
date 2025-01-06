@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white flex flex-col divide-y rounded-md">
+  <div class="bg-white flex flex-col divide-y rounded-md" tabindex="1">
     <div class="flex flex-col items-center p-4 md:p-2 gap-1">
       <FontAwesomeIcon :icon="faFilter" size="2xl" class="text-[var(--primary)]" />
       <span class="uppercase font-black">Filtrar anúncios</span>
