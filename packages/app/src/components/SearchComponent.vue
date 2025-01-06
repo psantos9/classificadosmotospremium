@@ -6,10 +6,10 @@
       </div>
       <Autocomplete :data="['teste', 'ok']" class="flex-1 w-full col-span-full md:col-span-4" />
       <button
-        class="bg-[var(--primary)] hover:bg-[var(--primary-lighter)] rounded-md md:h-[3.5rem] py-2.5 uppercase text-sm font-black flex gap-2 items-center justify-center px-8 transition-colors col-span-full md:col-span-2"
+        class="bg-[var(--primary)] hover:bg-[var(--primary-lighter)] rounded-md md:h-[3.5rem] py-2.5 uppercase text-base font-black flex gap-2 items-center justify-center px-8 transition-colors col-span-full md:col-span-2"
         @click="$router.push({ name: 'anuncios' })"
       >
-        <FontAwesomeIcon :icon="faMotorcycle" size="lg" />
+        <FontAwesomeIcon :icon="faMotorcycle" size="xl" />
         <span>Ver ofertas</span>
       </button>
     </div>
