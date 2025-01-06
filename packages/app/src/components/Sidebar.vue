@@ -30,6 +30,7 @@ const onResizeHandler = () => {
 }
 
 onClickOutside(target, () => {
+  console.log('clicked outside')
   if (unref(sidebarOpen)) {
     openSidebar(false)
   }

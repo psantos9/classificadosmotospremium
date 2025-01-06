@@ -27,13 +27,13 @@
             </span>
           </RouterLink>
         </div>
-        <AdvertiseHereButton
-          :outline="true"
-          class="block md:hidden"
-        />
-        <AdvertiseHereButton
-          class="hidden md:block"
-        />
+        <button
+          class="bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] px-2 py-1 rounded-md text-xs md:text-base font-semibold flex items-center gap-1 md:gap-2"
+          @click="$router.push({ name: 'anuncie' })"
+        >
+          Anuncie
+          <FontAwesomeIcon :icon="faBullhorn" />
+        </button>
         <SignInButton class="hidden md:block max-w-[150px]" />
       </div>
     </header>
@@ -41,10 +41,11 @@
 </template>
 
 <script lang="ts" setup>
-import AdvertiseHereButton from '@/components/AdvertiseHereButton.vue'
 import SidebarButton from '@/components/SidebarButton.vue'
 import SignInButton from '@/components/SignInButton.vue'
 import { useApp } from '@/composables/useApp'
+import { faBullhorn } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const { menuItems } = useApp()
 const signature = import.meta.env.MODE !== 'production' ? `release: ${__GIT_COMMIT_BRANCH__} #${__GIT_COMMIT_HASH__} / mode: ${import.meta.env.MODE}` : undefined
@@ -53,5 +54,5 @@ const signature = import.meta.env.MODE !== 'production' ? `release: ${__GIT_COMM
 <style lang="sass" scoped>
 .main-header
   @apply bg-[var(--main-header-bg)] text-white h-[var(--main-header-size)]
-  @apply flex flex-nowrap w-full items-center justify-between md:px-4
+  @apply flex flex-nowrap w-full items-center justify-between px-4
 </style>
