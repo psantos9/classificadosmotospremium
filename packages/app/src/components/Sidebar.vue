@@ -7,7 +7,6 @@
           <span class="px-2 py-1 font-medium uppercase cursor-pointer hover:text-[var(--primary)] transition-colors" @click="openSidebar(false); navigate()">{{ item.label }}</span>
         </RouterLink>
       </div>
-      <AdvertiseHereButton @click="openSidebar(false)" />
     </div>
   </div>
 </template>

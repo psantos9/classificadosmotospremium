@@ -2,13 +2,40 @@
   <div class="h-screen flex flex-col">
     <Header />
     <Sidebar />
-    <div class="scroll-container flex-1 overflow-y-auto flex flex-col">
+    <div ref="scrollContainer" class="scroll-container flex-1 overflow-y-auto flex flex-col">
       <RouterView />
     </div>
   </div>
+  <Transition
+    enter-active-class="transition-opacity"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+    leave-active-class="transition-opacity"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
+  >
+    <button
+      v-if="y > 0"
+      type="button"
+      class="md:hidden fixed bottom-0 right-0 w-10 h-10 m-2 shadow-md bg-[var(--primary)] hover:bg-[var(--primary-darker)] text-[var(--primary-text)] focus:outline-none rounded-full p-2.5 text-center inline-flex items-center"
+      @click="scrollToTop"
+    >
+      <FontAwesomeIcon :icon="faArrowUp" fixed-width size="xl" />
+    </button>
+  </Transition>
 </template>
 
 <script lang="ts" setup>
 import Header from '@/components/Header.vue'
 import Sidebar from '@/components/Sidebar.vue'
+import { useApp } from '@/composables/useApp'
+import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { useScroll } from '@vueuse/core'
+import { ref } from 'vue'
+
+const scrollContainer = ref<HTMLElement | null>(null)
+
+const { y } = useScroll(scrollContainer)
+const { scrollToTop } = useApp()
 </script>
