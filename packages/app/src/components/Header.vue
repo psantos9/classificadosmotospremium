@@ -5,7 +5,7 @@
     </div>
     <div class="flex items-center">
       <SidebarButton class="block md:hidden" />
-      <button class="w-44 md:w-60 md:ml-4" @click.stop="navigateToHome">
+      <button class="w-40 md:w-60 md:ml-4" @click.stop="navigateToHome">
         <img src="@/assets/images/full_logo_dark.svg">
       </button>
     </div>
