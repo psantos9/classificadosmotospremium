@@ -1,10 +1,10 @@
 <template>
   <div class="w-full flex justify-center items-center z-10 ">
-    <div class="relative z-10 grid grid-cols-6 gap-4 md:gap-8 w-full md:max-w-screen-md items-center justify-center md:rounded-xl bg-black p-8">
+    <div class="relative z-10 grid grid-cols-6 gap-4 md:gap-8 w-full md:max-w-screen-md items-center justify-center md:rounded-xl bg-black py-8 px-4 md:px-8">
       <div class="uppercase font-bold text-base md:text-2xl tracking-wide text-white col-span-full text-center">
         Encontre o veículo ideal para você
       </div>
-      <Autocomplete :data="['teste', 'ok']" class="flex-1 w-full col-span-full md:col-span-4 " />
+      <Autocomplete :data="['teste', 'ok']" class="flex-1 w-full col-span-full md:col-span-4" />
       <button
         class="bg-[var(--primary)] hover:bg-[var(--primary-lighter)] rounded-md md:h-[3.5rem] py-2.5 uppercase text-sm font-black flex gap-2 items-center justify-center px-8 transition-colors col-span-full md:col-span-2"
         @click="$router.push({ name: 'anuncios' })"
