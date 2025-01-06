@@ -13,7 +13,6 @@
 </template>
 
 <script lang="ts" setup>
-import AdvertiseHereButton from '@/components/AdvertiseHereButton.vue'
 import SignInButton from '@/components/SignInButton.vue'
 import { useApp } from '@/composables/useApp'
 import { onClickOutside } from '@vueuse/core'
