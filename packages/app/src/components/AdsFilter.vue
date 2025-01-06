@@ -53,7 +53,7 @@
         <label class="ms-2 text-sm font-medium">Particular</label>
       </div>
     </div>
-    <div class="p-4 md:p-2 flex flex-col gap-4">
+    <div class="p-4 md:p-2 flex flex-col gap-4 md:gap-2">
       <button
         class="bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] font-medium rounded-md text-sm px-5 py-2.5 focus:outline-none transition-colors"
       >
