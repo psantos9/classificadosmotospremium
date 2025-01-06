@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { faCheck, faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {
   Listbox,

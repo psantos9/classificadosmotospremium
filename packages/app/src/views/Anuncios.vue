@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-1 md:p-0 md:my-4 md:container md:mx-auto flex flex-col gap-8 items-center md:overflow-y-hidden">
+  <div class="flex-1 md:p-0 md:my-4 md:container md:mx-auto flex flex-col gap-4 items-center md:overflow-y-hidden">
     <div class="hidden md:flex justify-end w-full">
       <SortingDropdown />
     </div>
