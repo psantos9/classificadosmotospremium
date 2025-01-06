@@ -22,6 +22,6 @@ import { faMotorcycle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const focusHandler = (evt: Event) => {
-  (evt.target as Element)?.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
+  (evt.target as Element)?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
 }
 </script>
