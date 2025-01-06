@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white shadow md:ounded-md h-auto flex flex-col overflow-hidden group cursor-pointer hover:shadow-lg transition-all">
+  <div class="bg-white shadow rounded-md h-auto flex flex-col overflow-hidden group cursor-pointer hover:shadow-lg transition-all">
     <div class="overflow-hidden bg-black">
       <img :src="api.getImageUrl({ imageId: anuncio.fotos[0], thumbnail: true })" class="h-full w-full aspect-[4/3] object-cover transition-all duration-200">
     </div>

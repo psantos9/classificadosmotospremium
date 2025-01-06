@@ -6,7 +6,7 @@
       </span>
       <strong>destaque</strong>
     </div>
-    <div class="flex flex-wrap gap-4 overflow-y-auto items-start w-full md:container md:mx-auto">
+    <div class="flex flex-wrap gap-4 overflow-y-auto items-start w-full md:container md:mx-auto px-4 pb-4">
       <template v-if="loading">
         <div v-for="i in [...Array(10).keys()]" :key="i" class="bg-gray-200 w-full h-full rounded-md border animate-pulse min-h-[335px]" />
       </template>
