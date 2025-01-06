@@ -62,6 +62,11 @@ const initApp = async () => {
 
 void initApp()
 
+const scrollToTop = () => {
+  const el = document.querySelector('.scroll-container')
+  el?.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
 export const useApp = () => {
   if (signedInWatcher === null) {
     const router = useRouter()
@@ -80,6 +85,7 @@ export const useApp = () => {
   return {
     api,
     cadastraEmail,
+    scrollToTop,
     signedIn: computed(() => unref(signedIn)),
     menuItems: computed(() => menuItems),
     sidebarOpen: computed(() => unref(sidebarOpen)),

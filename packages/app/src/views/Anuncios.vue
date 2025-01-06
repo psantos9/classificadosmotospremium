@@ -34,6 +34,23 @@
       </div>
     </div>
   </div>
+  <Transition
+    enter-active-class="transition-opacity"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+    leave-active-class="transition-opacity"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
+  >
+    <button
+      v-if="y > 0"
+      type="button"
+      class="md:hidden fixed bottom-0 right-0 w-10 h-10 m-2 shadow-md bg-[var(--primary)] hover:bg-[var(--primary-darker)] text-[var(--primary-text)] focus:outline-none rounded-full p-2.5 text-center inline-flex items-center"
+      @click="scrollToTop"
+    >
+      <FontAwesomeIcon :icon="faArrowUp" fixed-width size="xl" />
+    </button>
+  </Transition>
 </template>
 
 <script lang="ts" setup>
@@ -42,11 +59,14 @@ import AdFilterModal from '@/components/AdFilterModal.vue'
 import SortingDropdown from '@/components/SortingDropdown.vue'
 import VehicleCard from '@/components/VehicleCard.vue'
 import { useApp } from '@/composables/useApp'
-import { faFilter } from '@fortawesome/free-solid-svg-icons'
+import { faArrowUp, faFilter } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { useScroll } from '@vueuse/core'
 import { ref } from 'vue'
 
-const { api } = useApp()
+const scrollContainer = ref(document.querySelector('.scroll-container') as HTMLElement)
+const { y } = useScroll(scrollContainer)
+const { api, scrollToTop } = useApp()
 const loading = ref(false)
 const anuncios = ref<PublicAd[]>([])
 const fetchAds = async () => {

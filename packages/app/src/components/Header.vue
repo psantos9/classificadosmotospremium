@@ -47,13 +47,12 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const { menuItems } = useApp()
+const { menuItems, scrollToTop } = useApp()
 const signature = import.meta.env.MODE !== 'production' ? `release: ${__GIT_COMMIT_BRANCH__} #${__GIT_COMMIT_HASH__} / mode: ${import.meta.env.MODE}` : undefined
 
 const navigateToHome = async () => {
   await router.push({ name: 'home' })
-  const el = document.querySelector('.scroll-container')
-  el?.scrollTo({ top: 0, behavior: 'smooth' })
+  scrollToTop()
 }
 </script>
 
