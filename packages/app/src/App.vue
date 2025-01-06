@@ -2,7 +2,7 @@
   <div class="h-screen flex flex-col">
     <Header />
     <Sidebar />
-    <div class="flex-1 overflow-y-auto flex flex-col">
+    <div class="scroll-container flex-1 overflow-y-auto flex flex-col">
       <RouterView />
     </div>
   </div>

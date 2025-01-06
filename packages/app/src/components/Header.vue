@@ -4,9 +4,11 @@
       {{ signature }}
     </div>
     <SidebarButton class="block md:hidden" />
-    <button class="w-32 md:w-52 md:p-4" @click="$router.push({ name: 'home' })">
-      <img src="@/assets/images/full_logo_dark.svg">
-    </button>
+    <div class="flex items-center justify-center">
+      <button class="w-32 md:w-52 md:p-4" @click.stop="navigateToHome">
+        <img src="@/assets/images/full_logo_dark.svg">
+      </button>
+    </div>
 
     <div class="flex items-center gap-6 justify-end pr-4">
       <div class="hidden md:flex gap-4">
@@ -42,9 +44,17 @@ import SignInButton from '@/components/SignInButton.vue'
 import { useApp } from '@/composables/useApp'
 import { faBullhorn } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const { menuItems } = useApp()
 const signature = import.meta.env.MODE !== 'production' ? `release: ${__GIT_COMMIT_BRANCH__} #${__GIT_COMMIT_HASH__} / mode: ${import.meta.env.MODE}` : undefined
+
+const navigateToHome = async () => {
+  await router.push({ name: 'home' })
+  const el = document.querySelector('.scroll-container')
+  el?.scrollTo({ top: 0, behavior: 'smooth' })
+}
 </script>
 
 <style lang="sass" scoped>
