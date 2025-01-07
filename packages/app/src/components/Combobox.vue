@@ -14,12 +14,13 @@
     <div class="relative">
       <ComboboxInput
         class="block w-full rounded-md bg-white py-1.5 pl-3 pr-12 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-[var(--primary)] sm:text-sm/6"
+        :class="[classInput]"
         :display-value="(option: any) => typeof option === 'object' ? option?.[labelKey] : option"
         @change="query = $event.target.value"
         @blur="query = ''"
       />
       <div class="absolute inset-y-0 right-0 flex items-center gap-1 px-2">
-        <FontAwesomeIcon v-if="nullable && model !== null" :icon="faTimes" class="cursor-pointer p-1" @click.stop="model = null" />
+        <FontAwesomeIcon v-if="nullable && !!model" :icon="faTimes" class="cursor-pointer p-1" @click.stop="model = null" />
         <ComboboxButton v-slot="{ open }" ref="buttonEl" class="focus:outline-none rounded-r-md p-1">
           <FontAwesomeIcon :icon="loading ? faSpinner : faChevronUp" :spin="loading" class="transition-all" :class="[open ? '' : 'rotate-180']" />
         </ComboboxButton>
@@ -62,6 +63,7 @@ const props = defineProps<{
   labelKey?: keyof T
   loading?: boolean
   nullable?: boolean
+  classInput?: string | Record<string, boolean> | string[]
   filteringFn?: (query: string, data: Array<T>) => Array<T>
 }>()
 defineEmits<{ (e: 'input', value: T): void }>()

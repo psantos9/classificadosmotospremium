@@ -130,8 +130,23 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
   .get<IRequest, [Env, ExecutionContext]>('/anuncios/estados', async (req, env) => {
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.status, 'published')]
-    const ufs = await db.selectDistinct({ uf: schema.anuncio.uf }).from(schema.anuncio).where(and(...filters)).then(rows => rows.map(({ uf }) => uf))
+    const ufs = await db
+      .selectDistinct({ uf: schema.anuncio.uf })
+      .from(schema.anuncio)
+      .where(and(...filters))
+      .orderBy(schema.anuncio.uf)
+      .then(rows => rows.map(({ uf }) => uf))
     return ufs
+  })
+  .get<IRequest, [Env, ExecutionContext]>('/anuncios/marcas', async (req, env) => {
+    const db = getDb(env.DB)
+    const filters: SQL[] = [eq(schema.anuncio.status, 'published')]
+    const marcas = await db.selectDistinct({ marca: schema.anuncio.marca })
+      .from(schema.anuncio)
+      .where(and(...filters))
+      .orderBy(schema.anuncio.marca)
+      .then(rows => rows.map(({ marca }) => marca))
+    return marcas
   })
   .get<IRequest, [Env, ExecutionContext]>('/anuncios', async (req, env) => {
     const db = getDb(env.DB)
