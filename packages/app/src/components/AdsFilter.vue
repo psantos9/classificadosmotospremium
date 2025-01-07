@@ -240,10 +240,12 @@ const commitFilter = async () => {
   await validate()
   const filter = filterSchema.parse(values)
   console.log('FILTER', filter)
+  close()
 }
 
 const resetFilter = async () => {
   await resetForm()
+  close()
 }
 
 atualizaMarcas()
