@@ -139,10 +139,10 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { vMaska } from 'maska/vue'
 import { useForm } from 'vee-validate'
-import { ref } from 'vue'
+import { ref, toRefs } from 'vue'
 import { z } from 'zod'
 
-defineProps<{ close?: () => void }>()
+const props = defineProps<{ close?: () => void }>()
 
 const filterSchema = z.object({
   estado: z.string().optional().nullable().default(null),
@@ -240,12 +240,12 @@ const commitFilter = async () => {
   await validate()
   const filter = filterSchema.parse(values)
   console.log('FILTER', filter)
-  close()
+  props?.close?.()
 }
 
 const resetFilter = async () => {
   await resetForm()
-  close()
+  props?.close?.()
 }
 
 atualizaMarcas()
