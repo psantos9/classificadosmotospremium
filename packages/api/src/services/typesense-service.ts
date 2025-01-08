@@ -37,57 +37,11 @@ export class TypesenseService {
     return collection
   }
 
-  async searchAds(params?: {
-    q?: string
-    filterBy?: string
-    sortBy?: string
-    limit?: string
-    offset?: string
-  }) {
-    // params: SearchParams
-    const { q = '', filterBy = null, sortBy = null, limit = null, offset = null } = params ?? {}
+  async searchAds(params: SearchParams) {
     const queryBy: string[] = ['marca', 'modelo', 'uf', 'descricao', 'cor']
     const facetBy: string[] = ['marca', 'cor', 'uf']
-
-    const url = new URL(this._baseURL)
-    url.pathname = `/collections/${TypesenseCollection.ADS}/documents/search`
-    url.searchParams.set('q', q)
-
-    url.searchParams.set('query_by', queryBy.join(','))
-    url.searchParams.set('facet_by', facetBy.join(','))
-    if (filterBy !== null) {
-      url.searchParams.set('filter_by', filterBy)
-    }
-    if (limit !== null) {
-      url.searchParams.set('limit', limit)
-    }
-    if (offset !== null) {
-      url.searchParams.set('offset', offset)
-    }
-
-    if (sortBy !== null) {
-      url.searchParams.set('sort_by', sortBy)
-    }
-
-    console.log('XXXquerying', url.toString())
-    try {
-      const response = await fetch(url, { headers: { 'x-typesense-api-key': this._apiKey } })
-      const data = await response.json()
-      console.log('GOT RESPONSE', response.status, JSON.stringify(data))
-      if (!response.ok) {
-        throw new Error(`invalid typesense response ${response.status} ${JSON.stringify(data)}`)
-      }
-      return data
-    }
-    catch (err) {
-      console.log('DEU MERDA', err)
-      throw err
-    }
-
-    /*
     const result = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents().search({ ...params, query_by: queryBy, facet_by: facetBy })
     return result
-    */
   }
 
   async fetchAd(adId: string) {
