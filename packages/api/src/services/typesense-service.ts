@@ -7,9 +7,12 @@ import { Client } from 'typesense'
 
 export class TypesenseService {
   readonly client: Client
+  private readonly _apiKey: string
+  private readonly _baseURL: string
   constructor(env: Env) {
     const { TYPESENSE_API_KEY: apiKey, TYPESENSE_URL_ENDPOINT: typesenseUrl } = env
-    console.log('TYPESENSE URL', typesenseUrl)
+    this._apiKey = apiKey
+    this._baseURL = typesenseUrl
     this.client = new Client({
       nodes: [{ url: typesenseUrl }],
       apiKey,
@@ -36,8 +39,18 @@ export class TypesenseService {
   async searchAds(params: SearchParams) {
     const queryBy: string[] = ['marca', 'modelo', 'uf', 'descricao', 'cor']
     const facetBy: string[] = ['marca', 'cor', 'uf']
-    const result = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents().search({ ...params, query_by: queryBy, facet_by: facetBy })
-    return result
+    const url = new URL(this._baseURL)
+    url.pathname = `/collections/${TypesenseCollection.ADS}/documents/search`
+    url.searchParams.set('q', '')
+    url.searchParams.set('query_by', queryBy.join(','))
+    url.searchParams.set('facet_by', facetBy.join(','))
+    const response = await fetch(url, { headers: { 'x-typesense-api-key': this._apiKey } })
+    const data = await response.json()
+    console.log('GOT RESPONSE', data)
+    return data
+
+    // const result = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents().search({ ...params, query_by: queryBy, facet_by: facetBy })
+    // return result
   }
 
   async fetchAd(adId: string) {
