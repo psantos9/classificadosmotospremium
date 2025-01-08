@@ -7,14 +7,10 @@ import { Client } from 'typesense'
 
 export class TypesenseService {
   readonly client: Client
-  private readonly _apiKey: string
-  private readonly _baseURL: string
   constructor(env: Env) {
     const { TYPESENSE_API_KEY: apiKey, TYPESENSE_URL_ENDPOINT: typesenseUrl } = env
-    this._apiKey = apiKey
-    this._baseURL = typesenseUrl
     this.client = new Client({
-      numRetries: 0,
+      numRetries: 3,
       nodes: [{ url: typesenseUrl }],
       apiKey,
       connectionTimeoutSeconds: 2
