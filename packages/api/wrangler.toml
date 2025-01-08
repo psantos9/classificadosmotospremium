@@ -74,6 +74,7 @@ route = { pattern = "backend.preview.classificadosmotospremium.com.br", custom_d
 [env.preview.vars]
 ENVIRONMENT="preview"
 IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/ezehndeqw/"
+TYPESENSE_URL_ENDPOINT="https://algarve.classificadosmotospremium.com.br"
 
 [[env.preview.kv_namespaces]]
 binding = "CEP"
