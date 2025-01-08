@@ -69,14 +69,20 @@ export class TypesenseService {
       url.searchParams.set('sort_by', sortBy)
     }
 
-    console.log('querying', url.toString())
-    const response = await fetch(url, { headers: { 'x-typesense-api-key': this._apiKey } })
-    const data = await response.json()
-    console.log('GOT RESPONSE', response.status, JSON.stringify(data))
-    if (!response.ok) {
-      throw new Error(`invalid typesense response ${response.status} ${JSON.stringify(data)}`)
+    console.log('XXXquerying', url.toString())
+    try {
+      const response = await fetch(url, { headers: { 'x-typesense-api-key': this._apiKey } })
+      const data = await response.json()
+      console.log('GOT RESPONSE', response.status, JSON.stringify(data))
+      if (!response.ok) {
+        throw new Error(`invalid typesense response ${response.status} ${JSON.stringify(data)}`)
+      }
+      return data
     }
-    return data
+    catch (err) {
+      console.log('DEU MERDA', err)
+      throw err
+    }
 
     /*
     const result = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents().search({ ...params, query_by: queryBy, facet_by: facetBy })
