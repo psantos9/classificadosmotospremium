@@ -14,7 +14,7 @@ export type AdReviewEvent = z.infer<typeof adReviewEventSchema>
 
 export class AdReviewWorkflow extends WorkflowEntrypoint<Env, AdReviewEvent> {
   async run(event: WorkflowEvent<AdReviewEvent>, step: WorkflowStep) {
-    await step.do('get ad', async () => {
+    await step.do('get ad', { timeout: '10 seconds' }, async () => {
       const adId = event.payload.adId
       const db = getDb(this.env.DB)
       const [ad = null] = await db.select().from(schema.anuncio).where(eq(schema.anuncio.id, adId)).limit(1)
@@ -23,7 +23,7 @@ export class AdReviewWorkflow extends WorkflowEntrypoint<Env, AdReviewEvent> {
       }
     })
     // await step.sleep('sleep for a bit', '5 second')
-    const ad = await step.do('publish ad', async () => {
+    const ad = await step.do('publish ad', { timeout: '10 seconds' }, async () => {
       const adId = event.payload.adId
       const db = getDb(this.env.DB)
       let [ad = null] = await db.select().from(schema.anuncio).where(eq(schema.anuncio.id, adId)).limit(1)
