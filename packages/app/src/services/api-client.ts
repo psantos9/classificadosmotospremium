@@ -6,9 +6,10 @@ import type { AtualizaUsuario } from '@cmp/shared/models/atualiza-usuario'
 import type { Acessorio, Anuncio, Cor, InformacaoAdicional, Usuario } from '@cmp/shared/models/database/models'
 import type { NovoUsuario } from '@cmp/shared/models/novo-usuario'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
+import type { TAdDocument, TAdsSearchResponse } from '@cmp/shared/models/typesense'
 import type { UnauthenticatedMessageSender } from '@cmp/shared/models/unauthenticated-message-sender'
 import { computeFileHash } from '@/helpers/computeFileSha256'
-import { type TAdsSearchResponse, TypesenseService } from '@cmp/api/services/typesense-service'
+import { TypesenseService } from '@cmp/api/services/typesense-service'
 import axios, { type Axios, AxiosError, type AxiosProgressEvent } from 'axios'
 import Emittery from 'emittery'
 import { decodeJwt } from 'jose'
@@ -341,23 +342,8 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncios
   }
 
-  async fetchEstadosAnuncios() {
-    const pathname = '/api/v1/anuncios/estados'
-    const estados = await this.axios.get<string[]>(pathname)
-      .then(({ data }) => data)
-    return estados
-  }
-
-  async fetchMarcasAnuncios() {
-    const pathname = '/api/v1/anuncios/marcas'
-    const marcas = await this.axios.get<string[]>(pathname)
-      .then(({ data }) => data)
-    return marcas
-  }
-
   async fetchAnuncio(id: number) {
-    const pathname = `/api/v1/anuncios/${id}`
-    const anuncio = await this.axios.get<Anuncio>(pathname)
+    const anuncio = await this.axios.get<TAdDocument>(`/api/v1/anuncios/${id}`)
       .then(({ data }) => data)
     return anuncio
   }

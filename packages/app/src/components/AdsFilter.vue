@@ -130,7 +130,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { TAdsFacetCounts } from '@cmp/api/services/typesense-service'
+import type { TAdsFacetCounts } from '@cmp/shared/models/typesense'
 import Combobox from '@/components/Combobox.vue'
 import { adsFilterSchema, type TAdsFilter } from '@cmp/shared/models/ads-filters-schema'
 import { faFilter, faTimes } from '@fortawesome/free-solid-svg-icons'

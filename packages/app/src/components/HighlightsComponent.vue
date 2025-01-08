@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { TAdsSearchResponse } from '@cmp/api/services/typesense-service'
+import type { TAdsSearchResponse } from '@cmp/shared/models/typesense'
 import VehicleCard from '@/components/VehicleCard.vue'
 import { useApp } from '@/composables/useApp'
 import { ref } from 'vue'

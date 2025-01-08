@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { TAdDocument } from '@cmp/api/services/typesense-service'
+import type { TAdDocument } from '@cmp/shared/models/typesense'
 import { useApp } from '@/composables/useApp'
 import { faCalendarAlt, faLocationDot, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'

@@ -1,75 +1,9 @@
-import type { Env } from '@/types'
+import type { Env } from '@cmp/api/types'
 import type { TAdsFilter } from '@cmp/shared/models/ads-filters-schema'
 import type { Anuncio } from '@cmp/shared/models/database/models'
-import type { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
-import type { SearchParams, SearchResponse, SearchResponseFacetCountSchema } from 'typesense/lib/Typesense/Documents'
+import type { SearchParams } from 'typesense/lib/Typesense/Documents'
+import { adsCollectionSchema, type TAdDocument, TypesenseCollection } from '@cmp/shared/models/typesense'
 import { Client } from 'typesense'
-
-export enum TypesenseCollection {
-  ADS = 'ads'
-}
-
-export type TAdDocument = Omit<Anuncio, 'id' | 'userId' | 'createdAt' | 'publishedAt' | 'updatedAt' | 'expiresAt' | 'placa' | 'revision' | 'atualizacao' | 'reviewWorkflowId' | 'status'> & { id: string, publishedAt: number }
-
-export type TAdsSearchResponse = SearchResponse<TAdDocument>
-export type TAdsFacetCounts = SearchResponseFacetCountSchema<TAdDocument>[]
-
-const adsSchema: CollectionCreateSchema = {
-  name: TypesenseCollection.ADS,
-  fields: [
-    {
-      name: 'publishedAt',
-      type: 'int64'
-    },
-    {
-      name: 'codigoFipe',
-      type: 'string'
-    },
-    {
-      name: 'marca',
-      type: 'string',
-      facet: true
-    },
-    {
-      name: 'modelo',
-      type: 'string'
-    },
-    {
-      name: 'anoModelo',
-      type: 'int32'
-    },
-    {
-      name: 'ano',
-      type: 'int32'
-    },
-    {
-      name: 'quilometragem',
-      type: 'int32'
-    },
-    {
-      name: 'preco',
-      type: 'int32'
-    },
-    {
-      name: 'cor',
-      type: 'string',
-      facet: true
-    },
-    {
-      name: 'descricao',
-      type: 'string'
-    },
-    {
-      name: 'uf',
-      type: 'string',
-      facet: true
-    },
-    {
-      name: 'pj',
-      type: 'bool'
-    }
-  ]
-}
 
 export class TypesenseService {
   readonly client: Client
@@ -94,7 +28,7 @@ export class TypesenseService {
   }
 
   async createAdsCollection() {
-    const collection = await this.client.collections().create(adsSchema)
+    const collection = await this.client.collections().create(adsCollectionSchema)
     return collection
   }
 
@@ -103,6 +37,11 @@ export class TypesenseService {
     const facetBy: string[] = ['marca', 'cor', 'uf']
     const result = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents().search({ ...params, query_by: queryBy, facet_by: facetBy })
     return result
+  }
+
+  async fetchAd(adId: string) {
+    const adDocument = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents(adId).retrieve()
+    return adDocument
   }
 
   async upsertAd(ad: Anuncio) {

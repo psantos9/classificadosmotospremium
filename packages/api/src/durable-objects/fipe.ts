@@ -1,8 +1,8 @@
-import type { AnoModelo, CodigoTipoCombustivel, Marca, Modelo, Preco, Tabela } from '@/clients/fipe-api-client'
-import type { Env } from '@/types'
-import { CodigoTipoVeiculo, FipeApiClient } from '@/clients/fipe-api-client'
-import { firstDayOfNextMonth } from '@/helpers/first-day-of-next-month'
-import { getMonthCode } from '@/helpers/get-month-code'
+import type { AnoModelo, CodigoTipoCombustivel, Marca, Modelo, Preco, Tabela } from '@cmp/api/clients/fipe-api-client'
+import type { Env } from '@cmp/api/types'
+import { CodigoTipoVeiculo, FipeApiClient } from '@cmp/api/clients/fipe-api-client'
+import { firstDayOfNextMonth } from '@cmp/api/helpers/first-day-of-next-month'
+import { getMonthCode } from '@cmp/api/helpers/get-month-code'
 import { DurableObject } from 'cloudflare:workers'
 
 export enum FIPE_CLIENT_STORAGE_PREFIX {

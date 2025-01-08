@@ -137,15 +137,15 @@
         </div>
         <div class="flex flex-col justify-between gap-3">
           <span v-if="anuncio" class="font-black text-base">
-            {{ anuncio.usuario.nomeFantasia ?? 'Particular' }}
+            fetch nomeFantasiaUsuario || Particular
           </span>
           <span v-else class="bg-gray-200 rounded-md w-48 animate-pulse">&nbsp;</span>
           <span class="flex items-center gap-2">
             <FontAwesomeIcon :icon="faLocationDot" />
-            <span v-if="anuncio" class="font-thin">{{ anuncio.usuario.localidade }} - {{ anuncio.usuario.uf }}</span>
+            <span v-if="anuncio" class="font-thin">fetchLocalidadeUsuario - fetchUfUsuario</span>
             <span v-else class="bg-gray-200 rounded-md w-48 animate-pulse">&nbsp;</span>
           </span>
-          <span v-if="anuncio" class="font-thin text-xs">No site desde  {{ format(parseISO(anuncio.usuario.createdAt), 'MM \'de\' MMMM yyyy', { locale: ptBR }) }}</span>
+          <span v-if="anuncio" class="font-thin text-xs">No site desde  fetchCreatedAtUser<!-- {{ format(parseISO(anuncio.usuario.createdAt), 'MM \'de\' MMMM yyyy', { locale: ptBR }) }} --></span>
           <span v-else class="bg-gray-200 rounded-md w-48 animate-pulse text-xs">&nbsp;</span>
         </div>
       </div>
@@ -216,7 +216,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { PublicAd } from '@cmp/shared/models/database/models'
+import type { Anuncio } from '@cmp/shared/models/database/models'
+import type { TAdDocument } from '@cmp/shared/models/typesense'
 import type { SwiperOptions } from 'swiper/types'
 import ExpandableImage from '@/components/ExpandableImage.vue'
 import { useApp } from '@/composables/useApp'
@@ -249,7 +250,7 @@ const [email, emailAttrs] = defineField('email', { validateOnInput: false, valid
 const [mobile, mobileAttrs] = defineField('mobile')
 const [name, nameAttrs] = defineField('name')
 
-const getCaracteristicas = (anuncio: PublicAd | null): ICaracteristica[] => {
+const getCaracteristicas = (anuncio: TAdDocument | null): ICaracteristica[] => {
   if (anuncio === null) {
     return []
   }
@@ -277,7 +278,7 @@ if (Number.isNaN(adId)) {
 const loading = ref(false)
 const sendingMessage = ref(false)
 const message = ref('')
-const anuncio = ref<PublicAd | null>(null)
+const anuncio = ref<TAdDocument | null>(null)
 const caracteristicas = ref<ICaracteristica[]>([])
 
 const options: SwiperOptions = {
@@ -313,7 +314,7 @@ const enviarMensagem = async () => {
   const sender = getUnauthenticatedMessageSenderSchema().parse(unref(values))
   try {
     sendingMessage.value = true
-    await api.enviaMensagem({ adId, content, sender })
+    await api.enviaMensagem({ adId: Number.parseInt(adId), content, sender })
     toast.success('Mensagem enviada com sucesso!')
     message.value = ''
     resetForm()

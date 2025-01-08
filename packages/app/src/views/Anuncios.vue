@@ -28,8 +28,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { TAdsSearchResponse } from '@cmp/api/services/typesense-service'
 import type { TAdsFilter } from '@cmp/shared/models/ads-filters-schema'
+import type { TAdsSearchResponse } from '@cmp/shared/models/typesense'
 import AdFilterModal from '@/components/AdFilterModal.vue'
 import AdsFilter from '@/components/AdsFilter.vue'
 import SortingDropdown from '@/components/SortingDropdown.vue'

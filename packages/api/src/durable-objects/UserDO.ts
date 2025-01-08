@@ -1,6 +1,6 @@
-import type { Env } from '@/types'
+import type { Env } from '@cmp/api/types'
 import type { Context } from 'hono'
-import { getUsersDO } from '@/durable-objects/UsersDO'
+import { getUsersDO } from '@cmp/api/durable-objects/UsersDO'
 import { DurableObject } from 'cloudflare:workers'
 import { Hono } from 'hono'
 

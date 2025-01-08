@@ -135,40 +135,15 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     if (filterBy) {
       filterBy = atob(filterBy)
     }
-    const typesense = useTypesense(env)
-    const result = (await typesense).searchAds({ q, filter_by: filterBy })
+    const typesense = await useTypesense(env)
+    const result = await typesense.searchAds({ q, filter_by: filterBy })
     return result
   })
   .get<IRequest, [Env, ExecutionContext]>('/anuncios/:id', async (req, env) => {
     const id = z.coerce.number().int().parse(req.params.id)
-    const db = getDb(env.DB)
-    const filters: SQL[] = [eq(schema.anuncio.status, 'published'), eq(schema.anuncio.id, id)]
-    const anuncio = await db.query.anuncio.findFirst({
-      where: and(...filters),
-      columns: {
-        reviewWorkflowId: false,
-        atualizacao: false,
-        revision: false,
-        placa: false,
-        status: false
-      },
-      with: {
-        usuario: {
-          columns: {
-            createdAt: true,
-            nomeFantasia: true,
-            nomeRazaoSocial: true,
-            cep: true,
-            localidade: true,
-            uf: true
-          }
-        }
-      }
-    }) ?? null
-    if (anuncio === null) {
-      return error(404, 'anuncio nao encontrado')
-    }
-    return anuncio
+    const typesense = await useTypesense(env)
+    const ad = await typesense.fetchAd(id.toString())
+    return ad
   })
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/images/*', imagesRouter.fetch)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/messages/*', messagesRouter.fetch)

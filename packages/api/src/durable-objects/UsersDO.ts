@@ -1,4 +1,4 @@
-import type { Env } from '@/types'
+import type { Env } from '@cmp/api/types'
 import { DurableObject } from 'cloudflare:workers'
 
 export enum STORAGE_KEY_PREFIX {
