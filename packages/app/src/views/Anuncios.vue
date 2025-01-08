@@ -6,53 +6,60 @@
     <div class="w-full flex-1 md:grid md:grid-cols-[19rem_auto] gap-8 overflow-y-hidden">
       <!-- filtros -->
       <div class="overflow-y-auto hidden md:block py-0.5">
-        <AdsFilter class="shadow" />
+        <AdsFilter class="shadow" :facet-counts="anuncios?.facet_counts ?? []" @update="filter = $event" />
       </div>
 
       <div class="md:hidden flex items-center justify-between p-4 gap-4">
         <SortingDropdown />
         <AdFilterModal />
       </div>
-      <div class="flex-1 grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] overflow-y-auto items-start px-4 md:px-2 md:p-0 gap-4 md:gap-2">
-        <template v-if="loading">
-          <div v-for="i in [...Array(10).keys()]" :key="i" class="bg-gray-200 w-full h-full rounded-md border animate-pulse min-h-[335px]" />
-        </template>
-        <template v-else>
+      <div class="flex-1 flex-col overflow-y-auto">
+        <div class="flex-1 grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] items-start px-4 md:px-2 md:p-0 gap-4 md:gap-2">
           <VehicleCard
-            v-for="anuncio in anuncios"
-            :key="anuncio.id"
-            :anuncio="anuncio"
-            @click="$router.push({ name: 'anuncio', params: { id: anuncio.id } })"
+            v-for="hit in anuncios?.hits ?? []"
+            :key="hit.document.id"
+            :anuncio="hit.document"
+            @click="$router.push({ name: 'anuncio', params: { id: hit.document.id } })"
           />
-        </template>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { PublicAd } from '@cmp/shared/models/database/models'
+import type { TAdsSearchResponse } from '@cmp/api/services/typesense-service'
+import type { TAdsFilter } from '@cmp/shared/models/ads-filters-schema'
 import AdFilterModal from '@/components/AdFilterModal.vue'
 import AdsFilter from '@/components/AdsFilter.vue'
 import SortingDropdown from '@/components/SortingDropdown.vue'
+
 import VehicleCard from '@/components/VehicleCard.vue'
 import { useApp } from '@/composables/useApp'
-
-import { ref } from 'vue'
+import debounce from 'lodash.debounce'
+import { ref, watch } from 'vue'
 
 const { api } = useApp()
 
 const loading = ref(false)
-const anuncios = ref<PublicAd[]>([])
-const fetchAds = async () => {
+const anuncios = ref<TAdsSearchResponse | null>(null)
+const filter = ref<TAdsFilter | null>(null)
+
+const fetchAds = async (filter?: TAdsFilter) => {
   try {
     loading.value = true
-    anuncios.value = await api.fetchAnuncios()
+    anuncios.value = await api.fetchAnuncios(filter)
   }
   finally {
     loading.value = false
   }
 }
+
+const debouncedFetchAds = debounce(fetchAds, 500)
+
+watch(filter, (filter) => {
+  debouncedFetchAds(filter ?? undefined)
+})
 
 fetchAds()
 </script>

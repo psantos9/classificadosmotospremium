@@ -2,11 +2,12 @@ import type { CF, Env, IAppAuthenticatedRequest } from '@/types'
 import type { SQL } from 'drizzle-orm'
 import { getBearerToken } from '@/helpers/getBearerToken'
 import { authenticateRequest } from '@/middleware/authenticate-request'
+import { useTypesense } from '@/services/typesense-service'
 import { router as adsRouter } from '@cmp/api/routes/api/v1/ads'
 import { router as fipeRouter } from '@cmp/api/routes/api/v1/fipe'
 import { router as imagesRouter } from '@cmp/api/routes/api/v1/images'
 import { router as messagesRouter } from '@cmp/api/routes/api/v1/messages'
-import { router as typesenseRouter } from '@cmp/api/routes/api/v1/typesense'
+import { router as typesenseRouter } from '@cmp/api/routes/api/v1/typesense-service'
 import { router as usersRouter } from '@cmp/api/routes/api/v1/users'
 import { router as wsRouter } from '@cmp/api/routes/api/v1/ws'
 import { getDb } from '@cmp/shared/helpers/get-db'
@@ -128,54 +129,15 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     const cores = await db.query.cor.findMany()
     return cores
   })
-  .get<IRequest, [Env, ExecutionContext]>('/anuncios/estados', async (req, env) => {
-    const db = getDb(env.DB)
-    const filters: SQL[] = [eq(schema.anuncio.status, 'published')]
-    const ufs = await db
-      .selectDistinct({ uf: schema.anuncio.uf })
-      .from(schema.anuncio)
-      .where(and(...filters))
-      .orderBy(schema.anuncio.uf)
-      .then(rows => rows.map(({ uf }) => uf))
-    return ufs
-  })
-  .get<IRequest, [Env, ExecutionContext]>('/anuncios/marcas', async (req, env) => {
-    const db = getDb(env.DB)
-    const filters: SQL[] = [eq(schema.anuncio.status, 'published')]
-    const marcas = await db.selectDistinct({ marca: schema.anuncio.marca })
-      .from(schema.anuncio)
-      .where(and(...filters))
-      .orderBy(schema.anuncio.marca)
-      .then(rows => rows.map(({ marca }) => marca))
-    return marcas
-  })
   .get<IRequest, [Env, ExecutionContext]>('/anuncios', async (req, env) => {
-    const db = getDb(env.DB)
-    const filters: SQL[] = [eq(schema.anuncio.status, 'published')]
-    const anuncios = await db.query.anuncio.findMany({
-      where: and(...filters),
-      columns: {
-        reviewWorkflowId: false,
-        atualizacao: false,
-        revision: false,
-        placa: false,
-        status: false
-      },
-      with: {
-        cor: true,
-        usuario: {
-          columns: {
-            createdAt: true,
-            nomeFantasia: true,
-            nomeRazaoSocial: true,
-            cep: true,
-            localidade: true,
-            uf: true
-          }
-        }
-      }
-    })
-    return anuncios
+    const q = (Array.isArray(req.query.q) ? req.query.q[0] : req.query.q) || ''
+    let filterBy = (Array.isArray(req.query.filterBy) ? req.query.filterBy[0] : req.query.filterBy)
+    if (filterBy) {
+      filterBy = atob(filterBy)
+    }
+    const typesense = useTypesense(env)
+    const result = (await typesense).searchAds({ q, filter_by: filterBy })
+    return result
   })
   .get<IRequest, [Env, ExecutionContext]>('/anuncios/:id', async (req, env) => {
     const id = z.coerce.number().int().parse(req.params.id)

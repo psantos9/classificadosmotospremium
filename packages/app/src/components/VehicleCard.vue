@@ -27,11 +27,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { PublicAd } from '@cmp/shared/models/database/models'
+import type { TAdDocument } from '@cmp/api/services/typesense-service'
 import { useApp } from '@/composables/useApp'
-import { faCalendar, faCalendarAlt, faLocationDot, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
+import { faCalendarAlt, faLocationDot, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-defineProps<{ anuncio: PublicAd }>()
+defineProps<{ anuncio: TAdDocument }>()
 const { api } = useApp()
 </script>

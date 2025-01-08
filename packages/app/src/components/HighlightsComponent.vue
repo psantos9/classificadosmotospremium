@@ -12,11 +12,11 @@
       </template>
       <template v-else>
         <VehicleCard
-          v-for="anuncio in anuncios"
-          :key="anuncio.id"
-          :anuncio="anuncio"
+          v-for="hit in anuncios?.hits ?? []"
+          :key="hit.document.id"
+          :anuncio="hit.document"
           class="w-full md:w-[250px]"
-          @click="$router.push({ name: 'anuncio', params: { id: anuncio.id } })"
+          @click="$router.push({ name: 'anuncio', params: { id: hit.document.id } })"
         />
       </template>
     </div>
@@ -24,16 +24,14 @@
 </template>
 
 <script lang="ts" setup>
-import type { PublicAd } from '@cmp/shared/models/database/models'
+import type { TAdsSearchResponse } from '@cmp/api/services/typesense-service'
 import VehicleCard from '@/components/VehicleCard.vue'
 import { useApp } from '@/composables/useApp'
-import { faFilter } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref } from 'vue'
 
 const { api } = useApp()
 const loading = ref(false)
-const anuncios = ref<PublicAd[]>([])
+const anuncios = ref<TAdsSearchResponse | null >(null)
 const fetchAds = async () => {
   try {
     loading.value = true

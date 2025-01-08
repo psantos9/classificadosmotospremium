@@ -34,7 +34,7 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel class="w-full max-w-md transform overflow-hidden rounded-md bg-white text-left align-middle transition-all">
-              <AdsFilter :close="closeModal" />
+              <AdsFilter :close="closeModal" :facet-counts="[]" />
             </DialogPanel>
           </TransitionChild>
         </div>
@@ -50,7 +50,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {
   Dialog,
   DialogPanel,
-  DialogTitle,
   TransitionChild,
   TransitionRoot
 } from '@headlessui/vue'

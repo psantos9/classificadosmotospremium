@@ -1,6 +1,7 @@
 import type { Env } from '@/types'
 import type { Anuncio } from '@cmp/shared/models/database/models'
 import type { WorkflowEvent, WorkflowStep } from 'cloudflare:workers'
+import { useTypesense } from '@/services/typesense-service'
 import { getDb } from '@cmp/shared/helpers/get-db'
 import { schema } from '@cmp/shared/models/database/schema'
 import { WorkflowEntrypoint } from 'cloudflare:workers'
@@ -21,8 +22,8 @@ export class AdReviewWorkflow extends WorkflowEntrypoint<Env, AdReviewEvent> {
         throw new NonRetryableError(`ad not found: ${adId}`)
       }
     })
-    await step.sleep('sleep for a bit', '5 second')
-    await step.do('publish ad', async () => {
+    // await step.sleep('sleep for a bit', '5 second')
+    const ad = await step.do('publish ad', async () => {
       const adId = event.payload.adId
       const db = getDb(this.env.DB)
       let [ad = null] = await db.select().from(schema.anuncio).where(eq(schema.anuncio.id, adId)).limit(1)
@@ -30,7 +31,6 @@ export class AdReviewWorkflow extends WorkflowEntrypoint<Env, AdReviewEvent> {
         throw new NonRetryableError(`ad not found: ${adId}`)
       }
 
-      console.log('AD ANTES ATUALIZADO', ad)
       const anuncio = JSON.parse(JSON.stringify(ad)) as Anuncio
       const { revision, atualizacao } = anuncio
       const update: Partial<Anuncio> = {
@@ -41,12 +41,19 @@ export class AdReviewWorkflow extends WorkflowEntrypoint<Env, AdReviewEvent> {
         atualizacao: null,
         reviewWorkflowId: null
       }
-      console.log('UPDATE', update)
+
       ;[ad] = await db.update(schema.anuncio).set(update).where(eq(schema.anuncio.id, adId)).limit(1).returning()
       if (ad === null) {
         throw new NonRetryableError(`ad not found: ${adId}`)
       }
-      console.log('AD ATUALIZADO', ad)
+      return ad
     })
+
+    const document = await step.do('upsert ad document', async () => {
+      const typesense = await useTypesense(this.env)
+      const document = await typesense.upsertAd(ad)
+      return document
+    })
+    console.log('UPSERTED DOCUMENT', document)
   }
 }

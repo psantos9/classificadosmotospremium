@@ -10,20 +10,18 @@
     <div class="p-4 md:p-2 flex flex-col gap-2">
       <span class="text-sm font-bold">Estado</span>
       <Combobox
-        v-model="estado"
-        :data="estados"
-        :loading="loadingEstados"
-        :nullable="true"
-        :class-input="{ 'outline-[var(--primary)] outline-2': !!estado }"
+        v-model="uf"
+        :data="estadoFacetCounts.map(facet => facet.value)"
+        :clearable="true"
+        :class-input="{ 'outline-[var(--primary)] outline-2': !!uf }"
       />
     </div>
     <div class="p-4 md:p-2 flex flex-col gap-2">
       <span class="text-sm font-bold ">Marca</span>
       <Combobox
         v-model="marca"
-        :data="marcas"
-        :loading="loadingMarcas"
-        :nullable="true"
+        :data="marcaFacetCounts.map(facet => facet.value)"
+        :clearable="true"
         :class-input="{ 'outline-[var(--primary)] outline-2': !!marca }"
       />
     </div>
@@ -116,7 +114,7 @@
       <button
         class="bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] font-medium rounded-md text-sm px-5 py-2.5 focus:outline-none transition-all disabled:opacity-50 disabled:pointer-events-none"
         :disabled="!meta.dirty || !meta.valid"
-        @click="commitFilter"
+        @click="commitFilter(true)"
       >
         Aplicar Filtros
       </button>
@@ -132,64 +130,37 @@
 </template>
 
 <script lang="ts" setup>
+import type { TAdsFacetCounts } from '@cmp/api/services/typesense-service'
 import Combobox from '@/components/Combobox.vue'
-import { useApp } from '@/composables/useApp'
+import { adsFilterSchema, type TAdsFilter } from '@cmp/shared/models/ads-filters-schema'
 import { faFilter, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
+import debounce from 'lodash.debounce'
 import { vMaska } from 'maska/vue'
 import { useForm } from 'vee-validate'
-import { ref, toRefs } from 'vue'
-import { z } from 'zod'
+import { computed, toRefs, unref, watch } from 'vue'
 
-const props = defineProps<{ close?: () => void }>()
+const props = defineProps<{ facetCounts: TAdsFacetCounts, close?: () => void }>()
+const emit = defineEmits<{ (e: 'update', value: TAdsFilter | null): void }>()
 
-const filterSchema = z.object({
-  estado: z.string().optional().nullable().default(null),
-  marca: z.string().optional().nullable().default(null),
-  anoMinimo: z.coerce.number().int().optional(),
-  anoMaximo: z.coerce.number().int().optional(),
-  precoMinimo: z.preprocess((val) => {
-    if (typeof val !== 'string') {
-      return false
-    }
-    const numberPattern = /\d+/g
-    const number = Number.parseInt(val.match(numberPattern)?.join('') ?? '')
-    return number
-  }, z.number()).optional(),
-  precoMaximo: z.preprocess((val) => {
-    if (typeof val !== 'string') {
-      return false
-    }
-    const numberPattern = /\d+/g
-    const number = Number.parseInt(val.match(numberPattern)?.join('') ?? '')
-    return number
-  }, z.number()).optional(),
-  quilometragemMinima: z.preprocess((val) => {
-    if (typeof val !== 'string') {
-      return false
-    }
-    const numberPattern = /\d+/g
-    const number = Number.parseInt(val.match(numberPattern)?.join('') ?? '')
-    return number
-  }, z.number()).optional(),
-  quilometragemMaxima: z.preprocess((val) => {
-    if (typeof val !== 'string') {
-      return false
-    }
-    const numberPattern = /\d+/g
-    const number = Number.parseInt(val.match(numberPattern)?.join('') ?? '')
-    return number
-  }, z.number()).optional(),
-  pf: z.boolean().optional().default(true),
-  pj: z.boolean().optional().default(true)
+const { facetCounts } = toRefs(props)
+
+const marcaFacetCounts = computed(() => {
+  const marca = unref(facetCounts).find(facetCount => facetCount.field_name === 'marca')?.counts ?? []
+  return marca
 })
 
-const validationSchema = toTypedSchema(filterSchema)
+const estadoFacetCounts = computed(() => {
+  const marca = unref(facetCounts).find(facetCount => facetCount.field_name === 'uf')?.counts ?? []
+  return marca
+})
+
+const validationSchema = toTypedSchema(adsFilterSchema)
 
 const { defineField, validate, values, meta, resetForm } = useForm({ validationSchema })
 
-const [estado] = defineField('estado')
+const [uf] = defineField('uf')
 const [marca] = defineField('marca')
 const [anoMinimo] = defineField('anoMinimo')
 const [anoMaximo] = defineField('anoMaximo')
@@ -200,54 +171,26 @@ const [quilometragemMaxima] = defineField('quilometragemMaxima')
 const [pj] = defineField('pj')
 const [pf] = defineField('pf')
 
-const { api } = useApp()
-const loadingMarcas = ref(false)
-const loadingEstados = ref(false)
-
-const estados = ref<string[]>([])
-
-const marcas = ref<string[]>([])
-
-const atualizaEstados = async () => {
-  try {
-    loadingEstados.value = true
-    estados.value = await api.fetchEstadosAnuncios()
-  }
-  catch (err) {
-    marcas.value = []
-    throw err
-  }
-  finally {
-    loadingEstados.value = false
-  }
-}
-
-const atualizaMarcas = async () => {
-  try {
-    loadingMarcas.value = true
-    marcas.value = await api.fetchMarcasAnuncios()
-  }
-  catch (err) {
-    marcas.value = []
-    throw err
-  }
-  finally {
-    loadingMarcas.value = false
-  }
-}
-
-const commitFilter = async () => {
+const commitFilter = async (close?: boolean) => {
   await validate()
-  const filter = filterSchema.parse(values)
-  console.log('FILTER', filter)
-  props?.close?.()
+  const filter = adsFilterSchema.parse(values)
+  emit('update', filter)
+  if (close) {
+    props?.close?.()
+  }
 }
 
 const resetFilter = async () => {
   await resetForm()
+  emit('update', null)
   props?.close?.()
 }
 
-atualizaMarcas()
-atualizaEstados()
+const debouncedEmit = debounce(() => {
+  commitFilter()
+}, 500)
+
+watch(values, () => {
+  debouncedEmit()
+})
 </script>

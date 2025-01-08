@@ -4,7 +4,7 @@
     as="div"
     :data="data"
     :disabled="loading"
-    :nullable="nullable"
+    :nullable="nullable || clearable"
     @update:model-value="query = ''"
     @click="clickHandler"
   >
@@ -20,7 +20,7 @@
         @blur="query = ''"
       />
       <div class="absolute inset-y-0 right-0 flex items-center gap-1 px-2">
-        <FontAwesomeIcon v-if="nullable && !!model" :icon="faTimes" class="cursor-pointer p-1" @click.stop="model = null" />
+        <FontAwesomeIcon v-if="(nullable || clearable) && !!model" :icon="faTimes" class="cursor-pointer p-1" @click.stop="model = null" />
         <ComboboxButton v-slot="{ open }" ref="buttonEl" class="focus:outline-none rounded-r-md p-1">
           <FontAwesomeIcon :icon="loading ? faSpinner : faChevronUp" :spin="loading" class="transition-all" :class="[open ? '' : 'rotate-180']" />
         </ComboboxButton>
@@ -62,6 +62,7 @@ const props = defineProps<{
   data: Array<T>
   labelKey?: keyof T
   loading?: boolean
+  clearable?: boolean
   nullable?: boolean
   classInput?: string | Record<string, boolean> | string[]
   filteringFn?: (query: string, data: Array<T>) => Array<T>
