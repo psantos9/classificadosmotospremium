@@ -64,6 +64,10 @@ export class TypesenseService {
       url.searchParams.set('offset', offset)
     }
 
+    if (sortBy !== null) {
+      url.searchParams.set('sort_by', sortBy)
+    }
+
     const response = await fetch(url, { headers: { 'x-typesense-api-key': this._apiKey } })
     const data = await response.json()
     if (!response.ok) {
