@@ -51,7 +51,7 @@ export class TypesenseService {
 
     const url = new URL(this._baseURL)
     url.pathname = `/collections/${TypesenseCollection.ADS}/documents/search`
-    url.searchParams.set('q', params?.q ?? '')
+    url.searchParams.set('q', q)
     url.searchParams.set('query_by', queryBy.join(','))
     url.searchParams.set('facet_by', facetBy.join(','))
     if (filterBy !== null) {
