@@ -9,7 +9,6 @@ import { getDb } from '@cmp/shared/helpers/get-db'
 import { anuncioStatusSchema } from '@cmp/shared/models/anuncio-status'
 import { getAtualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
 import { schema } from '@cmp/shared/models/database/schema'
-import { cnpj } from 'cpf-cnpj-validator'
 import { and, eq, type SQL } from 'drizzle-orm'
 import { getTableColumns } from 'drizzle-orm'
 import { AutoRouter, error, status, StatusError } from 'itty-router'
@@ -46,6 +45,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const anuncio = getAtualizaAnuncioSchema().parse(await req.json())
     const db = getDb(env.DB)
     const [row] = await db.insert(schema.anuncio).values({ ...anuncio, userId, pj: isCnpj }).returning()
+
     const novoAnuncio: Anuncio = row
     return novoAnuncio
   })
