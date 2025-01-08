@@ -257,7 +257,7 @@ const getCaracteristicas = (anuncio: PublicAd | null): ICaracteristica[] => {
   const caracteristicas: ICaracteristica[] = [
     { icon: faCalendarAlt, label: 'Ano', value: `${ano}/${anoModelo}` },
     { icon: faTachometerAlt, label: 'Quilometragem', value: `${new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(quilometragem)} km` },
-    { icon: faPalette, label: 'Cor', value: cor.label.toString() }
+    { icon: faPalette, label: 'Cor', value: cor }
   ]
   return caracteristicas
 }

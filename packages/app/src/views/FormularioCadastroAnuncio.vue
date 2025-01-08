@@ -61,7 +61,6 @@
               </p>
             </div>
           </div>
-          {{ cores }}
           <Combobox
             v-model="cor"
             class="sm:col-span-3"

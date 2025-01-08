@@ -191,7 +191,6 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
         status: false
       },
       with: {
-        cor: true,
         usuario: {
           columns: {
             createdAt: true,
