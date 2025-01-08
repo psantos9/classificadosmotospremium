@@ -44,8 +44,8 @@ export class TypesenseService {
     limit?: string
     offset?: string
   }) {
+    // params: SearchParams
     const { q = '', filterBy = null, sortBy = null, limit = null, offset = null } = params ?? {}
-    // async searchAds(params: SearchParams) {
     const queryBy: string[] = ['marca', 'modelo', 'uf', 'descricao', 'cor']
     const facetBy: string[] = ['marca', 'cor', 'uf']
 
