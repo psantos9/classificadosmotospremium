@@ -44,7 +44,8 @@ export class TypesenseService {
     limit?: string
     offset?: string
   }) {
-  // async searchAds(params: SearchParams) {
+    const { q = '', filterBy = null, sortBy = null, limit = null, offset = null } = params ?? {}
+    // async searchAds(params: SearchParams) {
     const queryBy: string[] = ['marca', 'modelo', 'uf', 'descricao', 'cor']
     const facetBy: string[] = ['marca', 'cor', 'uf']
 
@@ -53,9 +54,16 @@ export class TypesenseService {
     url.searchParams.set('q', params?.q ?? '')
     url.searchParams.set('query_by', queryBy.join(','))
     url.searchParams.set('facet_by', facetBy.join(','))
-    url.searchParams.set('filter_by', params?.filterBy ?? '')
-    url.searchParams.set('limit', params?.limit ?? '')
-    url.searchParams.set('offset', params?.offset ?? '')
+    if (filterBy !== null) {
+      url.searchParams.set('filter_by', filterBy)
+    }
+    if (limit !== null) {
+      url.searchParams.set('limit', limit)
+    }
+    if (offset !== null) {
+      url.searchParams.set('offset', offset)
+    }
+
     const response = await fetch(url, { headers: { 'x-typesense-api-key': this._apiKey } })
     const data = await response.json()
     if (!response.ok) {
