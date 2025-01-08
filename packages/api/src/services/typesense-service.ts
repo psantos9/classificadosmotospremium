@@ -52,8 +52,8 @@ export class TypesenseService {
     const url = new URL(this._baseURL)
     url.pathname = `/collections/${TypesenseCollection.ADS}/documents/search`
     url.searchParams.set('q', q)
+
     url.searchParams.set('query_by', queryBy.join(','))
-    /*
     url.searchParams.set('facet_by', facetBy.join(','))
     if (filterBy !== null) {
       url.searchParams.set('filter_by', filterBy)
@@ -68,11 +68,11 @@ export class TypesenseService {
     if (sortBy !== null) {
       url.searchParams.set('sort_by', sortBy)
     }
-      */
 
     console.log('querying', url.toString())
     const response = await fetch(url, { headers: { 'x-typesense-api-key': this._apiKey } })
     const data = await response.json()
+    console.log('GOT RESPONSE', response.status, JSON.stringify(data))
     if (!response.ok) {
       throw new Error(`invalid typesense response ${response.status} ${JSON.stringify(data)}`)
     }
