@@ -15,7 +15,6 @@ export class TypesenseService {
     this._baseURL = typesenseUrl
     this.client = new Client({
       numRetries: 0,
-      nearestNode: { url: typesenseUrl },
       nodes: [{ url: typesenseUrl }],
       apiKey,
       connectionTimeoutSeconds: 2
@@ -38,23 +37,36 @@ export class TypesenseService {
     return collection
   }
 
-  async searchAds(params: SearchParams) {
+  async searchAds(params?: {
+    q?: string
+    filterBy?: string
+    sortBy?: string
+    limit?: string
+    offset?: string
+  }) {
+  // async searchAds(params: SearchParams) {
     const queryBy: string[] = ['marca', 'modelo', 'uf', 'descricao', 'cor']
     const facetBy: string[] = ['marca', 'cor', 'uf']
-    /*
+
     const url = new URL(this._baseURL)
     url.pathname = `/collections/${TypesenseCollection.ADS}/documents/search`
-    url.searchParams.set('q', '')
+    url.searchParams.set('q', params?.q ?? '')
     url.searchParams.set('query_by', queryBy.join(','))
     url.searchParams.set('facet_by', facetBy.join(','))
+    url.searchParams.set('filter_by', params?.filterBy ?? '')
+    url.searchParams.set('limit', params?.limit ?? '')
+    url.searchParams.set('offset', params?.offset ?? '')
     const response = await fetch(url, { headers: { 'x-typesense-api-key': this._apiKey } })
     const data = await response.json()
-    console.log('GOT RESPONSE', data)
+    if (!response.ok) {
+      throw new Error(`invalid typesense response ${response.status} ${data}`)
+    }
     return data
-    */
 
+    /*
     const result = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents().search({ ...params, query_by: queryBy, facet_by: facetBy })
     return result
+    */
   }
 
   async fetchAd(adId: string) {
