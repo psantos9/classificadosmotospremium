@@ -12,7 +12,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   catch: defaultErrorHandler
 })
   .post('/', getUserIdFromAuthenticationHeader, async (req, env) => {
-    const senderId = req.userId ?? null
+    const senderId = req.user.id
     const mensagem = getNovaMensagemSchema().parse(await req.json())
 
     if (senderId === null && !mensagem.sender) {

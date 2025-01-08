@@ -21,6 +21,7 @@
     "hono": "^4.6.16",
     "itty-router": "^5.0.18",
     "jose": "^5.9.6",
+    "typesense": "^1.8.2",
     "zod": "^3.24.1"
   },
   "devDependencies": {

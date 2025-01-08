@@ -2,7 +2,7 @@ import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
 import type { UnauthenticatedMessageSender } from '../unauthenticated-message-sender'
 import { anuncioStatusSchema } from '@cmp/shared/models/anuncio-status'
 import { relations, sql } from 'drizzle-orm'
-import { check, index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { check, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { anuncioStatusType } from './custom-types'
 
 export const usuario = sqliteTable('usuario', {
@@ -10,6 +10,7 @@ export const usuario = sqliteTable('usuario', {
   createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   updatedAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()).$onUpdateFn(() => new Date()),
   locked: integer({ mode: 'boolean' }).$defaultFn(() => false),
+  isCnpj: integer({ mode: 'boolean' }).notNull(),
   cpfCnpj: text().notNull().unique(),
   nomeRazaoSocial: text().notNull(),
   nomeFantasia: text(),
@@ -60,21 +61,19 @@ export const anuncio = sqliteTable('anuncio', () => ({
   placa: text().notNull(),
   quilometragem: integer().notNull(),
   preco: integer().notNull(),
-  cor: integer().notNull().references(() => cor.id, { onDelete: 'restrict' }),
+  cor: text().notNull(),
   descricao: text(),
-  informacoesAdicionais: text({ mode: 'json' }).notNull().$type<number[]>().$defaultFn(() => []),
-  acessorios: text({ mode: 'json' }).notNull().$type<number[]>().$defaultFn(() => []),
+  informacoesAdicionais: text({ mode: 'json' }).notNull().$type<string[]>().$defaultFn(() => []),
+  acessorios: text({ mode: 'json' }).notNull().$type<string[]>().$defaultFn(() => []),
   fotos: text({ mode: 'json' }).notNull().$type<string[]>().$defaultFn(() => []),
   cep: text().notNull(),
   localidade: text().notNull(),
   uf: text({ length: 2 }).notNull(),
+  location: text({ mode: 'json' }).$type<[number, number] | null>().$defaultFn(() => null), // location = [lat, long]
   atualizacao: text({ mode: 'json' }).$type<AtualizaAnuncio | null>().$defaultFn(() => null),
   reviewWorkflowId: text()
 }), table => [
-  check('anuncioStatus', sql.raw(`${table.status.name} IN (${Object.values(anuncioStatusSchema.enum).map(value => `'${value}'`).join(',')})`)),
-  index('anuncio_marca_idx').on(table.marca),
-  index('anuncio_status_user_id_idx').on(table.status, table.userId),
-  index('anuncio_uf_localidade_idx').on(table.uf, table.localidade)
+  check('anuncioStatus', sql.raw(`${table.status.name} IN (${Object.values(anuncioStatusSchema.enum).map(value => `'${value}'`).join(',')})`))
 ])
 
 export const mensagem = sqliteTable('mensagem', () => ({

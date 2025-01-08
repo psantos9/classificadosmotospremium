@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "1141271a-8c58-41ab-97a9-7322097d5dbb",
+  "id": "69da7f3b-9f3b-4ac0-ab40-3f54f6822b6d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "acessorio": {
@@ -146,7 +146,7 @@
         },
         "cor": {
           "name": "cor",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -200,6 +200,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "location": {
+          "name": "location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "atualizacao": {
           "name": "atualizacao",
           "type": "text",
@@ -228,19 +235,6 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "anuncio_cor_cor_id_fk": {
-          "name": "anuncio_cor_cor_id_fk",
-          "tableFrom": "anuncio",
-          "tableTo": "cor",
-          "columnsFrom": [
-            "cor"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "restrict",
           "onUpdate": "no action"
         }
       },
@@ -436,6 +430,13 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
+          "autoincrement": false
+        },
+        "is_cnpj": {
+          "name": "is_cnpj",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
           "autoincrement": false
         },
         "cpf_cnpj": {

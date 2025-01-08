@@ -20,7 +20,7 @@ CREATE TABLE `anuncio` (
 	`placa` text NOT NULL,
 	`quilometragem` integer NOT NULL,
 	`preco` integer NOT NULL,
-	`cor` integer NOT NULL,
+	`cor` text NOT NULL,
 	`descricao` text,
 	`informacoes_adicionais` text NOT NULL,
 	`acessorios` text NOT NULL,
@@ -28,10 +28,10 @@ CREATE TABLE `anuncio` (
 	`cep` text NOT NULL,
 	`localidade` text NOT NULL,
 	`uf` text(2) NOT NULL,
+	`location` text,
 	`atualizacao` text,
 	`review_workflow_id` text,
 	FOREIGN KEY (`user_id`) REFERENCES `usuario`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`cor`) REFERENCES `cor`(`id`) ON UPDATE no action ON DELETE restrict,
 	CONSTRAINT "anuncioStatus" CHECK(status IN ('draft','rejected','published','paused','expired','finished','archived'))
 );
 --> statement-breakpoint
@@ -64,6 +64,7 @@ CREATE TABLE `usuario` (
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
 	`locked` integer,
+	`is_cnpj` integer NOT NULL,
 	`cpf_cnpj` text NOT NULL,
 	`nome_razao_social` text NOT NULL,
 	`nome_fantasia` text,

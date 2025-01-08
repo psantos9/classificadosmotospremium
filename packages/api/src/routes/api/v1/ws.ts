@@ -11,10 +11,11 @@ export const router = AutoRouter<IAppAuthenticatedRequest, CF>({
   catch: defaultErrorHandler
 })
   .post<IAppAuthenticatedRequest, [Env, ExecutionContext]>('/', authenticateRequest, async (req, env) => {
-    const { userId = null } = req
-    if (userId === null) {
+    const { user = null } = req
+    if (user === null) {
       throw new StatusError(401)
     }
+    const { id: userId } = user
     const userAgent = req.headers.get('user-agent')
     const { colo } = req.cf as IncomingRequestCfProperties
 

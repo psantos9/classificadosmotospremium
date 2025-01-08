@@ -16,9 +16,9 @@ const signedIn = ref(false)
 
 const cadastraEmail = ref<string | undefined>(undefined)
 
-const acessorios = ref<Acessorio[]>([])
-const informacoesAdicionais = ref<InformacaoAdicional[]>([])
-const cores = ref<Cor[]>([])
+const acessorios = ref<string[]>([])
+const informacoesAdicionais = ref<string[]>([])
+const cores = ref<string[]>([])
 
 let signedInWatcher: null | ReturnType<typeof watch> = null
 
@@ -55,9 +55,9 @@ api.init()
 
 const initApp = async () => {
   const [_acessorios, _informacoesAdicionais, _cores] = await Promise.all([api.fetchAcessorios(), api.fetchInformacoesAdicionais(), api.fetchCores()])
-  acessorios.value = _acessorios
-  informacoesAdicionais.value = _informacoesAdicionais
-  cores.value = _cores
+  acessorios.value = _acessorios.map(acessorio => acessorio.label)
+  informacoesAdicionais.value = _informacoesAdicionais.map(item => item.label)
+  cores.value = _cores.map(cor => cor.label)
 }
 
 void initApp()

@@ -1,12 +1,12 @@
 import type { CF, Env, IAppAuthenticatedRequest } from '@/types'
 import type { SQL } from 'drizzle-orm'
-import { getUsersDO } from '@/durable-objects/UsersDO'
 import { getBearerToken } from '@/helpers/getBearerToken'
 import { authenticateRequest } from '@/middleware/authenticate-request'
 import { router as adsRouter } from '@cmp/api/routes/api/v1/ads'
 import { router as fipeRouter } from '@cmp/api/routes/api/v1/fipe'
 import { router as imagesRouter } from '@cmp/api/routes/api/v1/images'
 import { router as messagesRouter } from '@cmp/api/routes/api/v1/messages'
+import { router as typesenseRouter } from '@cmp/api/routes/api/v1/typesense'
 import { router as usersRouter } from '@cmp/api/routes/api/v1/users'
 import { router as wsRouter } from '@cmp/api/routes/api/v1/ws'
 import { getDb } from '@cmp/shared/helpers/get-db'
@@ -14,6 +14,7 @@ import { schema } from '@cmp/shared/models/database/schema'
 import { novoUsuarioSchema } from '@cmp/shared/models/novo-usuario'
 import { type OpenCEP, openCEPSchema } from '@cmp/shared/models/open-cep'
 import bcrypt from 'bcryptjs'
+import { cnpj } from 'cpf-cnpj-validator'
 import { and, eq, sql } from 'drizzle-orm'
 import { AutoRouter, error, type IRequest, json, StatusError } from 'itty-router'
 import { z, ZodError } from 'zod'
@@ -91,8 +92,8 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     try {
       const novoUsuario = novoUsuarioSchema.parse(await req.json())
       const password: string = bcrypt.hashSync(novoUsuario.password, 10)
-
-      await db.insert(schema.usuario).values({ ...novoUsuario, password }).returning({ userId: schema.usuario.id })
+      const isCnpj = cnpj.isValid(novoUsuario.cpfCnpj, true)
+      await db.insert(schema.usuario).values({ ...novoUsuario, password, isCnpj }).returning({ userId: schema.usuario.id })
       const bearerToken = await getBearerToken({ email: novoUsuario.email, password: novoUsuario.password, db: env.DB, apiSecret: env.API_SECRET })
       return json({ bearerToken })
     }
@@ -212,6 +213,7 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/messages/*', messagesRouter.fetch)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/ws/*', wsRouter.fetch)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/fipe/*', fipeRouter.fetch)
+  .all<IRequest, [Env, IAppAuthenticatedRequest]>('/typesense/*', typesenseRouter.fetch)
   .all<IRequest, CF>('*', authenticateRequest)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/users/*', usersRouter.fetch)
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/ads/*', adsRouter.fetch)

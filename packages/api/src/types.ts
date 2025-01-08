@@ -1,3 +1,4 @@
+import type { Usuario } from '@cmp/shared/models/database/models'
 import type { IRequest } from 'itty-router'
 import type { FipeClient } from './durable-objects/fipe'
 import type { UserDO } from './durable-objects/UserDO'
@@ -14,6 +15,8 @@ export interface Env {
   ENVIRONMENT: string
   API_SECRET: string
   IMAGEKIT_PRIVATE_KEY: string
+  TYPESENSE_API_KEY: string
+  TYPESENSE_URL_ENDPOINT: string
   IMAGEKIT_URL_ENDPOINT: string
   AD_REVIEW_WORKFLOW: Workflow<AdReviewEvent>
 }
@@ -21,5 +24,5 @@ export interface Env {
 export type CF = [env: Env, context: ExecutionContext]
 
 export interface IAppAuthenticatedRequest extends IRequest {
-  userId: number
+  user: Usuario
 }

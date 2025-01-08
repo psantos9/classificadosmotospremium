@@ -21,7 +21,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   catch: defaultErrorHandler
 })
   .get('/', async (req, env) => {
-    const userId = req.userId
+    const userId = req.user.id
     const url = new URL(req.url)
     const statusParam = (url.searchParams.get('status') ?? '') as AnuncioStatus
     const db = getDb(env.DB)
@@ -33,7 +33,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     return anuncios
   })
   .get('/:adId', async (req, env) => {
-    const userId = req.userId
+    const userId = req.user.id
     const adId = z.coerce.number().parse(req.params.adId)
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
@@ -41,7 +41,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     return { ...anuncio, ...anuncio?.atualizacao ?? null }
   })
   .post('/', async (req, env) => {
-    const userId = req.userId
+    const userId = req.user.id
     const anuncio = getAtualizaAnuncioSchema().parse(await req.json())
     const db = getDb(env.DB)
     const [row] = await db.insert(schema.anuncio).values({ ...anuncio, userId }).returning()
@@ -49,7 +49,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     return novoAnuncio
   })
   .put('/:adId', async (req, env) => {
-    const userId = req.userId
+    const userId = req.user.id
     const adId = z.coerce.number().parse(req.params.adId)
     const atualizacao = getAtualizaAnuncioSchema().parse(await req.json())
 
@@ -70,7 +70,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     return { ...anuncio, ...atualizacao }
   })
   .delete('/:adId/changes', async (req, env) => {
-    const userId = req.userId
+    const userId = req.user.id
     const adId = z.coerce.number().parse(req.params.adId)
 
     const db = getDb(env.DB)
@@ -103,7 +103,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     return anuncio
   })
   .put('/:adId/review', async (req, env) => {
-    const userId = req.userId
+    const userId = req.user.id
     const adId = z.coerce.number().parse(req.params.adId)
 
     const db = getDb(env.DB)
@@ -138,7 +138,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     return anuncio
   })
   .delete('/:adId', async (req, env) => {
-    const userId = req.userId
+    const userId = req.user.id
     const adId = z.coerce.number().parse(req.params.adId)
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
@@ -158,7 +158,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     return status(204)
   })
   .post('/:adId/images', async (req, env) => {
-    const userId = req.userId
+    const userId = req.user.id
     const adId = z.coerce.number().parse(req.params.adId)
     const contentType = req.headers.get('Content-Type')
     if (!contentType?.match(/multipart\/form-data/)) {
@@ -207,7 +207,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     return { ...anuncio, ...atualizacao }
   })
   .put('/:adId/images/delete', async (req, env) => {
-    const userId = req.userId
+    const userId = req.user.id
     const adId = z.coerce.number().parse(req.params.adId)
     const imageKeys = z.array(z.string()).parse(await req.json())
     const db = getDb(env.DB)

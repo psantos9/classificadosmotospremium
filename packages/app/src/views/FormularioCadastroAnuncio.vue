@@ -61,12 +61,12 @@
               </p>
             </div>
           </div>
+          {{ cores }}
           <Combobox
             v-model="cor"
             class="sm:col-span-3"
             label="Cor"
             :data="cores"
-            label-key="label"
             :loading="loadingCores"
           />
         </div>
@@ -108,12 +108,12 @@
         <span class="text-xs text-gray-500 mb-2">Selecione os itens de série e opcionais do seu veículo para atrair a atenção dos compradores.</span>
         <div class="flex flex-wrap gap-2">
           <div
-            v-for="(item) in listaAcessorios" :key="item.id"
+            v-for="(item, i) in listaAcessorios" :key="i"
             class="select-none text-sm bg-white border border-gray-300 hover:border-[var(--primary-lighter)]  rounded-md px-2 py-1 cursor-pointer transition-colors data-[selected=true]:bg-[var(--primary-lighter)] data-[selected=true]:border-[var(--primary-lighter)]"
-            :data-selected="acessorios.includes(item.id)"
-            @click="toggleItem(item.id, acessorios)"
+            :data-selected="acessorios.includes(item)"
+            @click="toggleItem(item, acessorios)"
           >
-            {{ item.label }}
+            {{ item }}
           </div>
         </div>
       </div>
@@ -122,12 +122,12 @@
         <span class="text-xs text-gray-500 mb-2">Selecione os itens que representam detalhes do seu veículo para atrair a atenção dos compradores.</span>
         <div class="flex flex-wrap gap-2">
           <div
-            v-for="(item) in listaInformacoesAdicionais" :key="item.id"
+            v-for="(item, i) in listaInformacoesAdicionais" :key="i"
             class="select-none text-sm bg-white border border-gray-300 hover:border-[var(--primary-lighter)] rounded-md px-2 py-1 cursor-pointer transition-colors data-[selected=true]:bg-[var(--primary-lighter)] data-[selected=true]:border-[var(--primary-lighter)]"
-            :data-selected="informacoesAdicionais.includes(item.id)"
-            @click="toggleItem(item.id, informacoesAdicionais)"
+            :data-selected="informacoesAdicionais.includes(item)"
+            @click="toggleItem(item, informacoesAdicionais)"
           >
-            {{ item.label }}
+            {{ item }}
           </div>
         </div>
       </div>
@@ -333,9 +333,9 @@ const adId = ref<number | null>(null)
 
 const anuncio = ref<Anuncio | null>(null)
 
-const cores = ref<Cor[]>([])
-const listaAcessorios = ref<Acessorio[]>([])
-const listaInformacoesAdicionais = ref<InformacaoAdicional[]>([])
+const cores = ref<string[]>([])
+const listaAcessorios = ref<string[]>([])
+const listaInformacoesAdicionais = ref<string[]>([])
 const loadingCepRequests = ref(0)
 
 const uppy = new Uppy({ locale: ptBR, allowMultipleUploadBatches: false })
@@ -380,6 +380,7 @@ const { errors, defineField, values, setFieldValue, setFieldError, meta, resetFo
   initialValues: { fotos: [], informacoesAdicionais: [], acessorios: [], descricao: '' }
 })
 
+const [cor] = defineField('cor', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
 const [cep, cepAttrs] = defineField('cep', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
 const [localidade] = defineField('localidade', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
 const [uf] = defineField('uf', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
@@ -410,9 +411,8 @@ const anosModelo = ref<number[]>([])
 const precoFIPE = ref<string | null>(null)
 const preco = ref<string | null>(null)
 
-const cor = ref<Cor | null>(null)
-const acessorios = ref<number[]>([])
-const informacoesAdicionais = ref<number[]>([])
+const acessorios = ref<string[]>([])
+const informacoesAdicionais = ref<string[]>([])
 
 const fotos = ref<string[]>([])
 const photoUploadIndex = ref<Record<string, string>>({})
@@ -520,13 +520,13 @@ const atualizaPreco = async () => {
   }
 }
 
-const toggleItem = (id: number, items: number[]) => {
-  const idx = items.findIndex(itemId => itemId === id)
-  if (idx < 0) {
-    items.push(id)
+const toggleItem = (item: string, items: string[]) => {
+  const idx = items.findIndex(_item => _item === item)
+  if (idx > -1) {
+    items = items.filter(_item => _item !== item)
   }
   else {
-    items.splice(idx, 1)
+    items.push(item)
   }
   items.sort()
 }
@@ -541,7 +541,6 @@ const setAdState = async (ad: Anuncio | null) => {
   anoModelo.value = ad?.anoModelo ?? null
   ano.value = ad?.ano ?? undefined
   quilometragem.value = ad?.quilometragem ?? undefined
-  cor.value = ad === null ? null : unref(cores).find(cor => cor.id === ad.cor) ?? null
 
   setFieldValue('cep', ad?.cep)
   setFieldValue('localidade', ad?.localidade)
@@ -704,10 +703,6 @@ const debouncedValidateCEP = debounce(async (cep: string) => {
 watch(marca, () => atualizaModelos())
 watch(modelo, () => atualizaAnosModelo())
 
-watch(cor, (cor) => {
-  setFieldValue('cor', cor?.id)
-}, { deep: true })
-
 watch(acessorios, (acessorios) => {
   setFieldValue('acessorios', acessorios)
 }, { deep: true })
@@ -764,9 +759,9 @@ onBeforeRouteLeave((to, from, next) => {
 const init = async () => {
   const _adId = unref(adId)
   await atualizaMarcas()
-  cores.value = await api.fetchCores()
-  listaAcessorios.value = await api.fetchAcessorios()
-  listaInformacoesAdicionais.value = await api.fetchInformacoesAdicionais()
+  cores.value = await api.fetchCores().then(items => items.map(item => item.label))
+  listaAcessorios.value = await api.fetchAcessorios().then(items => items.map(item => item.label))
+  listaInformacoesAdicionais.value = await api.fetchInformacoesAdicionais().then(items => items.map(item => item.label))
 
   if (_adId !== null) {
     const ad = await api.fetchMeuAnuncio(_adId)

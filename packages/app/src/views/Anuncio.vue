@@ -85,8 +85,8 @@
           </div>
           <div class="flex flex-wrap gap-2">
             <template v-if="anuncio">
-              <div v-for="id in anuncio.acessorios" :key="id" class="border px-1 rounded-md text-xs font-light bg-green-100 border-green-200 shadow">
-                {{ acessorios.find(acessorio => acessorio.id === id)?.label }}
+              <div v-for="(acessorio, i) in anuncio.acessorios" :key="i" class="border px-1 rounded-md text-xs font-light bg-green-100 border-green-200 shadow">
+                {{ acessorio }}
               </div>
             </template>
             <template v-else>
@@ -102,8 +102,8 @@
           </div>
           <div class="flex flex-wrap gap-2">
             <template v-if="anuncio">
-              <div v-for="id in anuncio.informacoesAdicionais" :key="id" class="border px-1 rounded-md text-xs font-light bg-yellow-100 border-yellow-200 shadow">
-                {{ informacoesAdicionais.find(informacaoAdicional => informacaoAdicional.id === id)?.label }}
+              <div v-for="(informacaoAdicional, i) in anuncio.informacoesAdicionais" :key="i" class="border px-1 rounded-md text-xs font-light bg-yellow-100 border-yellow-200 shadow">
+                {{ informacaoAdicional }}
               </div>
             </template>
             <template v-else>
@@ -265,7 +265,7 @@ const getCaracteristicas = (anuncio: PublicAd | null): ICaracteristica[] => {
 register()
 
 const router = useRouter()
-const { api, informacoesAdicionais, acessorios, signedIn } = useApp()
+const { api, signedIn } = useApp()
 const toast = useToast()
 
 const adId = Number.parseInt(unref(router.currentRoute).params.id as string ?? '')

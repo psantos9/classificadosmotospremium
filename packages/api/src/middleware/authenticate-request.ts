@@ -1,6 +1,7 @@
 import type { Env } from '@/types'
 import { MAX_TOKEN_AGE, TOKEN_ISSUER } from '@/helpers/getBearerToken'
-import { type IRequest, StatusError } from 'itty-router'
+import { getDb } from '@cmp/shared/helpers/get-db'
+import { error, type IRequest, StatusError } from 'itty-router'
 import { jwtVerify } from 'jose'
 import { z, ZodError } from 'zod'
 
@@ -14,14 +15,19 @@ export const authenticateRequest = async (req: IRequest, env: Env) => {
   const [, bearerToken] = match
   try {
     const claims = await jwtVerify(bearerToken, new TextEncoder().encode(env.API_SECRET), { issuer: TOKEN_ISSUER, maxTokenAge: MAX_TOKEN_AGE })
-    req.userId = z.coerce.number().parse(claims.payload.sub)
+    const userId = z.coerce.number().parse(claims.payload.sub)
+    const db = getDb(env.DB)
+    const user = await db.query.usuario.findFirst({ where: (usuario, { eq }) => eq(usuario.id, userId) }) ?? null
+    if (user === null) {
+      return error(401, 'Unauthorized')
+    }
+    req.user = user
   }
   catch (err) {
     if (!(err instanceof ZodError)) {
       console.error(err)
     }
-
-    return new Response(null, { status: 401 })
+    return error(401, 'Unauthorized')
   }
 }
 
