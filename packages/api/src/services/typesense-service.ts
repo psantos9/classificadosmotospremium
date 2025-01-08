@@ -14,6 +14,8 @@ export class TypesenseService {
     this._apiKey = apiKey
     this._baseURL = typesenseUrl
     this.client = new Client({
+      numRetries: 0,
+      nearestNode: { url: typesenseUrl },
       nodes: [{ url: typesenseUrl }],
       apiKey,
       connectionTimeoutSeconds: 2
@@ -39,6 +41,7 @@ export class TypesenseService {
   async searchAds(params: SearchParams) {
     const queryBy: string[] = ['marca', 'modelo', 'uf', 'descricao', 'cor']
     const facetBy: string[] = ['marca', 'cor', 'uf']
+    /*
     const url = new URL(this._baseURL)
     url.pathname = `/collections/${TypesenseCollection.ADS}/documents/search`
     url.searchParams.set('q', '')
@@ -48,9 +51,10 @@ export class TypesenseService {
     const data = await response.json()
     console.log('GOT RESPONSE', data)
     return data
+    */
 
-    // const result = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents().search({ ...params, query_by: queryBy, facet_by: facetBy })
-    // return result
+    const result = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents().search({ ...params, query_by: queryBy, facet_by: facetBy })
+    return result
   }
 
   async fetchAd(adId: string) {
