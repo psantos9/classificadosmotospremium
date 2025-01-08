@@ -63,10 +63,6 @@ export const adsCollectionSchema: CollectionCreateSchema = {
       facet: true
     },
     {
-      name: 'publisher',
-      type: 'object'
-    },
-    {
       name: 'pj',
       type: 'bool'
     }
