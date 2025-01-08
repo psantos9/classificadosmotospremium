@@ -49,7 +49,7 @@ export class AdReviewWorkflow extends WorkflowEntrypoint<Env, AdReviewEvent> {
       return ad
     })
 
-    const document = await step.do('upsert ad document', { timeout: '10 seconds' }, async () => {
+    const document = await step.do('upsert ad document', { timeout: '10 seconds', retries: { limit: 0, delay: 1000 } }, async () => {
       const typesense = await useTypesense(this.env)
       const document = await typesense.upsertAd(ad)
       return document
