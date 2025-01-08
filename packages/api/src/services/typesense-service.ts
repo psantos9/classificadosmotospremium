@@ -9,6 +9,7 @@ export class TypesenseService {
   readonly client: Client
   constructor(env: Env) {
     const { TYPESENSE_API_KEY: apiKey, TYPESENSE_URL_ENDPOINT: typesenseUrl } = env
+    console.log('TYPESENSE URL', typesenseUrl)
     this.client = new Client({
       nodes: [{ url: typesenseUrl }],
       apiKey,
