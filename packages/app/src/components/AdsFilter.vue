@@ -106,7 +106,7 @@
       >
     </div>
     <div class="p-4 md:p-2 grid grid-cols-2 items-center gap-4">
-      <span class="text-sm font-bold col-span-2">Anunciante</span>
+      <span class="text-sm font-bold col-span-2">Tipo de Anunciante</span>
 
       <div class="flex items-center">
         <input
@@ -115,7 +115,7 @@
           type="checkbox"
           class="w-6 h-6 text-xl text-[var(--primary)] border-gray-300 rounded focus:outline-none ring-0"
         >
-        <label class="ms-2 text-sm">Loja</label>
+        <label class="ms-2 text-sm">Lojas</label>
       </div>
       <div class="flex items-center">
         <input
@@ -123,7 +123,7 @@
           checked
           type="checkbox" value="" class="w-6 h-6 text-xl text-[var(--primary)] border-gray-300 rounded focus:outline-none focus:ring-0"
         >
-        <label class="ms-2 text-sm font-medium">Particular</label>
+        <label class="ms-2 text-sm">Particulares</label>
       </div>
     </div>
     <div class="p-4 md:p-2 flex flex-col gap-2">
