@@ -13,7 +13,7 @@
         <FontAwesomeIcon :icon="faSearch" class="absolute top-1/2 -translate-y-1/2 left-2" />
         <input
           v-model="state.q"
-          class="form-input pl-8"
+          class="form-input pl-8  pr-8 truncate"
           :class="{ 'outline-[var(--primary)] outline-2': state.q }"
         >
         <FontAwesomeIcon
