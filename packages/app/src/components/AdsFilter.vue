@@ -135,7 +135,7 @@
       </button>
       <button
         class="border border-[var(--secondary)] text-[var(--secondary)] hover:bg-gray-100 font-medium rounded-md text-sm px-5 py-2.5 focus:outline-none transition-all disabled:opacity-50 disabled:pointer-events-none"
-        :disabled="!state.q && state.filter === null"
+        :disabled="!state.q && !filter"
         @click="resetFilter()"
       >
         Limpar Filtros
@@ -147,6 +147,7 @@
 <script lang="ts" setup>
 import type { TAdsFacetCounts } from '@cmp/shared/models/typesense'
 import Combobox from '@/components/Combobox.vue'
+import { TypesenseService } from '@cmp/api/services/typesense-service'
 import { adsFilterSchema, type TAdsFilter } from '@cmp/shared/models/ads-filters-schema'
 import { faFilter, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -163,6 +164,15 @@ const state = defineModel<{ filter: TAdsFilter | null, q: string }>({ required: 
 const router = useRouter()
 const route = useRoute()
 const initialQ = route.params.q ? atob(route.params.q as string) : state.value.q ?? ''
+
+const filter = computed(() => {
+  const _filter = unref(state).filter
+  if (!_filter) {
+    return null
+  }
+  const a = TypesenseService.getFilterByQuery(_filter)
+  return a
+})
 
 // clean up the url if a q parameter was provided
 if (initialQ) {
