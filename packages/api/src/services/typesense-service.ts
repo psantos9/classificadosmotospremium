@@ -36,9 +36,10 @@ export class TypesenseService {
 
   async searchAds(params: SearchParams) {
     const queryBy = params.query_by || ['marca', 'modelo', 'uf', 'descricao', 'cor']
+    const facetBy = params.facet_by || ['marca', 'cor', 'uf']
     const result = await this.client.collections<TAdDocument>(TypesenseCollection.ADS)
       .documents()
-      .search({ ...params, query_by: queryBy })
+      .search({ ...params, query_by: queryBy, facet_by: facetBy })
     return result
   }
 
@@ -90,7 +91,7 @@ export class TypesenseService {
     else if (pj === false) {
       filters.push(`pj:=false`)
     }
-    const filterBy = btoa(filters.join(' && '))
+    const filterBy = filters.join(' && ')
     return filterBy
   }
 }

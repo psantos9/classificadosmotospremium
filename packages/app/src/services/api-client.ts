@@ -8,6 +8,7 @@ import type { NovoUsuario } from '@cmp/shared/models/novo-usuario'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
 import type { TAdDocument, TAdsSearchResponse } from '@cmp/shared/models/typesense'
 import type { UnauthenticatedMessageSender } from '@cmp/shared/models/unauthenticated-message-sender'
+import type { SearchParams } from 'typesense/lib/Typesense/Documents'
 import { computeFileHash } from '@/helpers/computeFileSha256'
 import { TypesenseService } from '@cmp/api/services/typesense-service'
 import axios, { type Axios, AxiosError, type AxiosProgressEvent } from 'axios'
@@ -334,7 +335,14 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncios
   }
 
-  async fetchAnuncios(params?: { q?: string, filter?: TAdsFilter, queryBy?: string[], groupBy?: string[], sortBy?: string[] }) {
+  async fetchAnuncios(params: SearchParams) {
+    const pathname = `/api/v1/anuncios`
+    const anuncios = await this.axios.get<TAdsSearchResponse >(pathname, { params })
+      .then(({ data }) => data)
+    return anuncios
+  }
+
+  async fetchAnuncios2(params?: { q?: string, filter?: TAdsFilter, queryBy?: string[], groupBy?: string[], sortBy?: string[] }) {
     const { q = null, filter, queryBy = null, groupBy = null, sortBy = null } = params ?? {}
     const filterBy = filter ? TypesenseService.getFilterByQuery(filter) : null
     const pathname = `/api/v1/anuncios`

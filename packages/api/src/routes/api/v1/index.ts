@@ -1,5 +1,4 @@
 import type { CF, Env, IAppAuthenticatedRequest } from '@/types'
-import type { SQL } from 'drizzle-orm'
 import { getBearerToken } from '@/helpers/getBearerToken'
 import { authenticateRequest } from '@/middleware/authenticate-request'
 import { useTypesense } from '@/services/typesense-service'
@@ -130,17 +129,15 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     return cores
   })
   .get<IRequest, [Env, ExecutionContext]>('/anuncios', async (req, env) => {
-    const q = (Array.isArray(req.query.q) ? req.query.q[0] : req.query.q) || ''
-    const queryBy = req.query.queryBy ?? ''
-    const groupBy = req.query.groupBy ?? ''
-    const sortBy = req.query.sortBy ?? ''
-    console.log('SORT BY', sortBy)
-    let filterBy = (Array.isArray(req.query.filterBy) ? req.query.filterBy[0] : req.query.filterBy)
-    if (filterBy) {
-      filterBy = atob(filterBy)
-    }
+    const searchParamsSchema = z.object({
+      q: z.string().max(255).optional(),
+      query_by: z.string().max(255).optional(),
+      sort_by: z.string().max(255).optional(),
+      filter_by: z.string().max(255).optional()
+    })
+    const params = searchParamsSchema.parse(req.query)
     const typesense = await useTypesense(env)
-    const result = await typesense.searchAds({ q, filter_by: filterBy, query_by: queryBy, group_by: groupBy, sort_by: sortBy })
+    const result = await typesense.searchAds(params)
     return result
   })
   .get<IRequest, [Env, ExecutionContext]>('/anuncios/:id', async (req, env) => {

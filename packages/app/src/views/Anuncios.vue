@@ -34,12 +34,13 @@
 <script lang="ts" setup>
 import type { TAdsFilter } from '@cmp/shared/models/ads-filters-schema'
 import type { TAdsSearchResponse } from '@cmp/shared/models/typesense'
+import type { SearchParams } from 'typesense/lib/Typesense/Documents'
 import AdFilterModal from '@/components/AdFilterModal.vue'
 import AdsFilter from '@/components/AdsFilter.vue'
 import SortingDropdown from '@/components/SortingDropdown.vue'
-
 import VehicleCard from '@/components/VehicleCard.vue'
 import { useApp } from '@/composables/useApp'
+import { TypesenseService } from '@cmp/api/services/typesense-service'
 import debounce from 'lodash.debounce'
 import { ref, unref, watch } from 'vue'
 
@@ -64,7 +65,15 @@ const fetchAds = async (filteringState: IAdsState, sortBy: string = '_text_match
   const { q, filter } = filteringState
   try {
     loading.value = true
-    anuncios.value = await api.fetchAnuncios({ filter: filter || undefined, q, queryBy: ['marca', 'modelo', 'uf'], sortBy: [sortBy] })
+    const params: SearchParams = {
+      q,
+      query_by: 'marca,modelo,uf',
+      sort_by: sortBy
+    }
+    if (filter) {
+      params.filter_by = TypesenseService.getFilterByQuery(filter)
+    }
+    anuncios.value = await api.fetchAnuncios(params)
   }
   finally {
     loading.value = false
