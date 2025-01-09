@@ -34,7 +34,7 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel class="w-full max-w-md transform overflow-hidden rounded-md bg-white text-left align-middle transition-all">
-              <AdsFilter :close="closeModal" :facet-counts="[]" />
+              <AdsFilter v-model="state" :close="closeModal" :facet-counts="facetCounts" />
             </DialogPanel>
           </TransitionChild>
         </div>
@@ -44,6 +44,8 @@
 </template>
 
 <script setup lang="ts">
+import type { TAdsFilter } from '@cmp/shared/models/ads-filters-schema'
+import type { TAdsFacetCounts } from '@cmp/shared/models/typesense'
 import AdsFilter from '@/components/AdsFilter.vue'
 import { faFilter } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -55,6 +57,8 @@ import {
 } from '@headlessui/vue'
 import { ref } from 'vue'
 
+defineProps<{ facetCounts: TAdsFacetCounts, close?: () => void }>()
+const state = defineModel<{ filter: TAdsFilter | null, q: string }>({ required: true })
 const isOpen = ref(false)
 
 function closeModal() {

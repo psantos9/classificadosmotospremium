@@ -15,7 +15,7 @@
 
       <div class="md:hidden flex items-center justify-between p-4 gap-4">
         <SortingDropdown />
-        <AdFilterModal />
+        <AdFilterModal v-model="filteringState" :facet-counts="anuncios?.facet_counts ?? []" />
       </div>
       <div class="flex-1 flex-col overflow-y-auto">
         <div class="flex-1 grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] items-start px-4 md:px-2 md:p-0 gap-4 md:gap-2">
@@ -42,7 +42,6 @@ import VehicleCard from '@/components/VehicleCard.vue'
 import { useApp } from '@/composables/useApp'
 import debounce from 'lodash.debounce'
 import { ref, unref, watch } from 'vue'
-import { useRoute } from 'vue-router'
 
 export interface IAdsState {
   q: string
@@ -76,6 +75,7 @@ const fetchAds = async (filteringState: IAdsState) => {
 const debouncedFetchAds = debounce(fetchAds, 500)
 
 watch(filteringState, (state) => {
+  console.log('GOT FILTEIRNG STATE', state)
   window.sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(state))
   debouncedFetchAds(state)
 }, { deep: true })

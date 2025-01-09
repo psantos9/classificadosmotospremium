@@ -126,7 +126,13 @@
         <label class="ms-2 text-sm font-medium">Particular</label>
       </div>
     </div>
-    <div class="p-4 md:p-2 flex flex-col gap-4 md:gap-2">
+    <div class="p-4 md:p-2 flex flex-col gap-2">
+      <button
+        class="md:hidden border border-[var(--primary)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] font-medium rounded-md text-sm px-5 py-2.5 focus:outline-none transition-all disabled:opacity-50 disabled:pointer-events-none"
+        @click="close"
+      >
+        Aplicar Filtros
+      </button>
       <button
         class="border border-[var(--secondary)] text-[var(--secondary)] hover:bg-gray-100 font-medium rounded-md text-sm px-5 py-2.5 focus:outline-none transition-all disabled:opacity-50 disabled:pointer-events-none"
         :disabled="!state.q && state.filter === null"
@@ -147,7 +153,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { vMaska } from 'maska/vue'
 import { useForm } from 'vee-validate'
-import { computed, nextTick, toRefs, unref, watch } from 'vue'
+import { computed, toRefs, unref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps<{ facetCounts: TAdsFacetCounts, close?: () => void }>()
