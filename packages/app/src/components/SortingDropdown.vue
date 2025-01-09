@@ -1,8 +1,8 @@
 <template>
   <Listbox v-model="sortingOption">
-    <div class="relative text-sm">
+    <div class="relative">
       <ListboxButton
-        class="w-full min-w-[180px] relative rounded-md text-sm md:text-base font-bold bg-white px-4 py-2 pr-10 text-left shadow-md focus:outline-none"
+        class="w-full min-w-[180px] relative rounded-md text-sm font-bold bg-white px-4 py-2 pr-10 text-left shadow-md focus:outline-none"
       >
         <span class="block truncate">{{ sortingOption.label }}</span>
         <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center">
@@ -16,7 +16,7 @@
         leave-to-class="opacity-0"
       >
         <ListboxOptions
-          class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-md focus:outline-none text-sm md:text-base"
+          class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-md focus:outline-none text-sm"
         >
           <ListboxOption
             v-for="option of sortingOptions"
@@ -42,6 +42,7 @@
 </template>
 
 <script setup lang="ts">
+import { useApp } from '@/composables/useApp'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {
@@ -52,12 +53,5 @@ import {
 } from '@headlessui/vue'
 import { ref } from 'vue'
 
-const sortingOptions = [
-  { key: 'date-desc', label: 'Mais recentes' },
-  { key: 'preco-asc', label: 'Menor Preço' },
-  { key: 'preco-desc', label: 'Maior Preço' },
-  { key: 'quilometragem-asc', label: 'Menor Quilometragem' },
-  { key: 'quilometragem-desc', label: 'Maior Quilometragem' }
-]
-const sortingOption = ref(sortingOptions[0])
+const { sortingOption, sortingOptions } = useApp()
 </script>

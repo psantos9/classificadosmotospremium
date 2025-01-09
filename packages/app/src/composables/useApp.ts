@@ -20,6 +20,15 @@ const acessorios = ref<string[]>([])
 const informacoesAdicionais = ref<string[]>([])
 const cores = ref<string[]>([])
 
+const sortingOptions = [
+  { key: '_text_match:desc', label: 'Mais relevantes' },
+  { key: 'publishedAt:desc', label: 'Mais recentes' },
+  { key: 'preco:asc', label: 'Menor Preço' },
+  { key: 'quilometragem:asc', label: 'Menor Quilometragem' }
+]
+
+const sortingOption = ref<{ key: string, label: string }>(sortingOptions[0])
+
 let signedInWatcher: null | ReturnType<typeof watch> = null
 
 const api = new APIClient({ baseURL: __API_BASE_URL__ })
@@ -89,6 +98,13 @@ export const useApp = () => {
     signedIn: computed(() => unref(signedIn)),
     menuItems: computed(() => menuItems),
     sidebarOpen: computed(() => unref(sidebarOpen)),
+    sortingOptions: computed(() => sortingOptions),
+    sortingOption: computed({
+      get: () => unref(sortingOption),
+      set: (val: { key: string, label: string }) => {
+        sortingOption.value = val
+      }
+    }),
     openSidebar: (value: boolean) => {
       sidebarOpen.value = value
     },

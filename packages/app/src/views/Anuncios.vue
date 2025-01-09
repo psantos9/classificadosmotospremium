@@ -49,7 +49,7 @@ export interface IAdsState {
 }
 
 const SESSION_STORAGE_KEY = 'CMP:ADS:STATE'
-const { api } = useApp()
+const { api, sortingOption } = useApp()
 
 const filteringState = ref<IAdsState>({ q: '', filter: null })
 const savedState = window.sessionStorage.getItem(SESSION_STORAGE_KEY)

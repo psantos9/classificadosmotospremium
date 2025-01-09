@@ -178,6 +178,7 @@ const marcaFacetCounts = computed(() => {
 })
 
 const estadoFacetCounts = computed(() => {
+  console.log('FACETOUNCONS', unref(facetCounts))
   const marca = unref(facetCounts).find(facetCount => facetCount.field_name === 'uf')?.counts ?? []
   return marca
 })
