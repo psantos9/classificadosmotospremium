@@ -8,6 +8,7 @@
       <div class="overflow-y-auto hidden md:block py-0.5">
         <AdsFilter
           class="shadow"
+          v-model="filter"
           :facet-counts="anuncios?.facet_counts ?? []"
           @update-filter="filter = $event"
           @update-q="q = $event"
@@ -45,14 +46,26 @@ import debounce from 'lodash.debounce'
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
+export interface IAdsState {
+  q: string
+  filter: TAdsFilter | null
+}
+
+const SESSION_STORAGE_KEY = 'CMP:ADS:STATE'
 const route = useRoute()
 const { api } = useApp()
 
-const initialQ = route.params.q ? atob(route.params.q as string) : ''
-const q = ref(initialQ)
+const savedState = window.sessionStorage.getItem(SESSION_STORAGE_KEY)
+let sessionState: IAdsState | null = null
+if (savedState) {
+  sessionState = JSON.parse(savedState)
+}
+console.log('GOT STATE', sessionState)
+
+const q = ref(route.params.q || sessionState?.q || '')
+const filter = ref<TAdsFilter | null>(sessionState?.filter ?? null)
 const loading = ref(false)
 const anuncios = ref<TAdsSearchResponse | null>(null)
-const filter = ref<TAdsFilter | null>(null)
 
 const fetchAds = async (q?: string, filter?: TAdsFilter) => {
   try {
@@ -67,6 +80,7 @@ const fetchAds = async (q?: string, filter?: TAdsFilter) => {
 const debouncedFetchAds = debounce(fetchAds, 500)
 
 watch([q, filter], ([q, filter]) => {
+  window.sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ q, filter }))
   debouncedFetchAds(q, filter ?? undefined)
 }, { immediate: true })
 </script>
