@@ -194,8 +194,7 @@ const estadoFacetCounts = computed(() => {
 
 const validationSchema = toTypedSchema(adsFilterSchema)
 
-const { defineField, validate, values, resetForm } = useForm({ validationSchema, initialValues: state.value.filter })
-
+const { defineField, validate, values, resetForm, setValues } = useForm({ validationSchema })
 const [uf] = defineField('uf')
 const [marca] = defineField('marca')
 const [anoMinimo] = defineField('anoMinimo')
@@ -206,6 +205,11 @@ const [quilometragemMinima] = defineField('quilometragemMinima')
 const [quilometragemMaxima] = defineField('quilometragemMaxima')
 const [pj] = defineField('pj')
 const [pf] = defineField('pf')
+
+const _filter = unref(state).filter
+if (_filter) {
+  setValues(_filter)
+}
 
 const commitFilter = async (close?: boolean) => {
   await validate()
@@ -219,9 +223,7 @@ const commitFilter = async (close?: boolean) => {
 
 const resetFilter = async () => {
   await resetForm()
-  setTimeout(() => {
-    state.value = { q: '', filter: null }
-  }, 20)
+  state.value.q = ''
   props?.close?.()
 }
 
