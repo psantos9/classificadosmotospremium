@@ -6,7 +6,12 @@
     <div class="w-full flex-1 md:grid md:grid-cols-[19rem_auto] gap-8 overflow-y-hidden">
       <!-- filtros -->
       <div class="overflow-y-auto hidden md:block py-0.5">
-        <AdsFilter class="shadow" :facet-counts="anuncios?.facet_counts ?? []" @update-filter="filter = $event" @update-q="q = $event" />
+        <AdsFilter
+          class="shadow"
+          :facet-counts="anuncios?.facet_counts ?? []"
+          @update-filter="filter = $event"
+          @update-q="q = $event"
+        />
       </div>
 
       <div class="md:hidden flex items-center justify-between p-4 gap-4">
@@ -38,10 +43,13 @@ import VehicleCard from '@/components/VehicleCard.vue'
 import { useApp } from '@/composables/useApp'
 import debounce from 'lodash.debounce'
 import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const { api } = useApp()
 
-const q = ref('')
+const initialQ = route.params.q ? atob(route.params.q as string) : ''
+const q = ref(initialQ)
 const loading = ref(false)
 const anuncios = ref<TAdsSearchResponse | null>(null)
 const filter = ref<TAdsFilter | null>(null)
@@ -60,7 +68,5 @@ const debouncedFetchAds = debounce(fetchAds, 500)
 
 watch([q, filter], ([q, filter]) => {
   debouncedFetchAds(q, filter ?? undefined)
-})
-
-fetchAds()
+}, { immediate: true })
 </script>

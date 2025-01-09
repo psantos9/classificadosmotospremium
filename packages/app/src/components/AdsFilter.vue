@@ -155,16 +155,25 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { vMaska } from 'maska/vue'
 import { useForm } from 'vee-validate'
 import { computed, ref, toRefs, unref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps<{ facetCounts: TAdsFacetCounts, close?: () => void }>()
 const emit = defineEmits<{
   (e: 'updateFilter', value: TAdsFilter | null): void
   (e: 'updateQ', value: string): void
 }>()
+const router = useRouter()
+const route = useRoute()
+const initialQ = route.params.q ? atob(route.params.q as string) : ''
+
+// clean up the url if a q parameter was provided
+if (initialQ) {
+  router.push({ name: 'anuncios' })
+}
 
 const { facetCounts } = toRefs(props)
 
-const q = ref('')
+const q = ref(initialQ)
 const marcaFacetCounts = computed(() => {
   const marca = unref(facetCounts).find(facetCount => facetCount.field_name === 'marca')?.counts ?? []
   return marca
@@ -209,5 +218,5 @@ const resetFilter = async () => {
 
 watch([values, q], () => {
   commitFilter()
-})
+}, { immediate: true })
 </script>

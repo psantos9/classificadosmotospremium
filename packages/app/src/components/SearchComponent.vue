@@ -38,7 +38,7 @@ const focusHandler = (evt: Event) => {
 watch(selection, (selection) => {
   if (selection !== null) {
     const { marca, modelo } = selection
-    router.push({ name: 'anuncios', params: { marca, modelo } })
+    router.push({ name: 'anuncios', params: { q: btoa(`${marca} ${modelo}`) } })
   }
 })
 </script>
