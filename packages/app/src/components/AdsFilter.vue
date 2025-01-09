@@ -12,14 +12,14 @@
       <div class="relative">
         <FontAwesomeIcon :icon="faSearch" class="absolute top-1/2 -translate-y-1/2 left-2" />
         <input
-          v-model="q"
+          v-model="state.q"
           class="form-input pl-8"
-          :class="{ 'outline-[var(--primary)] outline-2': q }"
+          :class="{ 'outline-[var(--primary)] outline-2': state.q }"
         >
         <FontAwesomeIcon
-          v-if="q" :icon="faTimes"
+          v-if="state.q" :icon="faTimes"
           class="absolute top-1/2 -translate-y-1/2 right-2 cursor-pointer"
-          @click="q = ''"
+          @click="state.q = ''"
         />
       </div>
     </div>
@@ -128,15 +128,8 @@
     </div>
     <div class="p-4 md:p-2 flex flex-col gap-4 md:gap-2">
       <button
-        class="bg-[var(--primary)] hover:bg-[var(--primary-lighter)] text-[var(--primary-text)] font-medium rounded-md text-sm px-5 py-2.5 focus:outline-none transition-all disabled:opacity-50 disabled:pointer-events-none"
-        :disabled="!meta.dirty || !meta.valid"
-        @click="commitFilter(true)"
-      >
-        Aplicar Filtros
-      </button>
-      <button
         class="border border-[var(--secondary)] text-[var(--secondary)] hover:bg-gray-100 font-medium rounded-md text-sm px-5 py-2.5 focus:outline-none transition-all disabled:opacity-50 disabled:pointer-events-none"
-        :disabled="!meta.dirty || !meta.valid"
+        :disabled="!state.q && state.filter === null"
         @click="resetFilter()"
       >
         Limpar Filtros
@@ -154,17 +147,16 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { vMaska } from 'maska/vue'
 import { useForm } from 'vee-validate'
-import { computed, ref, toRefs, unref, watch } from 'vue'
+import { computed, nextTick, toRefs, unref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps<{ facetCounts: TAdsFacetCounts, close?: () => void }>()
-const emit = defineEmits<{
-  (e: 'updateFilter', value: TAdsFilter | null): void
-  (e: 'updateQ', value: string): void
-}>()
+
+const state = defineModel<{ filter: TAdsFilter | null, q: string }>({ required: true })
+
 const router = useRouter()
 const route = useRoute()
-const initialQ = route.params.q ? atob(route.params.q as string) : ''
+const initialQ = route.params.q ? atob(route.params.q as string) : state.value.q ?? ''
 
 // clean up the url if a q parameter was provided
 if (initialQ) {
@@ -173,7 +165,6 @@ if (initialQ) {
 
 const { facetCounts } = toRefs(props)
 
-const q = ref(initialQ)
 const marcaFacetCounts = computed(() => {
   const marca = unref(facetCounts).find(facetCount => facetCount.field_name === 'marca')?.counts ?? []
   return marca
@@ -186,7 +177,7 @@ const estadoFacetCounts = computed(() => {
 
 const validationSchema = toTypedSchema(adsFilterSchema)
 
-const { defineField, validate, values, meta, resetForm } = useForm({ validationSchema })
+const { defineField, validate, values, resetForm } = useForm({ validationSchema, initialValues: state.value.filter })
 
 const [uf] = defineField('uf')
 const [marca] = defineField('marca')
@@ -202,21 +193,23 @@ const [pf] = defineField('pf')
 const commitFilter = async (close?: boolean) => {
   await validate()
   const filter = adsFilterSchema.parse(values)
-  emit('updateFilter', filter)
-  emit('updateQ', unref(q))
+
+  state.value.filter = filter
   if (close) {
     props?.close?.()
   }
 }
 
 const resetFilter = async () => {
-  await resetForm()
-  emit('updateFilter', null)
-  emit('updateQ', unref(q))
+  state.value = { q: '', filter: null }
+  nextTick(async () => {
+    await resetForm()
+  })
+
   props?.close?.()
 }
 
-watch([values, q], () => {
+watch([values], () => {
   commitFilter()
 }, { immediate: true })
 </script>

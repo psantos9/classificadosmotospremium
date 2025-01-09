@@ -7,11 +7,9 @@
       <!-- filtros -->
       <div class="overflow-y-auto hidden md:block py-0.5">
         <AdsFilter
+          v-model="filteringState"
           class="shadow"
-          v-model="filter"
           :facet-counts="anuncios?.facet_counts ?? []"
-          @update-filter="filter = $event"
-          @update-q="q = $event"
         />
       </div>
 
@@ -43,7 +41,7 @@ import SortingDropdown from '@/components/SortingDropdown.vue'
 import VehicleCard from '@/components/VehicleCard.vue'
 import { useApp } from '@/composables/useApp'
 import debounce from 'lodash.debounce'
-import { ref, watch } from 'vue'
+import { ref, unref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 export interface IAdsState {
@@ -52,25 +50,23 @@ export interface IAdsState {
 }
 
 const SESSION_STORAGE_KEY = 'CMP:ADS:STATE'
-const route = useRoute()
 const { api } = useApp()
 
+const filteringState = ref<IAdsState>({ q: '', filter: null })
 const savedState = window.sessionStorage.getItem(SESSION_STORAGE_KEY)
-let sessionState: IAdsState | null = null
 if (savedState) {
-  sessionState = JSON.parse(savedState)
+  const _filteringState = JSON.parse(savedState) as IAdsState
+  filteringState.value = _filteringState
 }
-console.log('GOT STATE', sessionState)
 
-const q = ref(route.params.q || sessionState?.q || '')
-const filter = ref<TAdsFilter | null>(sessionState?.filter ?? null)
 const loading = ref(false)
 const anuncios = ref<TAdsSearchResponse | null>(null)
 
-const fetchAds = async (q?: string, filter?: TAdsFilter) => {
+const fetchAds = async (filteringState: IAdsState) => {
+  const { q, filter } = filteringState
   try {
     loading.value = true
-    anuncios.value = await api.fetchAnuncios({ filter, q, queryBy: ['marca', 'modelo', 'uf'] })
+    anuncios.value = await api.fetchAnuncios({ filter: filter || undefined, q, queryBy: ['marca', 'modelo', 'uf'] })
   }
   finally {
     loading.value = false
@@ -79,8 +75,10 @@ const fetchAds = async (q?: string, filter?: TAdsFilter) => {
 
 const debouncedFetchAds = debounce(fetchAds, 500)
 
-watch([q, filter], ([q, filter]) => {
-  window.sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ q, filter }))
-  debouncedFetchAds(q, filter ?? undefined)
-}, { immediate: true })
+watch(filteringState, (state) => {
+  window.sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(state))
+  debouncedFetchAds(state)
+}, { deep: true })
+
+debouncedFetchAds(unref(filteringState))
 </script>
