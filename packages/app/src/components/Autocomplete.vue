@@ -36,7 +36,7 @@ import {
   ComboboxOptions
 } from '@headlessui/vue'
 import debounce from 'lodash.debounce'
-import { ref, watch } from 'vue'
+import { ref, unref, watch } from 'vue'
 
 defineEmits<{
   (e: 'input', value: T): void
@@ -44,7 +44,7 @@ defineEmits<{
   (e: 'click', value: Event): void
 }>()
 
-const { api } = useApp()
+const { api, sortingOption } = useApp()
 const model = defineModel<null | T>()
 
 const query = ref('')
@@ -55,7 +55,7 @@ const fetchGroupedHits = async (q: string) => {
     options.value = []
   }
   else {
-    const _options = await api.fetchAnuncios({ q, groupBy: ['marca', 'modelo'] })
+    const _options = await api.fetchAnuncios({ q, query_by: 'marca,modelo', group_by: 'marca,modelo', sort_by: unref(sortingOption).key })
       .then(response => response
         .grouped_hits
         ?.map(({ group_key: [marca, modelo] }) => ({ marca, modelo })) ?? []

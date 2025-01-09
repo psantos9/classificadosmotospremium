@@ -13,7 +13,7 @@
     </ComboboxLabel>
     <div class="relative">
       <ComboboxInput
-        class="block w-full rounded-md bg-white py-1.5 pl-3 pr-12 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-[var(--primary)] sm:text-sm/6"
+        class="block w-full rounded-md bg-white py-1.5 pl-3 pr-12 text-base text-gray-900 border-gray-300 placeholder:text-gray-400 focus:outline focus:-outline-offset-2 focus:outline-[var(--primary)] sm:text-sm/6"
         :class="[classInput]"
         :display-value="(option: any) => typeof option === 'object' ? option?.[labelKey] : option"
         @change="query = $event.target.value"

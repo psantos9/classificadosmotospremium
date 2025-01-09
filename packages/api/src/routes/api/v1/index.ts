@@ -133,7 +133,8 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
       q: z.string().max(255).optional(),
       query_by: z.string().max(255).optional(),
       sort_by: z.string().max(255).optional(),
-      filter_by: z.string().max(255).optional()
+      filter_by: z.string().max(255).optional(),
+      group_by: z.string().max(255).optional()
     })
     const params = searchParamsSchema.parse(req.query)
     const typesense = await useTypesense(env)

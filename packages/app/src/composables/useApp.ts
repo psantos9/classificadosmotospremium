@@ -1,4 +1,3 @@
-import type { Acessorio, Cor, InformacaoAdicional } from '@cmp/shared/models/database/models'
 import { APIClient, APIClientEvent } from '@/services/api-client'
 import { WebSocketMessageProcessor } from '@/services/websocket-message-processor'
 import { WebSocketService, WebSocketServiceEvent } from '@/services/websocket-service'
@@ -23,8 +22,8 @@ const cores = ref<string[]>([])
 const sortingOptions = [
   { key: '_text_match:desc', label: 'Mais relevantes' },
   { key: 'publishedAt:desc', label: 'Mais recentes' },
-  { key: 'preco:asc', label: 'Menor Preço' },
-  { key: 'quilometragem:asc', label: 'Menor Quilometragem' }
+  { key: 'preco:asc', label: 'Menor preço' },
+  { key: 'quilometragem:asc', label: 'Menor quilometragem' }
 ]
 
 const sortingOption = ref<{ key: string, label: string }>(sortingOptions[0])

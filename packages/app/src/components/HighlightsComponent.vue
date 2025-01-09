@@ -35,7 +35,7 @@ const anuncios = ref<TAdsSearchResponse | null >(null)
 const fetchAds = async () => {
   try {
     loading.value = true
-    anuncios.value = await api.fetchAnuncios()
+    anuncios.value = await api.fetchAnuncios({ q: '', query_by: ['marca', 'modelo'], sort_by: 'publishedAt:desc' })
   }
   finally {
     loading.value = false
