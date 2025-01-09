@@ -30,7 +30,7 @@ name = "cmp-api-dev"
 [env.dev.vars]
 ENVIRONMENT="dev"
 IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/ezehndeqw/"
-TYPESENSE_URL_ENDPOINT="https://algarve.classificadosmotospremium.com.br"
+TYPESENSE_URL_ENDPOINT="http://localhost:8108"
 
 [[env.dev.kv_namespaces]]
 binding = "CEP"

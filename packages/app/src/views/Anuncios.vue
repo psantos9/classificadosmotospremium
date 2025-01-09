@@ -6,7 +6,7 @@
     <div class="w-full flex-1 md:grid md:grid-cols-[19rem_auto] gap-8 overflow-y-hidden">
       <!-- filtros -->
       <div class="overflow-y-auto hidden md:block py-0.5">
-        <AdsFilter class="shadow" :facet-counts="anuncios?.facet_counts ?? []" @update="filter = $event" />
+        <AdsFilter class="shadow" :facet-counts="anuncios?.facet_counts ?? []" @update-filter="filter = $event" @update-q="q = $event" />
       </div>
 
       <div class="md:hidden flex items-center justify-between p-4 gap-4">
@@ -41,14 +41,15 @@ import { ref, watch } from 'vue'
 
 const { api } = useApp()
 
+const q = ref('')
 const loading = ref(false)
 const anuncios = ref<TAdsSearchResponse | null>(null)
 const filter = ref<TAdsFilter | null>(null)
 
-const fetchAds = async (filter?: TAdsFilter) => {
+const fetchAds = async (q?: string, filter?: TAdsFilter) => {
   try {
     loading.value = true
-    anuncios.value = await api.fetchAnuncios(filter)
+    anuncios.value = await api.fetchAnuncios({ filter, q, queryBy: ['marca', 'modelo', 'uf'] })
   }
   finally {
     loading.value = false
@@ -57,8 +58,8 @@ const fetchAds = async (filter?: TAdsFilter) => {
 
 const debouncedFetchAds = debounce(fetchAds, 500)
 
-watch(filter, (filter) => {
-  debouncedFetchAds(filter ?? undefined)
+watch([q, filter], ([q, filter]) => {
+  debouncedFetchAds(q, filter ?? undefined)
 })
 
 fetchAds()

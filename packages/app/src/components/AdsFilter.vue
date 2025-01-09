@@ -8,6 +8,22 @@
       <span class="uppercase font-black">Filtrar anúncios</span>
     </div>
     <div class="p-4 md:p-2 flex flex-col gap-2">
+      <span class="text-sm font-bold col-span-2">Pesquisa</span>
+      <div class="relative">
+        <FontAwesomeIcon :icon="faSearch" class="absolute top-1/2 -translate-y-1/2 left-2" />
+        <input
+          v-model="q"
+          class="form-input pl-8"
+          :class="{ 'outline-[var(--primary)] outline-2': q }"
+        >
+        <FontAwesomeIcon
+          v-if="q" :icon="faTimes"
+          class="absolute top-1/2 -translate-y-1/2 right-2 cursor-pointer"
+          @click="q = ''"
+        />
+      </div>
+    </div>
+    <div class="p-4 md:p-2 flex flex-col gap-2">
       <span class="text-sm font-bold">Estado</span>
       <Combobox
         v-model="uf"
@@ -133,19 +149,22 @@
 import type { TAdsFacetCounts } from '@cmp/shared/models/typesense'
 import Combobox from '@/components/Combobox.vue'
 import { adsFilterSchema, type TAdsFilter } from '@cmp/shared/models/ads-filters-schema'
-import { faFilter, faTimes } from '@fortawesome/free-solid-svg-icons'
+import { faFilter, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
-import debounce from 'lodash.debounce'
 import { vMaska } from 'maska/vue'
 import { useForm } from 'vee-validate'
-import { computed, toRefs, unref, watch } from 'vue'
+import { computed, ref, toRefs, unref, watch } from 'vue'
 
 const props = defineProps<{ facetCounts: TAdsFacetCounts, close?: () => void }>()
-const emit = defineEmits<{ (e: 'update', value: TAdsFilter | null): void }>()
+const emit = defineEmits<{
+  (e: 'updateFilter', value: TAdsFilter | null): void
+  (e: 'updateQ', value: string): void
+}>()
 
 const { facetCounts } = toRefs(props)
 
+const q = ref('')
 const marcaFacetCounts = computed(() => {
   const marca = unref(facetCounts).find(facetCount => facetCount.field_name === 'marca')?.counts ?? []
   return marca
@@ -174,7 +193,8 @@ const [pf] = defineField('pf')
 const commitFilter = async (close?: boolean) => {
   await validate()
   const filter = adsFilterSchema.parse(values)
-  emit('update', filter)
+  emit('updateFilter', filter)
+  emit('updateQ', unref(q))
   if (close) {
     props?.close?.()
   }
@@ -182,15 +202,12 @@ const commitFilter = async (close?: boolean) => {
 
 const resetFilter = async () => {
   await resetForm()
-  emit('update', null)
+  emit('updateFilter', null)
+  emit('updateQ', unref(q))
   props?.close?.()
 }
 
-const debouncedEmit = debounce(() => {
+watch([values, q], () => {
   commitFilter()
-}, 500)
-
-watch(values, () => {
-  debouncedEmit()
 })
 </script>

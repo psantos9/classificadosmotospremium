@@ -29,6 +29,7 @@ CREATE TABLE `anuncio` (
 	`localidade` text NOT NULL,
 	`uf` text(2) NOT NULL,
 	`location` text,
+	`pj` integer,
 	`atualizacao` text,
 	`review_workflow_id` text,
 	FOREIGN KEY (`user_id`) REFERENCES `usuario`(`id`) ON UPDATE no action ON DELETE cascade,

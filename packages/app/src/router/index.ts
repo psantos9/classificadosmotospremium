@@ -51,7 +51,7 @@ const router = createRouter({
       component: HomeView as Component
     },
     {
-      path: '/anuncios',
+      path: '/anuncios/:marca?/:modelo?',
       name: 'anuncios',
       component: Anuncios as Component
     },

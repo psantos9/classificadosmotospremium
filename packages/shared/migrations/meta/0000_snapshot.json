@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "7e780bf9-bed4-413b-ae8f-1e802c175da5",
+  "id": "d0e061d5-200a-4226-8727-af385c285743",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "acessorio": {
@@ -203,6 +203,13 @@
         "location": {
           "name": "location",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pj": {
+          "name": "pj",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

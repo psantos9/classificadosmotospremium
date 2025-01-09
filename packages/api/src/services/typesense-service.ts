@@ -10,7 +10,8 @@ export class TypesenseService {
   constructor(env: Env) {
     const { TYPESENSE_API_KEY: apiKey, TYPESENSE_URL_ENDPOINT: typesenseUrl } = env
     this.client = new Client({
-      numRetries: 3,
+      numRetries: 1,
+      retryIntervalSeconds: 1,
       nodes: [{ url: typesenseUrl }],
       apiKey,
       connectionTimeoutSeconds: 2
@@ -34,9 +35,11 @@ export class TypesenseService {
   }
 
   async searchAds(params: SearchParams) {
-    const queryBy: string[] = ['marca', 'modelo', 'uf', 'descricao', 'cor']
+    const queryBy: string | string[] = params.query_by || ['marca', 'modelo', 'uf', 'descricao', 'cor']
+    const groupBy = params.group_by || undefined
     const facetBy: string[] = ['marca', 'cor', 'uf']
-    const result = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents().search({ ...params, query_by: queryBy, facet_by: facetBy })
+
+    const result = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents().search({ ...params, query_by: queryBy, facet_by: facetBy, group_by: groupBy })
     return result
   }
 

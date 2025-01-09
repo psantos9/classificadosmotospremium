@@ -334,10 +334,19 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncios
   }
 
-  async fetchAnuncios(filter?: TAdsFilter) {
+  async fetchAnuncios(params?: { q?: string, filter?: TAdsFilter, queryBy?: string[], groupBy?: string[], sortBy?: string[] }) {
+    const { q = null, filter, queryBy = null, groupBy = null, sortBy = null } = params ?? {}
     const filterBy = filter ? TypesenseService.getFilterByQuery(filter) : null
     const pathname = `/api/v1/anuncios`
-    const anuncios = await this.axios.get<TAdsSearchResponse >(pathname, { params: { filterBy } })
+    const anuncios = await this.axios.get<TAdsSearchResponse >(pathname, {
+      params: {
+        q,
+        filterBy,
+        queryBy: queryBy?.join(','),
+        groupBy: groupBy?.join(','),
+        sortBy: sortBy?.join(',')
+      }
+    })
       .then(({ data }) => data)
     return anuncios
   }

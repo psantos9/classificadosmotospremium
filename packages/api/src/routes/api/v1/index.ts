@@ -16,8 +16,8 @@ import { novoUsuarioSchema } from '@cmp/shared/models/novo-usuario'
 import { type OpenCEP, openCEPSchema } from '@cmp/shared/models/open-cep'
 import bcrypt from 'bcryptjs'
 import { cnpj } from 'cpf-cnpj-validator'
-import { and, eq, sql } from 'drizzle-orm'
-import { AutoRouter, error, type IRequest, json, StatusError } from 'itty-router'
+import { sql } from 'drizzle-orm'
+import { AutoRouter, type IRequest, json, StatusError } from 'itty-router'
 import { z, ZodError } from 'zod'
 
 const loginSchema = z.object({
@@ -131,12 +131,15 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
   })
   .get<IRequest, [Env, ExecutionContext]>('/anuncios', async (req, env) => {
     const q = (Array.isArray(req.query.q) ? req.query.q[0] : req.query.q) || ''
+    const queryBy = req.query.queryBy ?? ''
+    const groupBy = req.query.groupBy ?? ''
+    const sortBy = req.query.sortBy ?? ''
     let filterBy = (Array.isArray(req.query.filterBy) ? req.query.filterBy[0] : req.query.filterBy)
     if (filterBy) {
       filterBy = atob(filterBy)
     }
     const typesense = await useTypesense(env)
-    const result = await typesense.searchAds({ q, filter_by: filterBy })
+    const result = await typesense.searchAds({ q, filter_by: filterBy, query_by: queryBy, group_by: groupBy, sort_by: sortBy })
     return result
   })
   .get<IRequest, [Env, ExecutionContext]>('/anuncios/:id', async (req, env) => {

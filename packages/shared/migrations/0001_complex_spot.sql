@@ -1,1 +1,0 @@
-ALTER TABLE `anuncio` ADD `pj` integer;

@@ -30,7 +30,8 @@ export const adsCollectionSchema: CollectionCreateSchema = {
     },
     {
       name: 'modelo',
-      type: 'string'
+      type: 'string',
+      facet: true
     },
     {
       name: 'anoModelo',
