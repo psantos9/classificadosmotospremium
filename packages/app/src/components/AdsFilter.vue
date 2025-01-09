@@ -160,6 +160,7 @@ const initialQ = route.params.q ? atob(route.params.q as string) : state.value.q
 
 // clean up the url if a q parameter was provided
 if (initialQ) {
+  state.value.q = initialQ
   router.push({ name: 'anuncios' })
 }
 
@@ -201,11 +202,10 @@ const commitFilter = async (close?: boolean) => {
 }
 
 const resetFilter = async () => {
-  state.value = { q: '', filter: null }
-  nextTick(async () => {
-    await resetForm()
-  })
-
+  await resetForm()
+  setTimeout(() => {
+    state.value = { q: '', filter: null }
+  }, 20)
   props?.close?.()
 }
 
