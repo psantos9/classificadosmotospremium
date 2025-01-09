@@ -35,11 +35,10 @@ export class TypesenseService {
   }
 
   async searchAds(params: SearchParams) {
-    const queryBy: string | string[] = params.query_by || ['marca', 'modelo', 'uf', 'descricao', 'cor']
-    const groupBy = params.group_by || undefined
-    const facetBy: string[] = ['marca', 'cor', 'uf']
-
-    const result = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents().search({ ...params, query_by: queryBy, facet_by: facetBy, group_by: groupBy })
+    const queryBy = params.query_by || ['marca', 'modelo', 'uf', 'descricao', 'cor']
+    const result = await this.client.collections<TAdDocument>(TypesenseCollection.ADS)
+      .documents()
+      .search({ ...params, query_by: queryBy })
     return result
   }
 

@@ -134,6 +134,7 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     const queryBy = req.query.queryBy ?? ''
     const groupBy = req.query.groupBy ?? ''
     const sortBy = req.query.sortBy ?? ''
+    console.log('SORT BY', sortBy)
     let filterBy = (Array.isArray(req.query.filterBy) ? req.query.filterBy[0] : req.query.filterBy)
     if (filterBy) {
       filterBy = atob(filterBy)

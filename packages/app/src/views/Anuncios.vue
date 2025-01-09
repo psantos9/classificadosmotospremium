@@ -50,7 +50,6 @@ export interface IAdsState {
 
 const SESSION_STORAGE_KEY = 'CMP:ADS:STATE'
 const { api, sortingOption } = useApp()
-
 const filteringState = ref<IAdsState>({ q: '', filter: null })
 const savedState = window.sessionStorage.getItem(SESSION_STORAGE_KEY)
 if (savedState) {
@@ -61,11 +60,11 @@ if (savedState) {
 const loading = ref(false)
 const anuncios = ref<TAdsSearchResponse | null>(null)
 
-const fetchAds = async (filteringState: IAdsState) => {
+const fetchAds = async (filteringState: IAdsState, sortBy: string = '_text_match:desc') => {
   const { q, filter } = filteringState
   try {
     loading.value = true
-    anuncios.value = await api.fetchAnuncios({ filter: filter || undefined, q, queryBy: ['marca', 'modelo', 'uf'] })
+    anuncios.value = await api.fetchAnuncios({ filter: filter || undefined, q, queryBy: ['marca', 'modelo', 'uf'], sortBy: [sortBy] })
   }
   finally {
     loading.value = false
@@ -74,10 +73,9 @@ const fetchAds = async (filteringState: IAdsState) => {
 
 const debouncedFetchAds = debounce(fetchAds, 500)
 
-watch(filteringState, (state) => {
-  console.log('GOT FILTEIRNG STATE', state)
+watch([filteringState, sortingOption], ([state, sortingOption]) => {
   window.sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(state))
-  debouncedFetchAds(state)
+  debouncedFetchAds(state, sortingOption.key)
 }, { deep: true })
 
 debouncedFetchAds(unref(filteringState))
