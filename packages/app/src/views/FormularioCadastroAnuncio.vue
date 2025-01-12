@@ -100,6 +100,14 @@
               >
             </div>
           </div>
+          <div class="sm:col-span-3">
+            <label for="name" class="block text-sm/6 font-medium">Aceita proposta de troca?</label>
+            <label class="mt-2 inline-flex items-center cursor-pointer">
+              <input v-model="aceitaTroca" type="checkbox" class="sr-only peer">
+              <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none ring-0 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)]" />
+              <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{ aceitaTroca ? 'Sim' : 'Não' }}</span>
+            </label>
+          </div>
         </div>
       </div>
       <div class="card-section">
@@ -379,6 +387,7 @@ const { errors, defineField, values, setFieldValue, setFieldError, meta, resetFo
 })
 
 const [cor] = defineField('cor', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
+const [aceitaTroca] = defineField('aceitaTroca', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
 const [cep, cepAttrs] = defineField('cep', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
 const [localidade] = defineField('localidade', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
 const [uf] = defineField('uf', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
@@ -521,7 +530,7 @@ const atualizaPreco = async () => {
 const toggleItem = (item: string, items: string[]) => {
   const idx = items.findIndex(_item => _item === item)
   if (idx > -1) {
-    items = items.filter(_item => _item !== item)
+    items.splice(0, items.length, ...items.filter(_item => _item !== item))
   }
   else {
     items.push(item)
@@ -548,6 +557,8 @@ const setAdState = async (ad: Anuncio | null) => {
     preco.value = ad?.preco.toString() ?? null
   })
 
+  setFieldValue('cor', ad?.cor)
+  setFieldValue('aceitaTroca', ad?.aceitaTroca ?? false)
   placa.value = ad?.placa ?? undefined
   acessorios.value = [...ad?.acessorios ?? []]
   informacoesAdicionais.value = [...ad?.informacoesAdicionais ?? []]
@@ -612,6 +623,9 @@ const atualizaAnuncio = async (atualizacao: AtualizaAnuncio) => {
   const _anuncio = unref(anuncio)
   const hasDifferences = [...Object.entries(atualizacao)]
     .reduce((accumulator, [key, value], _, array) => {
+      if (key === 'location') {
+        return accumulator
+      }
       const A = JSON.stringify(_anuncio?.[key as keyof Anuncio] ?? null)
       const B = JSON.stringify(value)
       if (A !== B) {

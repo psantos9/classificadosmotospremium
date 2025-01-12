@@ -64,6 +64,12 @@
         </span>
         <span v-else class="bg-gray-200 rounded-md w-48 animate-pulse">&nbsp;</span>
       </div>
+      <div class="flex items-center gap-2" :class="[anuncio?.aceitaTroca ? 'text-gray-400' : 'text-[var(--danger)]']">
+        <FontAwesomeIcon :icon="anuncio?.aceitaTroca ? faInfoCircle : faExclamationTriangle" />
+        <span class="uppercase text-xs italic">
+          {{ anuncio?.aceitaTroca ? 'Aceita' : 'Não aceita' }} propostas de troca
+        </span>
+      </div>
       <div class="py-8 flex justify-between md:grid md:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
         <div v-for="(caracteristica, i) in caracteristicas" :key="i" class="flex items-center gap-4">
           <FontAwesomeIcon :icon="caracteristica.icon" class="text-[var(--primary)]" size="2x" />
@@ -222,7 +228,7 @@ import type { SwiperOptions } from 'swiper/types'
 import ExpandableImage from '@/components/ExpandableImage.vue'
 import { useApp } from '@/composables/useApp'
 import { getUnauthenticatedMessageSenderSchema } from '@cmp/shared/models/nova-mensagem'
-import { faCalendarAlt, faChevronRight, faImage, faLocationDot, faPalette, faSpinner, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
+import { faCalendarAlt, faChevronRight, faExclamationTriangle, faImage, faInfoCircle, faLocationDot, faPalette, faSpinner, faTachometerAlt, faWarning } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { format, parseISO } from 'date-fns'

@@ -12,6 +12,7 @@ export const getAtualizaAnuncioSchema = () => z.object({
   quilometragem: z.number({ required_error: REQUIRED_ERROR, message: 'Quilometragem inválida' }).int('Quilometragem inválida').gte(0),
   placa: placaSchema,
   preco: z.number({ required_error: REQUIRED_ERROR }),
+  aceitaTroca: z.boolean({ required_error: REQUIRED_ERROR }),
   cor: z.string({ required_error: REQUIRED_ERROR }),
   descricao: z.string({ required_error: REQUIRED_ERROR }),
   acessorios: z.array(z.string()),
