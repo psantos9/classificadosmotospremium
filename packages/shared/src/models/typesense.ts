@@ -64,6 +64,10 @@ export const adsCollectionSchema: CollectionCreateSchema = {
       facet: true
     },
     {
+      name: 'location',
+      type: 'geopoint'
+    },
+    {
       name: 'pj',
       type: 'bool'
     }

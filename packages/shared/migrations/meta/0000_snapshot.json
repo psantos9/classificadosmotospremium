@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "98f8293f-63fe-4dd8-8538-2fec298184ce",
+  "id": "5b84bfe7-55fd-4db8-b8be-4b96d2b92536",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "anuncio": {
