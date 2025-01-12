@@ -58,7 +58,6 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const atualizacao = getAtualizaAnuncioSchema().parse(await req.json())
     const cachedCEP = await env.CEP.get<OpenCEP>(atualizacao.cep.toString(), 'json')
     atualizacao.location = cachedCEP?.geometry ?? null
-    console.log('ATUALIZACAO', atualizacao.location)
 
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
