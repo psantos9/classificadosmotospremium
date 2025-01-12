@@ -65,7 +65,8 @@ export const adsCollectionSchema: CollectionCreateSchema = {
     },
     {
       name: 'location',
-      type: 'geopoint'
+      type: 'geopoint',
+      optional: true
     },
     {
       name: 'pj',
