@@ -63,9 +63,9 @@ api.init()
 
 const initApp = async () => {
   const [_acessorios, _informacoesAdicionais, _cores] = await Promise.all([api.fetchAcessorios(), api.fetchInformacoesAdicionais(), api.fetchCores()])
-  acessorios.value = _acessorios.map(acessorio => acessorio.label)
-  informacoesAdicionais.value = _informacoesAdicionais.map(item => item.label)
-  cores.value = _cores.map(cor => cor.label)
+  acessorios.value = _acessorios
+  informacoesAdicionais.value = _informacoesAdicionais
+  cores.value = _cores
 }
 
 void initApp()
