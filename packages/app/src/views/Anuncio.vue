@@ -85,31 +85,17 @@
       </div>
 
       <div class="flex flex-col gap-6">
-        <div class="flex flex-col gap-2 text-sm">
-          <div class="font-semibold text-sm">
-            Acessórios
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <template v-if="anuncio">
-              <div v-for="(acessorio, i) in anuncio.acessorios" :key="i" class="border px-1 rounded-md text-xs font-light bg-green-100 border-green-200 shadow">
-                {{ acessorio }}
-              </div>
-            </template>
-            <template v-else>
-              <div v-for="id in [...Array(5).keys()]" :key="id" class="flex border px-1 rounded-md text-xs font-light bg-gray-200 shadow animate-pulse">
-                <span class="w-24">&nbsp;</span>
-              </div>
-            </template>
-          </div>
-        </div>
         <div class="flex flex-col gap-2">
           <div class="font-semibold text-sm">
             Informações adicionais
           </div>
           <div class="flex flex-wrap gap-2">
             <template v-if="anuncio">
-              <div v-for="(informacaoAdicional, i) in anuncio.informacoesAdicionais" :key="i" class="border px-1 rounded-md text-xs font-light bg-yellow-100 border-yellow-200 shadow">
-                {{ informacaoAdicional }}
+              <div v-for="(informacaoAdicional, i) in anuncio.informacoesAdicionais" :key="i" class="flex gap-2 items-center text-[var(--primary)]">
+                <FontAwesomeIcon :icon="faInfoCircle" />
+                <div class="text-sm">
+                  {{ informacaoAdicional }}
+                </div>
               </div>
             </template>
             <template v-else>
@@ -119,6 +105,27 @@
             </template>
           </div>
         </div>
+        <div class="flex flex-col gap-2 text-sm">
+          <div class="font-semibold text-sm">
+            Acessórios
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <template v-if="anuncio">
+              <div v-for="(acessorio, i) in anuncio.acessorios" :key="i" class="flex gap-2 items-center text-[var(--info)]">
+                <FontAwesomeIcon :icon="faPlusCircle" />
+                <div class="text-sm">
+                  {{ acessorio }}
+                </div>
+              </div>
+            </template>
+            <template v-else>
+              <div v-for="id in [...Array(5).keys()]" :key="id" class="flex border px-1 rounded-md text-xs font-light bg-gray-200 shadow animate-pulse">
+                <span class="w-24">&nbsp;</span>
+              </div>
+            </template>
+          </div>
+        </div>
+
         <div class="flex flex-col gap-2">
           <div class="font-semibold text-sm">
             Mais sobre a moto
@@ -228,7 +235,7 @@ import type { SwiperOptions } from 'swiper/types'
 import ExpandableImage from '@/components/ExpandableImage.vue'
 import { useApp } from '@/composables/useApp'
 import { getUnauthenticatedMessageSenderSchema } from '@cmp/shared/models/nova-mensagem'
-import { faCalendarAlt, faChevronRight, faExclamationTriangle, faImage, faInfoCircle, faLocationDot, faPalette, faSpinner, faTachometerAlt, faWarning } from '@fortawesome/free-solid-svg-icons'
+import { faCalendarAlt, faChevronRight, faExclamationTriangle, faImage, faInfoCircle, faLocationDot, faPalette, faPlusCircle, faSpinner, faTachometerAlt, faWarning } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { format, parseISO } from 'date-fns'
