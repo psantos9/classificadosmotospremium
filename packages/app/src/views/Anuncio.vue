@@ -89,7 +89,7 @@
           <div class="font-semibold text-sm">
             Informações adicionais
           </div>
-          <div class="flex flex-wrap gap-2">
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
             <template v-if="anuncio">
               <div v-for="(informacaoAdicional, i) in anuncio.informacoesAdicionais" :key="i" class="flex gap-2 items-center text-[var(--primary)]">
                 <FontAwesomeIcon :icon="faInfoCircle" />
