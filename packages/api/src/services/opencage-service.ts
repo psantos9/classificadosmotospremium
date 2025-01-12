@@ -53,6 +53,7 @@ export class OpencageService {
     url.searchParams.set('q', query)
     const response = await fetch(url)
     const data = await response.json()
+    console.log('GOT', response.status, data)
     if (response.status !== 200 || !response.ok) {
       throw new OpencageError(`${response.status} ${JSON.stringify(data)}`)
     }
