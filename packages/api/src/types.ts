@@ -18,6 +18,7 @@ export interface Env {
   TYPESENSE_API_KEY: string
   TYPESENSE_URL_ENDPOINT: string
   IMAGEKIT_URL_ENDPOINT: string
+  OPENCAGE_API_KEY: string
   AD_REVIEW_WORKFLOW: Workflow<AdReviewEvent>
 }
 

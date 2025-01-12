@@ -7,7 +7,8 @@ export const openCEPSchema = z.object({
   bairro: z.string(),
   localidade: z.string(),
   uf: z.string().length(2),
-  ibge: z.string()
+  ibge: z.string(),
+  geometry: z.array(z.number()).nullable().optional()
 })
 
 export type OpenCEP = z.infer<typeof openCEPSchema>

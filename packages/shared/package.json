@@ -5,7 +5,6 @@
     "./*": "./src/*.ts"
   },
   "scripts": {
-    "migrations:init": "npm run migrations:generate && cp ./0001_seed_data.sql ./migrations",
     "migrations:generate": "npx drizzle-kit generate",
     "type-check": "npx tsc --noEmit"
   },

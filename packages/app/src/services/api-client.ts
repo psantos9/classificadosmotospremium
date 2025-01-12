@@ -1,9 +1,8 @@
 import type { AnoModelo, CodigoTipoCombustivel, Marca, Modelo, Preco } from '@cmp/api/clients/fipe-api-client'
-import type { TAdsFilter } from '@cmp/shared/models/ads-filters-schema'
 import type { AnuncioStatus } from '@cmp/shared/models/anuncio-status'
 import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
 import type { AtualizaUsuario } from '@cmp/shared/models/atualiza-usuario'
-import type { Acessorio, Anuncio, Cor, InformacaoAdicional, Usuario } from '@cmp/shared/models/database/models'
+import type { Anuncio, Usuario } from '@cmp/shared/models/database/models'
 import type { NovoUsuario } from '@cmp/shared/models/novo-usuario'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
 import type { TAdDocument, TAdsSearchResponse } from '@cmp/shared/models/typesense'
@@ -273,20 +272,20 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return preco
   }
 
-  async fetchCores(): Promise<Cor[]> {
-    const cores = await this.axios.get<Cor[]>('/api/v1/cores')
+  async fetchCores(): Promise<string[]> {
+    const cores = await this.axios.get<string[]>('/api/v1/cores')
       .then(({ data }) => data)
     return cores
   }
 
-  async fetchAcessorios(): Promise<Acessorio[]> {
-    const acessorios = await this.axios.get<Acessorio[]>('/api/v1/acessorios')
+  async fetchAcessorios(): Promise<string[]> {
+    const acessorios = await this.axios.get<string[]>('/api/v1/acessorios')
       .then(({ data }) => data)
     return acessorios
   }
 
-  async fetchInformacoesAdicionais(): Promise<InformacaoAdicional[]> {
-    const informacoesAdicionais = await this.axios.get<InformacaoAdicional[]>('/api/v1/informacoes-adicionais')
+  async fetchInformacoesAdicionais(): Promise<string[]> {
+    const informacoesAdicionais = await this.axios.get<string[]>('/api/v1/informacoes-adicionais')
       .then(({ data }) => data)
     return informacoesAdicionais
   }

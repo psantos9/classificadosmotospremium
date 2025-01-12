@@ -10,7 +10,6 @@
     "dev:landing-page": "npm run dev -w landing-page",
     "build:app:preview": "npm run build:preview -w @cmp/app",
     "build:app": "npm run build -w @cmp/app",
-    "migrations:init": "npm run migrations:init -w @cmp/shared",
     "migrations:generate": "npm run migrations:generate -w @cmp/shared",
     "migrations:commit:local": "npx wrangler d1 migrations apply cmp -c ./packages/api/wrangler.toml -e preview --local",
     "migrations:commit:preview": "npx wrangler d1 migrations apply cmp -c ./packages/api/wrangler.toml -e preview --remote"

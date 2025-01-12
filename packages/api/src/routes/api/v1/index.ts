@@ -1,6 +1,10 @@
 import type { CF, Env, IAppAuthenticatedRequest } from '@/types'
+import { acessorios } from '@/data/acessorios'
+import { cores } from '@/data/cores'
+import { informacoesAdicionais } from '@/data/informacoes-adicionais'
 import { getBearerToken } from '@/helpers/getBearerToken'
 import { authenticateRequest } from '@/middleware/authenticate-request'
+import { OpencageService } from '@/services/opencage-service'
 import { useTypesense } from '@/services/typesense-service'
 import { router as adsRouter } from '@cmp/api/routes/api/v1/ads'
 import { router as fipeRouter } from '@cmp/api/routes/api/v1/fipe'
@@ -45,7 +49,18 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
         throw new StatusError(500, 'Erro ao buscar o CEP')
       }
       const cepResult = openCEPSchema.parse(await response.json())
+      const geometry = await OpencageService.getInstance(env).fetchCepCoordinates(cepResult).then((result) => {
+        if (result === null) {
+          return null
+        }
+        return [result.lat, result.lng]
+      }).catch((err) => {
+        console.error('could not fetch geometry', err)
+        return null
+      })
+      cepResult.geometry = geometry
       await env.CEP.put(cep.toString(), JSON.stringify(cepResult))
+
       return json(cepResult)
     }
     catch (err) {
@@ -93,7 +108,9 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
       const novoUsuario = novoUsuarioSchema.parse(await req.json())
       const password: string = bcrypt.hashSync(novoUsuario.password, 10)
       const isCnpj = cnpj.isValid(novoUsuario.cpfCnpj, true)
-      await db.insert(schema.usuario).values({ ...novoUsuario, password, isCnpj }).returning({ userId: schema.usuario.id })
+      const cachedCEP = await env.CEP.get<OpenCEP>(novoUsuario.cep.toString(), 'json')
+      const location = cachedCEP?.geometry ?? null
+      await db.insert(schema.usuario).values({ ...novoUsuario, password, isCnpj, location }).returning({ userId: schema.usuario.id })
       const bearerToken = await getBearerToken({ email: novoUsuario.email, password: novoUsuario.password, db: env.DB, apiSecret: env.API_SECRET })
       return json({ bearerToken })
     }
@@ -113,19 +130,13 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
       else { throw err }
     }
   })
-  .get<IRequest, [Env, ExecutionContext]>('/informacoes-adicionais', async (req, env) => {
-    const db = getDb(env.DB)
-    const informacoesAdicionais = await db.query.informacaoAdicional.findMany()
+  .get<IRequest, [Env, ExecutionContext]>('/informacoes-adicionais', async (_req, _env) => {
     return informacoesAdicionais
   })
-  .get<IRequest, [Env, ExecutionContext]>('/acessorios', async (req, env) => {
-    const db = getDb(env.DB)
-    const acessorios = await db.query.acessorio.findMany()
+  .get<IRequest, [Env, ExecutionContext]>('/acessorios', async (_req, _env) => {
     return acessorios
   })
-  .get<IRequest, [Env, ExecutionContext]>('/cores', async (req, env) => {
-    const db = getDb(env.DB)
-    const cores = await db.query.cor.findMany()
+  .get<IRequest, [Env, ExecutionContext]>('/cores', async (_req, _env) => {
     return cores
   })
   .get<IRequest, [Env, ExecutionContext]>('/anuncios', async (req, env) => {

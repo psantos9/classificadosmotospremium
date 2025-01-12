@@ -25,24 +25,10 @@ export const usuario = sqliteTable('usuario', {
   bairro: text().notNull(),
   localidade: text().notNull(),
   uf: text({ length: 2 }).notNull(),
+  location: text({ mode: 'json' }).$type<number[] | null>().$defaultFn(() => null), // location = [lat, long]
   superadmin: integer({ mode: 'boolean' }).default(false),
   password: text().notNull()
 }, _t => [])
-
-export const cor = sqliteTable('cor', ({
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  label: text().notNull()
-}), _t => [])
-
-export const acessorio = sqliteTable('acessorio', () => ({
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  label: text().notNull()
-}), _t => [])
-
-export const informacaoAdicional = sqliteTable('informacao_adicional', () => ({
-  id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-  label: text().notNull()
-}), _t => [])
 
 export const anuncio = sqliteTable('anuncio', () => ({
   id: integer().primaryKey({ autoIncrement: true }),
@@ -61,6 +47,7 @@ export const anuncio = sqliteTable('anuncio', () => ({
   placa: text().notNull(),
   quilometragem: integer().notNull(),
   preco: integer().notNull(),
+  aceitaTroca: integer({ mode: 'boolean' }).$defaultFn(() => false),
   cor: text().notNull(),
   descricao: text(),
   informacoesAdicionais: text({ mode: 'json' }).notNull().$type<string[]>().$defaultFn(() => []),
@@ -69,7 +56,7 @@ export const anuncio = sqliteTable('anuncio', () => ({
   cep: text().notNull(),
   localidade: text().notNull(),
   uf: text({ length: 2 }).notNull(),
-  location: text({ mode: 'json' }).$type<[number, number] | null>().$defaultFn(() => null), // location = [lat, long]
+  location: text({ mode: 'json' }).$type<number[] | null>().$defaultFn(() => null), // location = [lat, long]
   pj: integer({ mode: 'boolean' }),
   atualizacao: text({ mode: 'json' }).$type<AtualizaAnuncio | null>().$defaultFn(() => null),
   reviewWorkflowId: text()
@@ -93,10 +80,6 @@ export const usuarioRelations = relations(usuario, ({ many }) => ({
 }))
 
 export const anuncioRelations = relations(anuncio, ({ one }) => ({
-  cor: one(cor, {
-    fields: [anuncio.cor],
-    references: [cor.id]
-  }),
   usuario: one(usuario, {
     fields: [anuncio.userId],
     references: [usuario.id]
@@ -105,9 +88,6 @@ export const anuncioRelations = relations(anuncio, ({ one }) => ({
 
 export const schema = {
   usuario,
-  cor,
-  acessorio,
-  informacaoAdicional,
   anuncio,
   mensagem,
   usuarioRelations,

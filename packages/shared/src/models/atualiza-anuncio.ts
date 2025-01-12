@@ -19,7 +19,8 @@ export const getAtualizaAnuncioSchema = () => z.object({
   fotos: z.array(z.string()),
   cep: z.string({ required_error: REQUIRED_ERROR }).transform(val => val.replace(/\D+/g, '')).refine(val => val.length === 8, { message: 'CEP inválido' }),
   localidade: z.string({ required_error: REQUIRED_ERROR }).nonempty(REQUIRED_ERROR),
-  uf: z.string({ required_error: REQUIRED_ERROR }).length(2, '2 caracteres')
+  uf: z.string({ required_error: REQUIRED_ERROR }).length(2, '2 caracteres'),
+  location: z.array(z.number()).optional().nullable()
 
 })
 

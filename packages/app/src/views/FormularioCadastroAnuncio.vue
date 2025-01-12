@@ -298,8 +298,7 @@
 
 <script lang="ts" setup>
 import type { Marca, Modelo } from '@cmp/api/clients/fipe-api-client'
-import type { Acessorio, Anuncio, Cor, InformacaoAdicional } from '@cmp/shared/models/database/models'
-import type { AxiosProgressEvent } from 'axios'
+import type { Anuncio } from '@cmp/shared/models/database/models'
 import Combobox from '@/components/Combobox.vue'
 import { useApp } from '@/composables/useApp'
 import { type AtualizaAnuncio, getAtualizaAnuncioSchema } from '@cmp/shared/models/atualiza-anuncio'
@@ -758,9 +757,9 @@ onBeforeRouteLeave((to, from, next) => {
 const init = async () => {
   const _adId = unref(adId)
   await atualizaMarcas()
-  cores.value = await api.fetchCores().then(items => items.map(item => item.label))
-  listaAcessorios.value = await api.fetchAcessorios().then(items => items.map(item => item.label))
-  listaInformacoesAdicionais.value = await api.fetchInformacoesAdicionais().then(items => items.map(item => item.label))
+  cores.value = await api.fetchCores()
+  listaAcessorios.value = await api.fetchAcessorios()
+  listaInformacoesAdicionais.value = await api.fetchInformacoesAdicionais()
 
   if (_adId !== null) {
     const ad = await api.fetchMeuAnuncio(_adId)

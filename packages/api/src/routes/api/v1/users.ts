@@ -1,4 +1,5 @@
 import type { Env, IAppAuthenticatedRequest } from '@/types'
+import type { OpenCEP } from '@cmp/shared/models/open-cep'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
 import { getDb } from '@cmp/shared/helpers/get-db'
 import { atualizaUsuarioSchema } from '@cmp/shared/models/atualiza-usuario'
@@ -69,7 +70,9 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
 
     try {
       const atualizacao = atualizaUsuarioSchema.parse(await req.json())
-      const [usuarioDB = null] = await db.update(schema.usuario).set(atualizacao).where(eq(schema.usuario.id, userId)).returning()
+      const cachedCEP = await env.CEP.get<OpenCEP>(atualizacao.cep.toString(), 'json')
+      const location = cachedCEP?.geometry ?? null
+      const [usuarioDB = null] = await db.update(schema.usuario).set({ ...atualizacao, location }).where(eq(schema.usuario.id, userId)).returning()
       if (usuarioDB === null) {
         throw new StatusError(500, 'não foi possivel encontrar o usuario')
       }

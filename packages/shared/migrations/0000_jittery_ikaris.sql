@@ -1,8 +1,3 @@
-CREATE TABLE `acessorio` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`label` text NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE `anuncio` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`created_at` integer NOT NULL,
@@ -20,6 +15,7 @@ CREATE TABLE `anuncio` (
 	`placa` text NOT NULL,
 	`quilometragem` integer NOT NULL,
 	`preco` integer NOT NULL,
+	`aceita_troca` integer,
 	`cor` text NOT NULL,
 	`descricao` text,
 	`informacoes_adicionais` text NOT NULL,
@@ -34,16 +30,6 @@ CREATE TABLE `anuncio` (
 	`review_workflow_id` text,
 	FOREIGN KEY (`user_id`) REFERENCES `usuario`(`id`) ON UPDATE no action ON DELETE cascade,
 	CONSTRAINT "anuncioStatus" CHECK(status IN ('draft','rejected','published','paused','expired','finished','archived'))
-);
---> statement-breakpoint
-CREATE TABLE `cor` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`label` text NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE `informacao_adicional` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`label` text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `mensagem` (
@@ -80,6 +66,7 @@ CREATE TABLE `usuario` (
 	`bairro` text NOT NULL,
 	`localidade` text NOT NULL,
 	`uf` text(2) NOT NULL,
+	`location` text,
 	`superadmin` integer DEFAULT false,
 	`password` text NOT NULL
 );

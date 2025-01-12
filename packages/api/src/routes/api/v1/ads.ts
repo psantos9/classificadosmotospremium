@@ -2,6 +2,7 @@ import type { Env, IAppAuthenticatedRequest } from '@/types'
 import type { AnuncioStatus } from '@cmp/shared/models/anuncio-status'
 import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
 import type { Anuncio, NovoAnuncio } from '@cmp/shared/models/database/models'
+import type { OpenCEP } from '@cmp/shared/models/open-cep'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
 import { ImageService } from '@/services/image-service'
 import { ALLOWED_IMAGE_MIME_TYPES as allowedImageMimeTypes } from '@cmp/shared/constants'
@@ -43,8 +44,10 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   .post('/', async (req, env) => {
     const { id: userId, isCnpj } = req.user
     const anuncio = getAtualizaAnuncioSchema().parse(await req.json())
+    const cachedCEP = await env.CEP.get<OpenCEP>(anuncio.cep.toString(), 'json')
+    const location = cachedCEP?.geometry ?? null
     const db = getDb(env.DB)
-    const [row] = await db.insert(schema.anuncio).values({ ...anuncio, userId, pj: isCnpj }).returning()
+    const [row] = await db.insert(schema.anuncio).values({ ...anuncio, userId, pj: isCnpj, location }).returning()
 
     const novoAnuncio: Anuncio = row
     return novoAnuncio
@@ -53,6 +56,9 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const userId = req.user.id
     const adId = z.coerce.number().parse(req.params.adId)
     const atualizacao = getAtualizaAnuncioSchema().parse(await req.json())
+    const cachedCEP = await env.CEP.get<OpenCEP>(atualizacao.cep.toString(), 'json')
+    atualizacao.location = cachedCEP?.geometry ?? null
+    console.log('ATUALIZACAO', atualizacao.location)
 
     const db = getDb(env.DB)
     const filters: SQL[] = [eq(schema.anuncio.userId, userId), eq(schema.anuncio.id, adId)]
