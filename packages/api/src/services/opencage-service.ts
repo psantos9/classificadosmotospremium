@@ -53,13 +53,14 @@ export class OpencageService {
     url.searchParams.set('q', query)
     const response = await fetch(url)
     const data = await response.json()
-    console.log('GOT', response.status, data)
+    console.log('GOT', response.status, JSON.stringify(data))
     if (response.status !== 200 || !response.ok) {
       throw new OpencageError(`${response.status} ${JSON.stringify(data)}`)
     }
     const { results } = data as IOpencageResponse
     const result = results
       .find(result => result.formatted.includes(cep.cep))
+    console.log('GOT RESULT', JSON.stringify(result))
     return result?.geometry ?? null
   }
 
