@@ -31,6 +31,10 @@
   --secondary-lightest: hsl(from var(--secondary) h s calc(l + 40));
   --secondary-text: white;
 
+  --info-darker: hsl(from var(--info) h s calc(l - 10));
+  --info-text: white;
+
+  --danger-darker: hsl(from var(--danger) h s calc(l - 10));
   --danger-lighter: hsl(from var(--danger) h s calc(l + 10));
   --danger-text: white;
 

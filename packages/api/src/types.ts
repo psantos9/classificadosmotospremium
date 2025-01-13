@@ -4,6 +4,7 @@ import type { FipeClient } from './durable-objects/fipe'
 import type { UserDO } from './durable-objects/UserDO'
 import type { UsersDO } from './durable-objects/UsersDO'
 import type { AdReviewEvent } from './workflows/AdReviewWorkflow'
+import type { DeleteAdEvent } from './workflows/DeleteAdWorkflow'
 
 export interface Env {
   DB: D1Database
@@ -20,6 +21,7 @@ export interface Env {
   IMAGEKIT_URL_ENDPOINT: string
   OPENCAGE_API_KEY: string
   AD_REVIEW_WORKFLOW: Workflow<AdReviewEvent>
+  DELETE_AD_WORKFLOW: Workflow<DeleteAdEvent>
 }
 
 export type CF = [env: Env, context: ExecutionContext]

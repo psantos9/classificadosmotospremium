@@ -5,9 +5,10 @@ import { UsersDO } from '@/durable-objects/UsersDO'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
 import api from '@/routes/api'
 import { AdReviewWorkflow } from '@/workflows/AdReviewWorkflow'
+import { DeleteAdWorkflow } from '@/workflows/DeleteAdWorkflow'
 import { AutoRouter, cors, type IRequest } from 'itty-router'
 
-export { AdReviewWorkflow, FipeClient, UserDO, UsersDO }
+export { AdReviewWorkflow, DeleteAdWorkflow, FipeClient, UserDO, UsersDO }
 
 const { preflight, corsify } = cors()
 

@@ -78,6 +78,7 @@ const getAxiosInstance = (params: { baseURL: string, ctx: APIClient }) => {
 
 export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient {
   readonly axios: Axios
+  private _userId: string | null = null
   private _signedIn: boolean = false
   private _authInterceptor: number | null = null
   private _bearerToken: string | null = null
@@ -111,6 +112,10 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return this._bearerToken
   }
 
+  get userId() {
+    return this._userId
+  }
+
   private getTokenExpirationDeltaSeconds(exp: null | number) {
     const delta = exp === null ? -1 : exp - (Math.round(new Date().getTime() / 1e3))
     return delta
@@ -132,12 +137,16 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     const bearerToken = window.sessionStorage.getItem(API_PERSISTENCE_KEY)
     if (bearerToken !== null) {
       const claims = decodeJwt(bearerToken)
-      const { exp = null } = claims
+      const { exp = null, sub } = claims
+      if (typeof sub === 'string') {
+        this._userId = sub
+      }
       if (this.getTokenExpirationDeltaSeconds(exp) > 10 * 60) {
         this._setAuthorizationHeader(bearerToken)
         void this.emit(APIClientEvent.SIGNED_IN, true)
       }
       else {
+        this._userId = null
         this._setAuthorizationHeader(null)
         this._deleteToken()
         void this.emit(APIClientEvent.SIGNED_IN, false)

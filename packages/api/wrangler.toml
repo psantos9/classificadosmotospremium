@@ -65,6 +65,11 @@ name = "workflow-ad-review"
 binding = "AD_REVIEW_WORKFLOW"
 class_name = "AdReviewWorkflow"
 
+[[env.dev.workflows]]
+name = "workflow-delete-ad"
+binding = "DELETE_AD_WORKFLOW"
+class_name = "DeleteAdWorkflow"
+
 # PREVIEW
 [env.preview]
 name = "cmp-api-preview"
@@ -108,6 +113,11 @@ name = "workflow-ad-review"
 binding = "AD_REVIEW_WORKFLOW"
 class_name = "AdReviewWorkflow"
 
+[[env.preview.workflows]]
+name = "workflow-delete-ad"
+binding = "DELETE_AD_WORKFLOW"
+class_name = "DeleteAdWorkflow"
+
 # PRODUCTION
 [env.production]
 name = "cmp-api"
@@ -149,6 +159,11 @@ migrations_dir = "../shared/migrations"
 name = "workflow-ad-review"
 binding = "AD_REVIEW_WORKFLOW"
 class_name = "AdReviewWorkflow"
+
+[[env.production.workflows]]
+name = "workflow-delete-ad"
+binding = "DELETE_AD_WORKFLOW"
+class_name = "DeleteAdWorkflow"
 
 
 # Automatically place your workloads in an optimal location to minimize latency.

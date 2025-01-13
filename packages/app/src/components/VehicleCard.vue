@@ -5,7 +5,10 @@
     </div>
     <div class="flex flex-col p-4 text-sm gap-2">
       <span class="font-bold text-base">{{ anuncio.marca }}</span>
-      <span>{{ anuncio.modelo }}</span>
+      <div class="line-clamp-1">
+        <span clas="truncate">{{ anuncio.modelo }}</span>
+      </div>
+
       <span class="text-xs">
         <FontAwesomeIcon :icon="faCalendarAlt" />
         {{ anuncio.ano }}/{{ anuncio.anoModelo }}

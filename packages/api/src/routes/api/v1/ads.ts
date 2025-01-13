@@ -152,15 +152,8 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     if (anuncio === null) {
       return error(404, 'anúncio não encontrado')
     }
-
-    /*
-    const adKeys = await fetchAdImageKeys({ env, adId })
-    if (adKeys.length > 0) {
-      await env.AD_IMAGES_BUCKET.delete(adKeys)
-    }
-    await db.delete(schema.anuncio).where(and(...filters))
-    */
-    await db.update(schema.anuncio).set({ status: 'archived' }).where(and(...filters)).limit(1)
+    const reviewWorkflowId = crypto.randomUUID()
+    await env.DELETE_AD_WORKFLOW.create({ id: reviewWorkflowId, params: { adId } })
     return status(204)
   })
   .post('/:adId/images', async (req, env) => {

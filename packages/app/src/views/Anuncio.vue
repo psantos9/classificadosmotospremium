@@ -41,13 +41,15 @@
           <span v-if="anuncio">{{ anuncio.id }}</span>
           <span v-else class="bg-gray-200 rounded-md w-48 animate-pulse">&nbsp;</span>
         </div>
-        <div class="uppercase font-light text-xs text-gray-500 flex gap-2 items-center">
-          <FontAwesomeIcon :icon="faLocationDot" />
-          <span v-if="anuncio">
-            {{ anuncio.localidade }} / {{ anuncio.uf }}
-          </span>
-          <span v-else class="bg-gray-200 rounded-md w-48 animate-pulse">&nbsp;</span>
-        </div>
+        <button
+          v-if="signedIn && anuncio?.sellerId === api.userId "
+          type="button"
+          class="px-3 py-2 text-xs font-medium text-center inline-flex items-center gap-2 text-[var(--info-text)] bg-[var(--info)] rounded-md hover:bg-[var(--info-darker)] focus:outline-none transition-colors"
+          @click="$router.push({ name: 'anuncie', params: { adId } })"
+        >
+          <FontAwesomeIcon :icon="faEdit" />
+          Editar
+        </button>
       </div>
 
       <div class="text-4xl font-black flex items-center">
@@ -69,6 +71,13 @@
         <span class="uppercase text-xs italic">
           {{ anuncio?.aceitaTroca ? 'Aceita' : 'Não aceita' }} propostas de troca
         </span>
+      </div>
+      <div class="uppercase font-semibold text-[var(--info)] flex gap-2 items-center">
+        <FontAwesomeIcon :icon="faLocationDot" />
+        <span v-if="anuncio">
+          {{ anuncio.localidade }} / {{ anuncio.uf }}
+        </span>
+        <span v-else class="bg-gray-200 rounded-md w-48 animate-pulse">&nbsp;</span>
       </div>
       <div class="py-8 flex justify-between md:grid md:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
         <div v-for="(caracteristica, i) in caracteristicas" :key="i" class="flex items-center gap-4">
@@ -231,7 +240,7 @@ import type { SwiperOptions } from 'swiper/types'
 import ExpandableImage from '@/components/ExpandableImage.vue'
 import { useApp } from '@/composables/useApp'
 import { getUnauthenticatedMessageSenderSchema } from '@cmp/shared/models/nova-mensagem'
-import { faCalendarAlt, faChevronRight, faExclamationTriangle, faImage, faInfoCircle, faLocationDot, faPalette, faPlusCircle, faSpinner, faTachometerAlt, faWarning } from '@fortawesome/free-solid-svg-icons'
+import { faCalendarAlt, faChevronRight, faEdit, faExclamationTriangle, faImage, faInfoCircle, faLocationDot, faPalette, faPlusCircle, faSpinner, faTachometerAlt, faWarning } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { format } from 'date-fns'
