@@ -12,7 +12,9 @@
             @click="$router.push({ name: 'anuncie' })"
           >
             <FontAwesomeIcon :icon="faPlus" />
-            Criar Anúncio
+            <span class="shrink-0">
+              Criar Anúncio
+            </span>
           </button>
         </div>
       </div>
