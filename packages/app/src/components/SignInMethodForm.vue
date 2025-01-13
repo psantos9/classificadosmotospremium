@@ -4,15 +4,19 @@
     <FontAwesomeIcon :icon="faKey" size="lg" />
     Entrar com a senha
   </button>
+  <!--
   <div class="opt-divider">
     <div class="opt-divider-content">
       ou
     </div>
   </div>
-  <button type="button" class="w-60 flex items-center justify-center gap-x-2 rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold shadow-sm" @click="emit('signinMethod', 'pin')">
+  <button
+    type="button"
+    class="w-60 flex items-center justify-center gap-x-2 rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold shadow-sm" @click="emit('signinMethod', 'pin')">
     <FontAwesomeIcon :icon="faTh" size="lg" />
     Entrar com um PIN
   </button>
+  -->
 </template>
 
 <script lang="ts" setup>
