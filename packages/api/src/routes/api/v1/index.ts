@@ -20,7 +20,7 @@ import { type OpenCEP, openCEPSchema } from '@cmp/shared/models/open-cep'
 import bcrypt from 'bcryptjs'
 import { cnpj } from 'cpf-cnpj-validator'
 import { sql } from 'drizzle-orm'
-import { AutoRouter, type IRequest, json, StatusError } from 'itty-router'
+import { AutoRouter, error, type IRequest, json, StatusError } from 'itty-router'
 import { z, ZodError } from 'zod'
 
 const loginSchema = z.object({
@@ -102,7 +102,7 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
       throw err
     }
   })
-  .post<IRequest, [Env, ExecutionContext]>('/signup', async (req, env) => {
+  .post<IRequest, [Env, ExecutionContext]>('/signup', async (req, env, ctx) => {
     const db = getDb(env.DB)
     try {
       const novoUsuario = novoUsuarioSchema.parse(await req.json())
@@ -110,7 +110,8 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
       const isCnpj = cnpj.isValid(novoUsuario.cpfCnpj, true)
       const cachedCEP = await env.CEP.get<OpenCEP>(novoUsuario.cep.toString(), 'json')
       const location = cachedCEP?.geometry ?? null
-      await db.insert(schema.usuario).values({ ...novoUsuario, password, isCnpj, location }).returning({ userId: schema.usuario.id })
+      const [user] = await db.insert(schema.usuario).values({ ...novoUsuario, password, isCnpj, location }).returning()
+      ctx.waitUntil((await useTypesense(env)).upsertSeller(user))
       const bearerToken = await getBearerToken({ email: novoUsuario.email, password: novoUsuario.password, db: env.DB, apiSecret: env.API_SECRET })
       return json({ bearerToken })
     }
@@ -156,6 +157,9 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
     const id = z.coerce.number().int().parse(req.params.id)
     const typesense = await useTypesense(env)
     const ad = await typesense.fetchAd(id.toString())
+    if (ad === null) {
+      return error(404, 'anúncio não encontrado')
+    }
     return ad
   })
   .all<IRequest, [Env, IAppAuthenticatedRequest]>('/images/*', imagesRouter.fetch)

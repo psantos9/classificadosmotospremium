@@ -18,8 +18,7 @@ export const adsFilterSchema = z.object({
   precoMaximo: stringToNumberOrUndefined,
   quilometragemMinima: stringToNumberOrUndefined,
   quilometragemMaxima: stringToNumberOrUndefined,
-  pf: z.boolean().optional().default(true),
-  pj: z.boolean().optional().default(true)
+  advertiserType: z.enum(['pf', 'pj']).nullable()
 })
 
 export type TAdsFilter = z.infer<typeof adsFilterSchema>

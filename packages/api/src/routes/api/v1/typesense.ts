@@ -7,10 +7,11 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   base: '/api/v1/typesense',
   catch: defaultErrorHandler
 })
-  .post('/collections/ads', async (_req, env) => {
+  .post('/collections', async (_req, env) => {
     const typesense = new TypesenseService(env)
-    const collection = await typesense.createAdsCollection()
-    return collection
+    const ads = await typesense.createAdsCollection()
+    const dealers = await typesense.createSellersCollection()
+    return { ads, dealers }
   })
   .get('/collections', async (_req, env) => {
     const typesense = new TypesenseService(env)

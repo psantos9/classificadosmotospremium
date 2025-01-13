@@ -5,11 +5,10 @@ import type { AtualizaUsuario } from '@cmp/shared/models/atualiza-usuario'
 import type { Anuncio, Usuario } from '@cmp/shared/models/database/models'
 import type { NovoUsuario } from '@cmp/shared/models/novo-usuario'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
-import type { TAdDocument, TAdsSearchResponse } from '@cmp/shared/models/typesense'
+import type { TAdDocument, TAdsSearchResponse, TSellerDocument } from '@cmp/shared/models/typesense'
 import type { UnauthenticatedMessageSender } from '@cmp/shared/models/unauthenticated-message-sender'
 import type { SearchParams } from 'typesense/lib/Typesense/Documents'
 import { computeFileHash } from '@/helpers/computeFileSha256'
-import { TypesenseService } from '@cmp/api/services/typesense-service'
 import axios, { type Axios, AxiosError, type AxiosProgressEvent } from 'axios'
 import Emittery from 'emittery'
 import { decodeJwt } from 'jose'
@@ -345,6 +344,12 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     const anuncio = await this.axios.get<TAdDocument>(`/api/v1/anuncios/${id}`)
       .then(({ data }) => data)
     return anuncio
+  }
+
+  async fetchSeller(id: string) {
+    const dealer = await this.axios.get<TSellerDocument>(`/api/v1/anunciantes/${id}`)
+      .then(({ data }) => data)
+    return dealer
   }
 
   getAdImageUploadURL(adId: number) {

@@ -148,18 +148,15 @@
         <div class="bg-black rounded-md shadow aspect-square flex items-center justify-center">
           <img src="@/assets/images/logo_dark.svg" class="h-24 mx-auto">
         </div>
-        <div class="flex flex-col justify-between gap-3">
-          <span v-if="anuncio" class="font-black text-base">
-            fetch nomeFantasiaUsuario || Particular
+        <div v-if="anuncio?.seller" class="flex flex-col justify-between gap-3">
+          <span class="font-black text-base">
+            {{ anuncio.seller.nomeFantasia ?? 'Particular' }}
           </span>
-          <span v-else class="bg-gray-200 rounded-md w-48 animate-pulse">&nbsp;</span>
           <span class="flex items-center gap-2">
             <FontAwesomeIcon :icon="faLocationDot" />
-            <span v-if="anuncio" class="font-thin">fetchLocalidadeUsuario - fetchUfUsuario</span>
-            <span v-else class="bg-gray-200 rounded-md w-48 animate-pulse">&nbsp;</span>
+            <span class="font-thin">{{ anuncio.seller.localidade }} - {{ anuncio.seller.uf }}</span>
           </span>
-          <span v-if="anuncio" class="font-thin text-xs">No site desde  fetchCreatedAtUser<!-- {{ format(parseISO(anuncio.usuario.createdAt), 'MM \'de\' MMMM yyyy', { locale: ptBR }) }} --></span>
-          <span v-else class="bg-gray-200 rounded-md w-48 animate-pulse text-xs">&nbsp;</span>
+          <span class="font-thin text-xs">No site desde {{ format(anuncio.seller.createdAt, 'dd \'de\' MMMM yyyy', { locale: ptBR }) }}</span>
         </div>
       </div>
     </div>
@@ -229,7 +226,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { Anuncio } from '@cmp/shared/models/database/models'
 import type { TAdDocument } from '@cmp/shared/models/typesense'
 import type { SwiperOptions } from 'swiper/types'
 import ExpandableImage from '@/components/ExpandableImage.vue'
@@ -238,7 +234,7 @@ import { getUnauthenticatedMessageSenderSchema } from '@cmp/shared/models/nova-m
 import { faCalendarAlt, faChevronRight, faExclamationTriangle, faImage, faInfoCircle, faLocationDot, faPalette, faPlusCircle, faSpinner, faTachometerAlt, faWarning } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale/pt-BR'
 import { vMaska } from 'maska/vue'
 import { register } from 'swiper/element/bundle'

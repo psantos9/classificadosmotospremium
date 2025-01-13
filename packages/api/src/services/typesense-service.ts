@@ -1,8 +1,8 @@
 import type { Env } from '@cmp/api/types'
 import type { TAdsFilter } from '@cmp/shared/models/ads-filters-schema'
-import type { Anuncio } from '@cmp/shared/models/database/models'
+import type { Anuncio, Usuario } from '@cmp/shared/models/database/models'
 import type { SearchParams } from 'typesense/lib/Typesense/Documents'
-import { adsCollectionSchema, type TAdDocument, TypesenseCollection } from '@cmp/shared/models/typesense'
+import { adsCollectionSchema, sellersCollectionSchema, type TAdDocument, type TSellerDocument, TypesenseCollection } from '@cmp/shared/models/typesense'
 import { Client } from 'typesense'
 
 export class TypesenseService {
@@ -18,9 +18,15 @@ export class TypesenseService {
     })
   }
 
+  private _convertUserToSeller(usuario: Usuario): TSellerDocument {
+    const { id, createdAt, isCnpj, nomeFantasia, localidade, uf } = usuario
+    const document: TSellerDocument = { id: id.toString(), createdAt: createdAt.getTime(), business: isCnpj, nomeFantasia: nomeFantasia || undefined, localidade, uf }
+    return document
+  }
+
   private _convertAdToDocument(ad: Anuncio): TAdDocument {
     const { id, userId, createdAt, publishedAt, updatedAt, expiresAt, placa, revision, atualizacao, reviewWorkflowId, status, ...adDocument } = ad
-    const document: TAdDocument = { ...adDocument, id: id.toString(), publishedAt: (publishedAt || new Date()).getTime() }
+    const document: TAdDocument = { ...adDocument, id: id.toString(), publishedAt: (publishedAt || new Date()).getTime(), sellerId: userId.toString() }
     return document
   }
 
@@ -29,38 +35,60 @@ export class TypesenseService {
     return collections
   }
 
+  async createSellersCollection() {
+    const collection = await this.client.collections().create(sellersCollectionSchema)
+    return collection
+  }
+
+  async upsertSeller(user: Usuario) {
+    const update = this._convertUserToSeller(user)
+    const document = await this.client.collections<TSellerDocument>(TypesenseCollection.SELLER).documents().upsert(update)
+    return document
+  }
+
   async createAdsCollection() {
     const collection = await this.client.collections().create(adsCollectionSchema)
     return collection
   }
 
   async searchAds(params: SearchParams) {
-    const queryBy = params.query_by || ['marca', 'modelo', 'uf', 'descricao', 'cor']
-    const facetBy = params.facet_by || ['marca', 'cor', 'uf']
-    const result = await this.client.collections<TAdDocument>(TypesenseCollection.ADS)
-      .documents()
-      .search({ ...params, query_by: queryBy, facet_by: facetBy })
-    return result
+    const queryBy = params.query_by || ['marca', 'modelo', 'uf', 'descricao', 'cor'].join(',')
+    const facetBy = params.facet_by || ['marca', 'cor', 'uf'].join(',')
+    const result = await this.client.multiSearch.perform <[TAdDocument]>({
+      searches: [
+        { ...params, collection: TypesenseCollection.ADS, query_by: queryBy, facet_by: facetBy, include_fields: `$${TypesenseCollection.SELLER}(*)` }
+      ]
+    })
+    return result.results[0]
   }
 
   async fetchAd(adId: string) {
-    const adDocument = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents(adId).retrieve()
-    return adDocument
+    const result = await this.client.multiSearch.perform <[TAdDocument]>({
+      searches: [
+        { collection: TypesenseCollection.ADS, q: '', query_by: 'marca,modelo', filter_by: `id:=${adId}`, include_fields: `$${TypesenseCollection.SELLER}(*)` }
+      ]
+    })
+    return result.results?.[0]?.hits?.[0]?.document ?? null
+  }
+
+  async fetchSeller(sellerId: string) {
+    const document = await this.client.collections<TSellerDocument>(TypesenseCollection.SELLER).documents(sellerId).retrieve()
+    return document
   }
 
   async upsertAd(ad: Anuncio) {
     const update = this._convertAdToDocument(ad)
-    const document = await this.client.collections(TypesenseCollection.ADS).documents().upsert(update)
+    const document = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents().upsert(update)
     return document
   }
 
   async deleteAdDocument(adId: number) {
-    await this.client.collections(TypesenseCollection.ADS).documents(adId.toString()).delete()
+    await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents(adId.toString()).delete()
   }
 
   static getFilterByQuery(filter: TAdsFilter) {
     const filters: string[] = []
-    const { uf, marca, anoMinimo, anoMaximo, precoMinimo, precoMaximo, quilometragemMinima, quilometragemMaxima, pf, pj } = filter
+    const { uf, marca, anoMinimo, anoMaximo, precoMinimo, precoMaximo, quilometragemMinima, quilometragemMaxima, advertiserType } = filter
     if (uf) {
       filters.push(`uf:=${uf}`)
     }
@@ -85,11 +113,8 @@ export class TypesenseService {
     if (quilometragemMaxima) {
       filters.push(`quilometragem:<=${quilometragemMaxima}`)
     }
-    if (pf === false) {
-      filters.push(`pj:=true`)
-    }
-    else if (pj === false) {
-      filters.push(`pj:=false`)
+    if (advertiserType !== null) {
+      filters.push(`$seller(business:=${advertiserType === 'pj'})`)
     }
     const filterBy = filters.join(' && ')
     return filterBy

@@ -1,12 +1,14 @@
 import type { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
-import type { SearchParams, SearchResponse, SearchResponseFacetCountSchema } from 'typesense/lib/Typesense/Documents'
+import type { SearchResponse, SearchResponseFacetCountSchema } from 'typesense/lib/Typesense/Documents'
 import type { Anuncio } from './database/models'
 
 export enum TypesenseCollection {
-  ADS = 'ads'
+  ADS = 'ad',
+  SELLER = 'seller'
 }
 
-export type TAdDocument = Omit<Anuncio, 'id' | 'userId' | 'createdAt' | 'publishedAt' | 'updatedAt' | 'expiresAt' | 'placa' | 'revision' | 'atualizacao' | 'reviewWorkflowId' | 'status'> & { id: string, publishedAt: number }
+export interface TSellerDocument { id: string, createdAt: number, business: boolean, nomeFantasia?: string, localidade: string, uf: string }
+export type TAdDocument = Omit<Anuncio, 'id' | 'userId' | 'createdAt' | 'publishedAt' | 'updatedAt' | 'expiresAt' | 'placa' | 'revision' | 'atualizacao' | 'reviewWorkflowId' | 'status'> & { id: string, publishedAt: number, sellerId: string, seller?: TSellerDocument }
 
 export type TAdsSearchResponse = SearchResponse<TAdDocument>
 export type TAdsFacetCounts = SearchResponseFacetCountSchema<TAdDocument>[]
@@ -69,8 +71,41 @@ export const adsCollectionSchema: CollectionCreateSchema = {
       optional: true
     },
     {
-      name: 'pj',
-      type: 'bool'
+      name: 'sellerId',
+      type: 'string',
+      optional: true,
+      reference: `${TypesenseCollection.SELLER}.id`
     }
+  ]
+}
+
+export const sellersCollectionSchema: CollectionCreateSchema = {
+  name: TypesenseCollection.SELLER,
+  enable_nested_fields: true,
+  fields: [
+    {
+      name: 'nomeFantasia',
+      type: 'string',
+      optional: true
+    },
+    {
+      name: 'business',
+      type: 'bool'
+    },
+    {
+      name: 'createdAt',
+      type: 'int64'
+    },
+    {
+      name: 'localidade',
+      type: 'string',
+      facet: true
+    },
+    {
+      name: 'uf',
+      type: 'string',
+      facet: true
+    }
+
   ]
 }

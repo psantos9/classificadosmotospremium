@@ -1,6 +1,7 @@
 import type { Env, IAppAuthenticatedRequest } from '@/types'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
 import { defaultErrorHandler } from '@/helpers/default-error-handler'
+import { useTypesense } from '@/services/typesense-service'
 import { getDb } from '@cmp/shared/helpers/get-db'
 import { atualizaUsuarioSchema } from '@cmp/shared/models/atualiza-usuario'
 import { schema } from '@cmp/shared/models/database/schema'
@@ -59,7 +60,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     }
     return new Response(null, { status: 204 })
   })
-  .put('/:userId', async (req, env) => {
+  .put('/:userId', async (req, env, ctx) => {
     const authenticatedUserId = req.user.id
     const db = getDb(env.DB)
     const userId = z.coerce.number().parse(req.params.userId)
@@ -76,6 +77,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
       if (usuarioDB === null) {
         throw new StatusError(500, 'não foi possivel encontrar o usuario')
       }
+      ctx.waitUntil((await useTypesense(env)).upsertSeller(usuarioDB))
       const { password, ...usuarioAtualizado } = usuarioDB
       return json(usuarioAtualizado)
     }

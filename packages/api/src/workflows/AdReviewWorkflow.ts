@@ -21,7 +21,9 @@ export class AdReviewWorkflow extends WorkflowEntrypoint<Env, AdReviewEvent> {
       if (ad === null) {
         throw new NonRetryableError(`ad not found: ${adId}`)
       }
+      return ad
     })
+
     // await step.sleep('sleep for a bit', '5 second')
     const ad = await step.do('publish ad', { timeout: '10 seconds' }, async () => {
       const adId = event.payload.adId

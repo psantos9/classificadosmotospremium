@@ -383,7 +383,7 @@ const anuncioFormSchema = toTypedSchema(getAtualizaAnuncioSchema())
 
 const { errors, defineField, values, setFieldValue, setFieldError, meta, resetForm, validate } = useForm({
   validationSchema: anuncioFormSchema,
-  initialValues: { fotos: [], informacoesAdicionais: [], acessorios: [], descricao: '' }
+  initialValues: { fotos: [], informacoesAdicionais: [], acessorios: [], descricao: '', aceitaTroca: false }
 })
 
 const [cor] = defineField('cor', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })

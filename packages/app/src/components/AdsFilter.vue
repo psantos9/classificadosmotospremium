@@ -105,26 +105,17 @@
         :class="{ 'outline-[var(--primary)] outline-2': quilometragemMaxima }"
       >
     </div>
-    <div class="p-4 md:p-2 grid grid-cols-2 items-center gap-4">
-      <span class="text-sm font-bold col-span-2">Tipo de Anunciante</span>
-
-      <div class="flex items-center">
-        <input
-          v-model="pj"
-          checked
-          type="checkbox"
-          class="w-6 h-6 text-xl text-[var(--primary)] border-gray-300 rounded focus:outline-none ring-0"
-        >
-        <label class="ms-2 text-sm">Lojas</label>
-      </div>
-      <div class="flex items-center">
-        <input
-          v-model="pf"
-          checked
-          type="checkbox" value="" class="w-6 h-6 text-xl text-[var(--primary)] border-gray-300 rounded focus:outline-none focus:ring-0"
-        >
-        <label class="ms-2 text-sm">Particulares</label>
-      </div>
+    <div class="p-4 md:p-2 flex flex-col gap-2">
+      <span class="text-sm font-bold ">Tipo de Anunciante</span>
+      <select
+        v-model="advertiserType"
+        class="block w-full rounded-md bg-white py-1.5 pl-3 pr-12 text-base text-gray-900 border-gray-300 placeholder:text-gray-400 focus:border-gray-300 focus:ring-0 focus:outline-0 focus:-outline-offset-2 focus:outline-[var(--primary)] sm:text-sm/6 shadow-none"
+        :class="{ '!outline-[var(--primary)] !outline-2': advertiserType !== null }"
+      >
+        <option v-for="(option, i) in advertiserTypeFilters" :key="i" :value="option.key">
+          {{ option.label }}
+        </option>
+      </select>
     </div>
     <div class="p-4 md:p-2 flex flex-col gap-2">
       <button
@@ -165,13 +156,18 @@ const router = useRouter()
 const route = useRoute()
 const initialQ = route.params.q ? atob(route.params.q as string) : state.value.q ?? ''
 
+const advertiserTypeFilters = [
+  { key: null, label: 'Lojas e Particulares' },
+  { key: 'pj', label: 'Lojas' },
+  { key: 'pf', label: 'Particulares' }
+]
+
 const filter = computed(() => {
   const _filter = unref(state).filter
   if (!_filter) {
     return null
   }
-  const a = TypesenseService.getFilterByQuery(_filter)
-  return a
+  return TypesenseService.getFilterByQuery(_filter)
 })
 
 // clean up the url if a q parameter was provided
@@ -194,7 +190,8 @@ const estadoFacetCounts = computed(() => {
 
 const validationSchema = toTypedSchema(adsFilterSchema)
 
-const { defineField, validate, values, resetForm, setValues } = useForm({ validationSchema })
+const { defineField, validate, values, resetForm, setValues } = useForm({ validationSchema, initialValues: { advertiserType: null } })
+const [advertiserType] = defineField('advertiserType')
 const [uf] = defineField('uf')
 const [marca] = defineField('marca')
 const [anoMinimo] = defineField('anoMinimo')
@@ -203,8 +200,6 @@ const [precoMinimo] = defineField('precoMinimo')
 const [precoMaximo] = defineField('precoMaximo')
 const [quilometragemMinima] = defineField('quilometragemMinima')
 const [quilometragemMaxima] = defineField('quilometragemMaxima')
-const [pj] = defineField('pj')
-const [pf] = defineField('pf')
 
 const _filter = unref(state).filter
 if (_filter) {
@@ -214,7 +209,6 @@ if (_filter) {
 const commitFilter = async (close?: boolean) => {
   await validate()
   const filter = adsFilterSchema.parse(values)
-
   state.value.filter = filter
   if (close) {
     props?.close?.()
