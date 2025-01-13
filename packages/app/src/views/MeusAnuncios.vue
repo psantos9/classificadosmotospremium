@@ -16,11 +16,11 @@
           </button>
         </div>
       </div>
-      <div class="flex-1 flex flex-column items-start gap-2 py-2 overflow-auto">
+      <div class="flex-1 flex flex-col items-start gap-2 py-2 px-4 overflow-auto">
         <div
           v-for="ad in ads"
           :key="ad.id"
-          class="bg-white w-full mx-2 px-4 py-2 rounded-md shadow flex gap-2"
+          class="bg-white w-full p-2 rounded-md shadow flex gap-2"
         >
           <div class="flex-1 flex flex-col gap-2">
             <div class="font-bold">
@@ -32,33 +32,32 @@
               <div><span class="font-semibold">Data criação:</span> {{ format(ad.createdAt, 'dd/MM/yyyy') }}</div>
             </div>
           </div>
-          <div>
-            <div class="flex flex-col gap-2">
-              <button
-                type="button"
-                class="w-full px-3 py-2 text-xs font-medium text-center inline-flex items-center gap-2 text-[var(--info-text)] bg-[var(--info)] rounded-md hover:bg-[var(--info-darker)] focus:outline-none transition-colors"
-                @click="$router.push({ name: 'anuncie', params: { adId: ad.id } })"
-              >
-                <FontAwesomeIcon :icon="faEdit" />
-                Editar
-              </button>
-              <button
-                type="button"
-                class="w-full px-3 py-2 text-xs font-medium text-center inline-flex items-center gap-2 text-[var(--primary-text)] bg-[var(--primary)] rounded-md hover:bg-[var(--primary-darker)] focus:outline-none transition-colors"
-                @click.stop="$router.push({ name: 'anuncio', params: { id: ad.id } })"
-              >
-                <FontAwesomeIcon :icon="faEye" />
-                Visualizar
-              </button>
-              <button
-                type="button"
-                class="w-full px-3 py-2 text-xs font-medium text-center inline-flex items-center gap-2 text-[var(--danger-text)] bg-[var(--danger)] rounded-md hover:bg-[var(--danger-darker)] focus:outline-none transition-colors"
-                @click.stop="removeAnuncio(ad.id)"
-              >
-                <FontAwesomeIcon :icon="faTrashAlt" />
-                Apagar
-              </button>
-            </div>
+
+          <div class="flex flex-col gap-2">
+            <button
+              type="button"
+              class="w-full px-3 py-2 text-xs font-medium text-center inline-flex items-center gap-2 text-[var(--info-text)] bg-[var(--info)] rounded-md hover:bg-[var(--info-darker)] focus:outline-none transition-colors"
+              @click="$router.push({ name: 'anuncie', params: { adId: ad.id } })"
+            >
+              <FontAwesomeIcon :icon="faEdit" />
+              Editar
+            </button>
+            <button
+              type="button"
+              class="w-full px-3 py-2 text-xs font-medium text-center inline-flex items-center gap-2 text-[var(--primary-text)] bg-[var(--primary)] rounded-md hover:bg-[var(--primary-darker)] focus:outline-none transition-colors"
+              @click.stop="$router.push({ name: 'anuncio', params: { id: ad.id } })"
+            >
+              <FontAwesomeIcon :icon="faEye" />
+              Visualizar
+            </button>
+            <button
+              type="button"
+              class="w-full px-3 py-2 text-xs font-medium text-center inline-flex items-center gap-2 text-[var(--danger-text)] bg-[var(--danger)] rounded-md hover:bg-[var(--danger-darker)] focus:outline-none transition-colors"
+              @click.stop="removeAnuncio(ad.id)"
+            >
+              <FontAwesomeIcon :icon="faTrashAlt" />
+              Apagar
+            </button>
           </div>
         </div>
       </div>
