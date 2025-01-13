@@ -1,6 +1,6 @@
 <template>
   <div>
-    <HeaderCadastroAnuncio />
+    <!-- <HeaderCadastroAnuncio /> -->
     <RouterView />
   </div>
 </template>
