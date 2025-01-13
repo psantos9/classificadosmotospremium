@@ -123,7 +123,10 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
 
   private _persistToken(bearerToken: string) {
     const claims = decodeJwt(bearerToken)
-    const { exp = null } = claims
+    const { exp = null, sub } = claims
+    if (typeof sub === 'string') {
+      this._userId = sub
+    }
     if (this.getTokenExpirationDeltaSeconds(exp) > 0) {
       window.sessionStorage.setItem(API_PERSISTENCE_KEY, bearerToken)
     }
