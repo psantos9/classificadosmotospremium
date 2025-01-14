@@ -38,7 +38,7 @@
           v-if="signedIn"
           type="button"
           class="text-white transition-colors focus:ring-0 focus:outline-none rounded-full text-sm p-2.5 text-center inline-flex items-center relative"
-          @click="$router.push({ name: 'minhas-mensagens' })"
+          @click="$router.push({ name: 'minhas-conversas' })"
         >
           <span
             v-if="unreadMessages.length > 0"

@@ -32,7 +32,7 @@ const router = useRouter()
 
 const sections = [
   { icon: faBullhorn, title: 'Meus Anúncios', description: 'Gerencie seus anúncios ativos e inativos', action: async () => await router.push({ name: 'meus-anuncios' }) },
-  { icon: faEnvelope, title: 'Minhas Mensagens', description: 'Leia e gerencie as mensagems que você recebeu', action: async () => await router.push({ name: 'minhas-mensagens' }) },
+  { icon: faEnvelope, title: 'Minhas Conversas', description: 'Leia e gerencie as mensagens que você recebeu', action: async () => await router.push({ name: 'minhas-conversas' }) },
   { icon: faUser, title: 'Meus Dados', description: 'Atualize seus dados cadastrais', action: async () => await router.push({ name: 'meus-dados' }) },
   { icon: faLock, title: 'Alterar Senha', description: 'Atualize a sua senha com frequência para garantir a segurança da sua conta', action: async () => await router.push({ name: 'alterar-senha' }) },
   { icon: faSignOut, title: 'Sair', description: 'Encerre a sessão da sua conta com segurança', action: async () => await api.logout() }

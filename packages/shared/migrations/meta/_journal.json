@@ -8,6 +8,27 @@
       "when": 1736854446527,
       "tag": "0000_lazy_invaders",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1736896429052,
+      "tag": "0001_amusing_doctor_doom",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1736896661981,
+      "tag": "0002_majestic_black_panther",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1736897162091,
+      "tag": "0003_white_lorna_dane",
+      "breakpoints": true
     }
   ]
 }

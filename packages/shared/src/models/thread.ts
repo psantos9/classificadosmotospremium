@@ -3,7 +3,7 @@ import type { UnauthenticatedMessageSender } from './unauthenticated-message-sen
 
 export interface IThread {
   ultimaAtualizacao: Date
-  unreadMessages: boolean
+  unreadMessages: number
   unauthenticatedSender: UnauthenticatedMessageSender | null
   sender: IAuthenticatedMessageSender | null
   anuncio: {

@@ -1,0 +1,1 @@
+CREATE INDEX `thread_idx` ON `mensagem` (`recipient_id`,`thread_id`);

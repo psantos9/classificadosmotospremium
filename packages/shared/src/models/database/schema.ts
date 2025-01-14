@@ -68,13 +68,15 @@ export const mensagem = sqliteTable('mensagem', () => ({
   id: integer().primaryKey({ autoIncrement: true }),
   createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   unread: integer({ mode: 'boolean' }).notNull().$defaultFn(() => true),
+  threadId: text().$defaultFn(() => crypto.randomUUID()),
   recipientId: integer().notNull().references(() => usuario.id, { onDelete: 'cascade' }),
   adId: integer().notNull().references(() => anuncio.id, { onDelete: 'cascade' }),
   senderId: integer().references(() => usuario.id, { onDelete: 'cascade' }),
   unauthenticatedSender: text({ mode: 'json' }).$type<UnauthenticatedMessageSender | null>().$defaultFn(() => null),
   content: text()
 }), table => ([
-  index('recipient_thread_idx').on(table.recipientId, table.adId, table.unread)
+  index('ad_sender_idx').on(table.adId, table.senderId), // used to find threads
+  index('thread_idx').on(table.recipientId, table.threadId) // used to fetch threads
 ]))
 
 export const usuarioRelations = relations(usuario, ({ many }) => ({

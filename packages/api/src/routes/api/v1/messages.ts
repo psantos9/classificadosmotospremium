@@ -75,8 +75,8 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     }
     const db = getDb(env.DB)
     const threads: IThread[] = await db.select({
-      ultimaAtualizacao: sql<Date>`max(${schema.mensagem.createdAt})`,
-      unreadMessages: schema.mensagem.unread,
+      ultimaAtualizacao: sql<Date>`MAX(${schema.mensagem.createdAt})`,
+      unreadMessages: sql<number>`SUM(${schema.mensagem.unread})`,
       unauthenticatedSender: schema.mensagem.unauthenticatedSender,
       sender: {
         id: schema.usuario.id,
@@ -100,6 +100,15 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
       .groupBy(sql`json_extract(unauthenticated_sender, '$.email')`, schema.usuario.id, schema.mensagem.adId)
       .orderBy(desc(schema.mensagem.createdAt))
     return threads
+  })
+  .get('/threads/:threadId', getUserIdFromAuthenticationHeader, async (req, env) => {
+    const userId = req.userId ?? null
+    if (userId === null) {
+      return error(403, 'Unauthorized')
+    }
+    const threadId = req.params.threadId
+    console.log('FETCHING TRREAD ID', threadId)
+    return []
   })
   .all<IRequest, CF>('*', authenticateRequest)
 

@@ -83,10 +83,16 @@ const router = createRouter({
       component: async () => import('@/views/MeusAnuncios.vue') as Component
     },
     {
-      path: '/minhas-mensagens',
-      name: 'minhas-mensagens',
+      path: '/minhas-conversas',
+      name: 'minhas-conversas',
       beforeEnter: [isSignedIn],
-      component: async () => import('@/views/MinhasMensagens.vue') as Component
+      component: async () => import('@/views/MinhasConversas.vue') as Component
+    },
+    {
+      path: '/minhas-conversas/:threadId',
+      name: 'conversa',
+      beforeEnter: [isSignedIn],
+      component: async () => import('@/views/Conversa.vue') as Component
     },
     {
       path: '/meus-dados',
