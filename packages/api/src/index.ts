@@ -6,9 +6,10 @@ import { defaultErrorHandler } from '@/helpers/default-error-handler'
 import api from '@/routes/api'
 import { AdReviewWorkflow } from '@/workflows/AdReviewWorkflow'
 import { DeleteAdWorkflow } from '@/workflows/DeleteAdWorkflow'
+import { ProcessAdMessageWorkflow } from '@/workflows/ProcessAdMessageWorkflow'
 import { AutoRouter, cors, type IRequest } from 'itty-router'
 
-export { AdReviewWorkflow, DeleteAdWorkflow, FipeClient, UserDO, UsersDO }
+export { AdReviewWorkflow, DeleteAdWorkflow, FipeClient, ProcessAdMessageWorkflow, UserDO, UsersDO }
 
 const { preflight, corsify } = cors()
 

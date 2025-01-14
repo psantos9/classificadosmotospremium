@@ -1,6 +1,7 @@
 import type { Env } from '@cmp/api/types'
 import type { Context } from 'hono'
 import { getUsersDO } from '@cmp/api/durable-objects/UsersDO'
+import { getDb } from '@cmp/shared/helpers/get-db'
 import { DurableObject } from 'cloudflare:workers'
 import { Hono } from 'hono'
 
@@ -21,7 +22,7 @@ export class UserDO extends DurableObject<Env> {
   private _userId = -1
   private _createdAt = new Date()
   private _app: Hono = new Hono()
-    .get('/ws', c => this.upgradeWebSocket(c))
+    .get('/ws', c => this._upgradeWebSocket(c))
 
   fetch = this._app.fetch
 
@@ -29,7 +30,7 @@ export class UserDO extends DurableObject<Env> {
     super(ctx, env)
     this.ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair('ping', 'pong'))
     this.ctx.blockConcurrencyWhile(async () => {
-      await this.load()
+      await this._load()
     })
   }
 
@@ -58,7 +59,7 @@ export class UserDO extends DurableObject<Env> {
     })
   }
 
-  async load() {
+  private async _load() {
     const [userId = -1, createdAt = new Date()] = await Promise.all([
       this.ctx.storage.get<number>(STORAGE_KEY_PREFIX.ID),
       this.ctx.storage.get<Date>(STORAGE_KEY_PREFIX.CREATED_AT)
@@ -71,7 +72,7 @@ export class UserDO extends DurableObject<Env> {
     await this.ctx.storage.deleteAll()
   }
 
-  async upgradeWebSocket(c: Context) {
+  private async _upgradeWebSocket(c: Context) {
     if (c.req.header('upgrade') !== 'websocket') {
       return c.text('Expected Upgrade: websocket', 426)
     }
@@ -79,7 +80,6 @@ export class UserDO extends DurableObject<Env> {
     const [client, ws] = Object.values(webSocketPair)
     this.ctx.acceptWebSocket(ws)
     await getUsersDO(this.env).setUserOnline(this.userId, c.req.raw.cf)
-
     const responseInit: ResponseInit = { status: 101, webSocket: client }
     return new Response(null, responseInit)
   }
@@ -102,6 +102,20 @@ export class UserDO extends DurableObject<Env> {
 
   async webSocketError(ws: WebSocket, error: Error) {
     this.closeOrErrorHandler({ ws, error })
+  }
+
+  async sendUnreadMessages() {
+    const wss = this.ctx.getWebSockets()
+    if (wss.length > 0) {
+      const db = getDb(this.env.DB)
+      const messages = await db.query.mensagem.findMany({
+        where: (mensagem, { eq, and }) => and(eq(mensagem.recipientId, this.userId), eq(mensagem.unread, true)),
+        orderBy: (mensagem, { desc }) => [desc(mensagem.createdAt)]
+      })
+      for (const ws of wss) {
+        ws.send(JSON.stringify({ type: 'unread-messages', payload: messages }))
+      }
+    }
   }
 }
 

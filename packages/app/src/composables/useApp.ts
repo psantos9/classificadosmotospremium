@@ -1,3 +1,4 @@
+import type { Mensagem } from '@cmp/shared/models/database/models'
 import { APIClient, APIClientEvent } from '@/services/api-client'
 import { WebSocketMessageProcessor } from '@/services/websocket-message-processor'
 import { WebSocketService, WebSocketServiceEvent } from '@/services/websocket-service'
@@ -12,6 +13,8 @@ const menuItems = [
 
 const sidebarOpen = ref(false)
 const signedIn = ref(false)
+
+const unreadMessages = ref<Mensagem[]>([])
 
 const cadastraEmail = ref<string | undefined>(undefined)
 
@@ -32,30 +35,31 @@ let signedInWatcher: null | ReturnType<typeof watch> = null
 
 const api = new APIClient({ baseURL: __API_BASE_URL__ })
 
-const webSocketMessageProcessor = new WebSocketMessageProcessor({})
+const webSocketMessageProcessor = new WebSocketMessageProcessor({
+  onUnreadMessages: (messages) => {
+    console.log('GOT UNREAD MESSAGES', messages)
+    unreadMessages.value = messages
+  }
+})
 const websocketService = new WebSocketService({ api, webSocketMessageProcessor })
 
 websocketService.on(WebSocketServiceEvent.STATE_UPDATE, (webSocketServiceState) => {
   console.log('GOT WEBSOCKET SERVICE', webSocketServiceState)
-  /*
-  state.webSocketServiceState = webSocketServiceState
-  if (webSocketServiceState === WebSocketClientState.CONNECTED && geolocationService.lastReportedPosition !== null) {
-    void websocketService.sendPosition(geolocationService.lastReportedPosition)
-  }
-    */
 })
 
 websocketService.on(WebSocketServiceEvent.RTT, (rtt) => {
   console.log('GOT SOCKET RTT', rtt)
 })
 
-api.on(APIClientEvent.SIGNED_IN, (_signedIn) => {
+api.on(APIClientEvent.SIGNED_IN, async (_signedIn) => {
   signedIn.value = _signedIn
   if (_signedIn) {
     void websocketService.start()
+    unreadMessages.value = await api.fetchMensagens({ unread: true })
   }
   else {
     void websocketService.stop()
+    unreadMessages.value = []
   }
 })
 
@@ -95,6 +99,7 @@ export const useApp = () => {
     cadastraEmail,
     scrollToTop,
     signedIn: computed(() => unref(signedIn)),
+    unreadMessages: computed(() => unref(unreadMessages)),
     menuItems: computed(() => menuItems),
     sidebarOpen: computed(() => unref(sidebarOpen)),
     sortingOptions: computed(() => sortingOptions),

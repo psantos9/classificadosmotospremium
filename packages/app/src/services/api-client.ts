@@ -1,10 +1,12 @@
 import type { AnoModelo, CodigoTipoCombustivel, Marca, Modelo, Preco } from '@cmp/api/clients/fipe-api-client'
+import type { GetMessageQueryParams } from '@cmp/api/routes/api/v1/messages'
 import type { AnuncioStatus } from '@cmp/shared/models/anuncio-status'
 import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
 import type { AtualizaUsuario } from '@cmp/shared/models/atualiza-usuario'
-import type { Anuncio, Usuario } from '@cmp/shared/models/database/models'
+import type { Anuncio, Mensagem, Usuario } from '@cmp/shared/models/database/models'
 import type { NovoUsuario } from '@cmp/shared/models/novo-usuario'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
+import type { IThread } from '@cmp/shared/models/thread'
 import type { TAdDocument, TAdsSearchResponse, TSellerDocument } from '@cmp/shared/models/typesense'
 import type { UnauthenticatedMessageSender } from '@cmp/shared/models/unauthenticated-message-sender'
 import type { SearchParams } from 'typesense/lib/Typesense/Documents'
@@ -421,8 +423,20 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncio
   }
 
-  async enviaMensagem(params: { adId: number, sender?: UnauthenticatedMessageSender, content: string }) {
+  async enviaMensagem(params: { adId: number, unauthenticatedSender?: UnauthenticatedMessageSender, content: string }) {
     await this.axios.post('/api/v1/messages', params)
+  }
+
+  async fetchMensagens(params?: GetMessageQueryParams) {
+    const dealer = await this.axios.get<Mensagem[]>('/api/v1/messages', { params })
+      .then(({ data }) => data)
+    return dealer
+  }
+
+  async fetchThreads() {
+    const dealer = await this.axios.get<IThread[]>('/api/v1/messages/threads')
+      .then(({ data }) => data)
+    return dealer
   }
 
   getImageUrl(params: { imageId: string, thumbnail?: boolean }) {

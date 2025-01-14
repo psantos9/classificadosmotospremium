@@ -1,19 +1,18 @@
+import type { Mensagem } from '@cmp/shared/models/database/models'
+
 export interface IWebSocketMessageProcessor {
   parseMsg: (rawMsg: string) => Promise<void>
 }
 
 export interface IWebSocketMessageProcessorParams {
-  // onPlayerRegistration: (registration: string | PlayerRegistration) => Promise<void> | void
-  // onPlayerRegistrationStatus: (playerRegistrationStatus: IPlayerRegistrationStatus) => Promise<void> | void
+  onUnreadMessages: (messages: Mensagem[]) => Promise<void> | void
 }
 export class WebSocketMessageProcessor implements IWebSocketMessageProcessor {
-  // onPlayerRegistration: (registration: string | PlayerRegistration) => Promise<void> | void
-  // onPlayerRegistrationStatus: (playerRegistrationStatus: IPlayerRegistrationStatus) => Promise<void> | void
+  onUnreadMessages: (messages: Mensagem[]) => Promise<void> | void
 
-  constructor(_params: IWebSocketMessageProcessorParams) {
-    // const { onPlayerRegistration, onPlayerRegistrationStatus } = params
-    // this.onPlayerRegistration = onPlayerRegistration
-    // this.onPlayerRegistrationStatus = onPlayerRegistrationStatus
+  constructor(params: IWebSocketMessageProcessorParams) {
+    const { onUnreadMessages } = params
+    this.onUnreadMessages = onUnreadMessages
   }
 
   async parseMsg(rawMsg: string) {
@@ -26,16 +25,9 @@ export class WebSocketMessageProcessor implements IWebSocketMessageProcessor {
       && 'payload' in msg
     ) {
       switch (msg.type) {
-        case 'registration':
-          // void this.onPlayerRegistration(msg.payload as string | PlayerRegistration)
+        case 'unread-messages':
+          void this.onUnreadMessages(msg.payload as Mensagem[])
           break
-        case 'registration-status':
-          // void this.onPlayerRegistrationStatus(msg.payload as IPlayerRegistrationStatus)
-          break
-        case 'player-update-available':
-        case 'set-screen-rotation':
-        case 'restart':
-        case 'reset':
         default:
           console.log('not implemented', msg.type, msg.payload)
       }

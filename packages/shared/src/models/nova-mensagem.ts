@@ -10,7 +10,7 @@ export const getUnauthenticatedMessageSenderSchema = () => z.object({
 
 export const getNovaMensagemSchema = () => z.object({
   adId: z.number().int(),
-  sender: getUnauthenticatedMessageSenderSchema().optional(),
+  unauthenticatedSender: getUnauthenticatedMessageSenderSchema().optional(),
   content: z.string()
 })
 

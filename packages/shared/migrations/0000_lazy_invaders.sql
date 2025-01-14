@@ -35,17 +35,18 @@ CREATE TABLE `anuncio` (
 CREATE TABLE `mensagem` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`created_at` integer NOT NULL,
-	`is_read` integer NOT NULL,
+	`unread` integer NOT NULL,
+	`recipient_id` integer NOT NULL,
 	`ad_id` integer NOT NULL,
 	`sender_id` integer,
-	`sender` text,
-	`recipient_id` integer NOT NULL,
+	`unauthenticated_sender` text,
 	`content` text,
+	FOREIGN KEY (`recipient_id`) REFERENCES `usuario`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`ad_id`) REFERENCES `anuncio`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`sender_id`) REFERENCES `usuario`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`recipient_id`) REFERENCES `usuario`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`sender_id`) REFERENCES `usuario`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE INDEX `recipient_thread_idx` ON `mensagem` (`recipient_id`,`ad_id`,`unread`);--> statement-breakpoint
 CREATE TABLE `usuario` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`created_at` integer NOT NULL,
