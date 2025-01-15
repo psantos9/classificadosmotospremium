@@ -7,6 +7,7 @@ import type { Anuncio, Mensagem, Usuario } from '@cmp/shared/models/database/mod
 import type { NovoUsuario } from '@cmp/shared/models/novo-usuario'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
 import type { IThread } from '@cmp/shared/models/thread'
+import type { IThreadMessage } from '@cmp/shared/models/thread-message'
 import type { TAdDocument, TAdsSearchResponse, TSellerDocument } from '@cmp/shared/models/typesense'
 import type { UnauthenticatedMessageSender } from '@cmp/shared/models/unauthenticated-message-sender'
 import type { SearchParams } from 'typesense/lib/Typesense/Documents'
@@ -434,9 +435,15 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
   }
 
   async fetchThreads() {
-    const dealer = await this.axios.get<IThread[]>('/api/v1/messages/threads')
+    const threads = await this.axios.get<IThread[]>('/api/v1/messages/threads')
       .then(({ data }) => data)
-    return dealer
+    return threads
+  }
+
+  async fetchThread(id: string) {
+    const messages = await this.axios.get<IThreadMessage[]>(`/api/v1/messages/threads/${id}`)
+      .then(({ data }) => data)
+    return messages
   }
 
   getImageUrl(params: { imageId: string, thumbnail?: boolean }) {

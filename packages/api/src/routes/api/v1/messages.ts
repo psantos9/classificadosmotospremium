@@ -1,11 +1,13 @@
-import type { CF, Env, IAppAuthenticatedRequest } from '@/types'
+import type { CF, Env, IAppAuthenticatedRequest } from '@cmp/api/types'
 import type { IThread } from '@cmp/shared/models/thread'
+import type { IThreadMessage } from '@cmp/shared/models/thread-message'
 import type { IRequest } from 'itty-router'
-import { defaultErrorHandler } from '@/helpers/default-error-handler'
-import { authenticateRequest, getUserIdFromAuthenticationHeader } from '@/middleware/authenticate-request'
+import { getUserDO } from '@cmp/api/durable-objects/UserDO'
+import { defaultErrorHandler } from '@cmp/api/helpers/default-error-handler'
+import { authenticateRequest, getUserIdFromAuthenticationHeader } from '@cmp/api/middleware/authenticate-request'
 import { getDb, schema } from '@cmp/shared/helpers/get-db'
-import { getNovaMensagemSchema } from '@cmp/shared/models/nova-mensagem'
-import { desc, eq, sql } from 'drizzle-orm'
+import { novaMensagemSchema } from '@cmp/shared/models/nova-mensagem'
+import { desc, eq, inArray, or, sql } from 'drizzle-orm'
 import { AutoRouter, error, status } from 'itty-router'
 import { z } from 'zod'
 
@@ -21,7 +23,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
 })
   .post('/', getUserIdFromAuthenticationHeader, async (req, env) => {
     const senderId = req.userId ?? null
-    const { adId, content, unauthenticatedSender } = getNovaMensagemSchema().parse(await req.json())
+    let { adId, content, unauthenticatedSender, threadId, recipient } = novaMensagemSchema.parse(await req.json())
     if (senderId === null && !unauthenticatedSender) {
       return error(400, 'sender is required')
     }
@@ -33,27 +35,30 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     else if (anuncio.status !== 'published') {
       return error(400, 'anuncio nao esta publicado')
     }
-    const recipientId = anuncio.userId
-    await env.PROCESS_AD_MESSAGE_WORKFLOW.create({ params: { recipientId, senderId, message: { adId, content, unauthenticatedSender } } })
+    if (recipient === undefined) {
+      recipient = anuncio.userId
+    }
+    await env.PROCESS_AD_MESSAGE_WORKFLOW.create({ params: { senderId, message: { adId, content, unauthenticatedSender, recipient, threadId } } })
     return status(200)
   })
-  .get('/', getUserIdFromAuthenticationHeader, async (req, env) => {
-    const userId = req.userId ?? null
-    if (userId === null) {
+  .all<IRequest, CF>('*', authenticateRequest)
+  .get('/', async (req, env) => {
+    const user = req.user ?? null
+    if (user === null) {
       return error(403, 'Unauthorized')
     }
     const params = getMessagesQueryParamsSchema.parse(req.query)
     const db = getDb(env.DB)
     const messages = await db.query.mensagem.findMany({
       where: (mensagem, { eq, and }) => {
-        const filter = [eq(mensagem.recipientId, userId)]
+        const filter = [eq(mensagem.recipientId, user.id)]
         if (params.unread) {
           filter.push(eq(mensagem.unread, true))
         }
         return and(...filter)
       },
       with: {
-        ad: true,
+        anuncio: true,
         sender: {
           columns: {
             nomeRazaoSocial: true,
@@ -68,13 +73,14 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     })
     return messages
   })
-  .get('/threads', getUserIdFromAuthenticationHeader, async (req, env) => {
-    const userId = req.userId ?? null
-    if (userId === null) {
+  .get('/threads', async (req, env) => {
+    const user = req.user ?? null
+    if (user === null) {
       return error(403, 'Unauthorized')
     }
     const db = getDb(env.DB)
     const threads: IThread[] = await db.select({
+      id: schema.mensagem.threadId,
       ultimaAtualizacao: sql<Date>`MAX(${schema.mensagem.createdAt})`,
       unreadMessages: sql<number>`SUM(${schema.mensagem.unread})`,
       unauthenticatedSender: schema.mensagem.unauthenticatedSender,
@@ -95,27 +101,58 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
       }
     })
       .from(schema.mensagem)
+      .where(or(eq(schema.mensagem.senderId, user.id), eq(schema.mensagem.recipientId, user.id)))
       .innerJoin(schema.anuncio, eq(schema.anuncio.id, schema.mensagem.adId))
       .leftJoin(schema.usuario, eq(schema.usuario.id, schema.mensagem.senderId))
-      .groupBy(sql`json_extract(unauthenticated_sender, '$.email')`, schema.usuario.id, schema.mensagem.adId)
+      .groupBy(schema.mensagem.threadId)
       .orderBy(desc(schema.mensagem.createdAt))
     return threads
   })
-  .get('/threads/:threadId', getUserIdFromAuthenticationHeader, async (req, env) => {
-    const userId = req.userId ?? null
-    if (userId === null) {
+  .get('/threads/:threadId', async (req, env, ctx) => {
+    const user = req.user ?? null
+    if (user === null) {
       return error(403, 'Unauthorized')
     }
     const threadId = req.params.threadId
-    console.log('FETCHING TRREAD ID', threadId)
-    return []
+    const db = getDb(env.DB)
+    const messages: IThreadMessage[] = await db.query.mensagem.findMany({
+      where: (mensagem, { eq, and, or }) => and(eq(mensagem.threadId, threadId), or(eq(mensagem.senderId, user.id), eq(mensagem.recipientId, user.id))),
+      orderBy: (mensagem, { asc }) => [asc(mensagem.createdAt)],
+      with: {
+        sender: {
+          columns: {
+            id: true,
+            isCnpj: true,
+            nomeRazaoSocial: true,
+            nomeFantasia: true,
+            email: true,
+            celular: true
+          }
+        },
+        anuncio: {
+          columns: {
+            id: true,
+            marca: true,
+            modelo: true,
+            anoModelo: true,
+            ano: true
+          }
+        }
+      }
+    })
+    const setMessagesAsRead = messages
+      .reduce((accumulator: number[], message) => {
+        if (message.unread && message.recipientId === user.id) {
+          accumulator.push(message.id)
+        }
+        return accumulator
+      }, [])
+    if (setMessagesAsRead.length > 0) {
+      ctx.waitUntil((async (userId: number) => {
+        await db.update(schema.mensagem).set({ unread: false }).where(inArray(schema.mensagem.id, setMessagesAsRead))
+        const stub = await getUserDO(userId, env.USER_DO)
+        await stub.sendUnreadMessages()
+      })(user.id))
+    }
+    return messages
   })
-  .all<IRequest, CF>('*', authenticateRequest)
-
-/*
-  SELECT  mensagem.created_at, mensagem.unread, mensagem.content, mensagem.unauthenticated_sender, usuario.id as sender_id, usuario.nome_razao_social as nome, usuario.nome_fantasia as nome_fantasia, usuario.is_cnpj as sender_is_cnpj, usuario.email as sender_email, anuncio.id as ad_id, anuncio.marca, anuncio.modelo, anuncio.ano_modelo, anuncio.ano
-FROM mensagem
-INNER JOIN anuncio ON mensagem.ad_id = anuncio.id
-LEFT JOIN usuario ON mensagem.sender_id = usuario.id
-GROUP BY json_extract(unauthenticated_sender, '$.email'), sender_id, ad_id
-/ */

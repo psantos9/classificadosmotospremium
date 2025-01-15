@@ -1,5 +1,5 @@
-import type { Env } from '@/types'
-import { MAX_TOKEN_AGE, TOKEN_ISSUER } from '@/helpers/getBearerToken'
+import type { Env } from '@cmp/api/types'
+import { MAX_TOKEN_AGE, TOKEN_ISSUER } from '@cmp/api/helpers/getBearerToken'
 import { getDb } from '@cmp/shared/helpers/get-db'
 import { error, type IRequest, StatusError } from 'itty-router'
 import { jwtVerify } from 'jose'

@@ -7,9 +7,9 @@
     </div>
     <div class="flex-1 flex flex-col items-start gap-2 py-2 px-2 md:px-4 overflow-auto rounded-md">
       <ThreadCard
-        v-for="(thread, i) in threads" :key="i"
+        v-for="thread in threads" :key="thread.id"
         :thread="thread"
-        @click="navigateToThread(thread)"
+        @click="$router.push({ name: 'conversa', params: { id: thread.id } })"
       />
     </div>
   </div>
@@ -20,9 +20,6 @@ import type { IThread } from '@cmp/shared/models/thread'
 import ThreadCard from '@/components/ThreadCard.vue'
 import { useApp } from '@/composables/useApp'
 import { ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
 
 const { api, unreadMessages } = useApp()
 const threads = ref<IThread[]>([])
@@ -33,11 +30,5 @@ const fetchThreads = async () => {
 
 watch(unreadMessages, () => fetchThreads())
 
-const navigateToThread = async (thread: IThread) => {
-  const { anuncio: { id: adId }, sender, unauthenticatedSender } = thread
-  const email = sender?.email ?? unauthenticatedSender?.email
-  const threadId = btoa(JSON.stringify({ adId, email }))
-  await router.push({ name: 'conversa', params: { threadId } })
-}
 fetchThreads()
 </script>

@@ -68,12 +68,13 @@ export const mensagem = sqliteTable('mensagem', () => ({
   id: integer().primaryKey({ autoIncrement: true }),
   createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   unread: integer({ mode: 'boolean' }).notNull().$defaultFn(() => true),
-  threadId: text().$defaultFn(() => crypto.randomUUID()),
-  recipientId: integer().notNull().references(() => usuario.id, { onDelete: 'cascade' }),
+  threadId: text().notNull().$defaultFn(() => crypto.randomUUID()),
+  recipientId: integer().references(() => usuario.id, { onDelete: 'cascade' }),
+  recipientEmail: text(),
   adId: integer().notNull().references(() => anuncio.id, { onDelete: 'cascade' }),
   senderId: integer().references(() => usuario.id, { onDelete: 'cascade' }),
   unauthenticatedSender: text({ mode: 'json' }).$type<UnauthenticatedMessageSender | null>().$defaultFn(() => null),
-  content: text()
+  content: text().notNull()
 }), table => ([
   index('ad_sender_idx').on(table.adId, table.senderId), // used to find threads
   index('thread_idx').on(table.recipientId, table.threadId) // used to fetch threads
@@ -91,7 +92,7 @@ export const anuncioRelations = relations(anuncio, ({ one }) => ({
 }))
 
 export const mensagemRelations = relations(mensagem, ({ one }) => ({
-  ad: one(anuncio, {
+  anuncio: one(anuncio, {
     fields: [mensagem.adId],
     references: [anuncio.id]
   }),

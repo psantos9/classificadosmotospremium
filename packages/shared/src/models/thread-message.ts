@@ -1,12 +1,18 @@
 import type { IAuthenticatedMessageSender } from './authenticated-message-sender'
 import type { UnauthenticatedMessageSender } from './unauthenticated-message-sender'
 
-export interface IThread {
-  id: string
-  ultimaAtualizacao: Date
-  unreadMessages: number
-  unauthenticatedSender: UnauthenticatedMessageSender | null
+export interface IThreadMessage {
+  id: number
+  createdAt: Date
+  unread: boolean
+  threadId: string
+  recipientId: number | null
+  recipientEmail: string | null
+  adId: number
+  senderId: number | null
   sender: IAuthenticatedMessageSender | null
+  unauthenticatedSender: UnauthenticatedMessageSender | null
+  content: string
   anuncio: {
     id: number
     marca: string
