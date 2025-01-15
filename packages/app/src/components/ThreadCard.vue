@@ -2,8 +2,8 @@
   <div class="w-full bg-white rounded-md cursor-pointer hover:bg-gray-50 transition-colors p-2 flex flex-col gap-1 text-sm">
     <div class="flex items-center justify-between gap-1">
       <div class="flex items-center gap-1 font-extralight">
-        <span>{{ thread.sender?.nomeFantasia || thread.sender?.nomeRazaoSocial || thread.unauthenticatedSender?.name }}</span>
-        <span>({{ thread.sender?.email || thread.unauthenticatedSender?.email }})</span>
+        <span>{{ typeof threadPartner === 'string' ? threadPartner : threadPartner?.nomeFantasia || threadPartner?.nomeRazaoSocial }}</span>
+        <span v-if="typeof threadPartner !== 'string' && threadPartner !== null">({{ threadPartner.email }})</span>
       </div>
       <div class="font-extralight">
         {{ timeAgo }}
@@ -15,21 +15,41 @@
         {{ thread.anuncio.modelo }}
         {{ thread.anuncio.ano }} / {{ thread.anuncio.anoModelo }}
       </span>
-      <span class="bg-red-600 text-white text-xs font-bold h-5 w-5 rounded-xl shadow flex items-center justify-center">{{ thread.unreadMessages }}</span>
+      <span v-if="thread.unreadMessages > 0" class="bg-red-600 text-white text-xs font-bold h-5 w-5 rounded-xl shadow flex items-center justify-center">{{ thread.unreadMessages }}</span>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import type { IThread } from '@cmp/shared/models/thread'
+import { useApp } from '@/composables/useApp'
 import { formatDistance } from 'date-fns'
 import { ptBR } from 'date-fns/locale/pt-BR'
 import { computed, ref, toRefs, unref } from 'vue'
 
 const props = defineProps<{ thread: IThread }>()
 const { thread } = toRefs(props)
+
+const { api, signedIn } = useApp()
 const refDate = ref(new Date())
 
+const threadPartner = computed(() => {
+  let userId: string | null = null
+  if (unref(signedIn)) {
+    userId = api.userId
+  }
+  const { sender, recipient, externalRecipient } = unref(thread)
+  if (userId === null) {
+    return null
+  }
+  if (sender !== null && sender.id.toString() !== userId) {
+    return sender
+  }
+  else if (recipient !== null && recipient.id.toString() !== userId) {
+    return recipient
+  }
+  return externalRecipient ?? null
+})
 const timeAgo = computed(() => {
   const timeAgo = formatDistance(new Date(unref(thread).ultimaAtualizacao as unknown as number * 1000), unref(refDate), { locale: ptBR })
   return timeAgo

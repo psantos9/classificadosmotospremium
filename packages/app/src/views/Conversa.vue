@@ -73,6 +73,9 @@ const sendMessage = async () => {
   }
   const adId = unref(anuncio).id
   const content = unref(newMessage)
+  if (!content) {
+    return
+  }
   const novaMensagem: NovaMensagem = {
     adId,
     threadId,

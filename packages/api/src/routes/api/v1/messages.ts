@@ -7,7 +7,7 @@ import { defaultErrorHandler } from '@cmp/api/helpers/default-error-handler'
 import { authenticateRequest, getUserIdFromAuthenticationHeader } from '@cmp/api/middleware/authenticate-request'
 import { getDb, schema } from '@cmp/shared/helpers/get-db'
 import { novaMensagemSchema } from '@cmp/shared/models/nova-mensagem'
-import { desc, eq, inArray, or, sql } from 'drizzle-orm'
+import { aliasedTable, desc, eq, inArray, or, sql } from 'drizzle-orm'
 import { AutoRouter, error, status } from 'itty-router'
 import { z } from 'zod'
 
@@ -79,6 +79,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
       return error(403, 'Unauthorized')
     }
     const db = getDb(env.DB)
+    const recipient = aliasedTable(schema.usuario, 'recipient')
     const threads: IThread[] = await db.select({
       id: schema.mensagem.threadId,
       ultimaAtualizacao: sql<Date>`MAX(${schema.mensagem.createdAt})`,
@@ -92,6 +93,15 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
         email: schema.usuario.email,
         celular: schema.usuario.celular
       },
+      externalRecipient: schema.mensagem.recipientEmail,
+      recipient: {
+        id: recipient.id,
+        nomeRazaoSocial: recipient.nomeRazaoSocial,
+        nomeFantasia: recipient.nomeFantasia,
+        isCnpj: recipient.isCnpj,
+        email: recipient.email,
+        celular: recipient.celular
+      },
       anuncio: {
         id: schema.anuncio.id,
         marca: schema.anuncio.marca,
@@ -104,8 +114,10 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
       .where(or(eq(schema.mensagem.senderId, user.id), eq(schema.mensagem.recipientId, user.id)))
       .innerJoin(schema.anuncio, eq(schema.anuncio.id, schema.mensagem.adId))
       .leftJoin(schema.usuario, eq(schema.usuario.id, schema.mensagem.senderId))
+      .leftJoin(recipient, eq(recipient.id, schema.mensagem.recipientId))
       .groupBy(schema.mensagem.threadId)
       .orderBy(desc(schema.mensagem.createdAt))
+    console.log('THREAD', threads)
     return threads
   })
   .get('/threads/:threadId', async (req, env, ctx) => {

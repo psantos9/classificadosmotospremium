@@ -7,6 +7,8 @@ export interface IThread {
   unreadMessages: number
   unauthenticatedSender: UnauthenticatedMessageSender | null
   sender: IAuthenticatedMessageSender | null
+  recipient: IAuthenticatedMessageSender | null
+  externalRecipient: string | null
   anuncio: {
     id: number
     marca: string

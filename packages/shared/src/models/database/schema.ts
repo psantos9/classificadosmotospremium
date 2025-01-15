@@ -99,6 +99,10 @@ export const mensagemRelations = relations(mensagem, ({ one }) => ({
   sender: one(usuario, {
     fields: [mensagem.senderId],
     references: [usuario.id]
+  }),
+  recipient: one(usuario, {
+    fields: [mensagem.recipientId],
+    references: [usuario.id]
   })
 }))
 

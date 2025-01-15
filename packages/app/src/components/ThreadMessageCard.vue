@@ -19,8 +19,9 @@
       </template>
     </template>
 
-    <div class="text-xs font-extralight">
-      {{ timeAgo }}
+    <div class="flex items-center gap-1">
+      <span class="text-xs font-extralight">{{ timeAgo }}</span>
+      <FontAwesomeIcon v-if="message.unread === false" :icon="faCheck" size="xs" class="text-[var(--primary)]" />
     </div>
     <div class="text-base font-semibold">
       {{ message.content }}
@@ -31,6 +32,8 @@
 <script lang="ts" setup>
 import type { IThreadMessage } from '@cmp/shared/models/thread-message'
 import { useApp } from '@/composables/useApp'
+import { faCheck } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { formatDistance } from 'date-fns'
 import { ptBR } from 'date-fns/locale/pt-BR'
 import { computed, ref, toRefs, unref } from 'vue'
