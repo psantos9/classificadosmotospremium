@@ -83,7 +83,7 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
     const threads: IThread[] = await db.select({
       id: schema.mensagem.threadId,
       ultimaAtualizacao: sql<Date>`MAX(${schema.mensagem.createdAt})`,
-      unreadMessages: sql<number>`SUM(${schema.mensagem.unread})`,
+      unreadMessages: sql<number>`SUM(CASE WHEN ${eq(schema.mensagem.recipientId, user.id)} THEN ${schema.mensagem.unread} ELSE 0 END)`,
       unauthenticatedSender: schema.mensagem.unauthenticatedSender,
       sender: {
         id: schema.usuario.id,
