@@ -7,7 +7,7 @@
       <span class="text-xs font-extralight">{{ timeAgo }}</span>
       <FontAwesomeIcon v-if="ownMessage" :icon="faCheck" size="xs" :class="[message.unread ? 'text-[var(--primary-lighter)]' : 'text-green-600']" />
     </div>
-    <div class="text-base font-semibold">
+    <div class="text-xs">
       {{ message.content }}
     </div>
   </div>
