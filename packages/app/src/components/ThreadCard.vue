@@ -2,6 +2,7 @@
   <div class="w-full bg-white rounded-md cursor-pointer hover:bg-gray-50 transition-colors p-2 flex flex-col gap-1 text-sm">
     <div class="flex items-center justify-between gap-1">
       <div class="flex items-center gap-1 font-extralight">
+        <span class="font-black text-[var(--primary)]">Conversa com</span>
         <span>{{ typeof threadPartner === 'string' ? threadPartner : threadPartner?.nomeFantasia || threadPartner?.nomeRazaoSocial }}</span>
         <span v-if="typeof threadPartner !== 'string' && threadPartner !== null">({{ threadPartner.email }})</span>
       </div>
@@ -38,7 +39,7 @@ const threadPartner = computed(() => {
   if (unref(signedIn)) {
     userId = api.userId
   }
-  const { sender, recipient, externalRecipient } = unref(thread)
+  const { sender, recipient, unauthenticatedSender, externalRecipient } = unref(thread)
   if (userId === null) {
     return null
   }
@@ -48,7 +49,7 @@ const threadPartner = computed(() => {
   else if (recipient !== null && recipient.id.toString() !== userId) {
     return recipient
   }
-  return externalRecipient ?? null
+  return externalRecipient ?? unauthenticatedSender?.email ?? null
 })
 const timeAgo = computed(() => {
   const timeAgo = formatDistance(new Date(unref(thread).ultimaAtualizacao as unknown as number * 1000), unref(refDate), { locale: ptBR })

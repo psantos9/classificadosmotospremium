@@ -96,6 +96,7 @@ export class ProcessAdMessageWorkflow extends WorkflowEntrypoint<Env, ProcessAdM
         await stub.sendUnreadMessages()
       })
     }
+
     if (senderId !== null) {
       await step.do('notify the sender user of new messages', { timeout: '10 seconds' }, async () => {
         const stub = await getUserDO(senderId as number, this.env.USER_DO)

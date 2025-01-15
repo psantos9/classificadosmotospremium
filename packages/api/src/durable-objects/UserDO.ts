@@ -106,12 +106,14 @@ export class UserDO extends DurableObject<Env> {
 
   async sendUnreadMessages() {
     const wss = this.ctx.getWebSockets()
+
     if (wss.length > 0) {
       const db = getDb(this.env.DB)
       const messages = await db.query.mensagem.findMany({
         where: (mensagem, { eq, and }) => and(eq(mensagem.recipientId, this.userId), eq(mensagem.unread, true)),
         orderBy: (mensagem, { desc }) => [desc(mensagem.createdAt)]
       })
+      console.log('SENDING UNREAD MESSAGES', this.userId, wss.length, messages.length)
       for (const ws of wss) {
         ws.send(JSON.stringify({ type: 'unread-messages', payload: messages }))
       }

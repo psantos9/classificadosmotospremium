@@ -117,7 +117,6 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
       .leftJoin(recipient, eq(recipient.id, schema.mensagem.recipientId))
       .groupBy(schema.mensagem.threadId)
       .orderBy(desc(schema.mensagem.createdAt))
-    console.log('THREAD', threads)
     return threads
   })
   .get('/threads/:threadId', async (req, env, ctx) => {
@@ -152,6 +151,11 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
         }
       }
     })
+
+    // get the senderId to notify it later of unread messages
+    const senderId = messages?.[0]?.senderId ?? null
+    const receipientId = messages?.[0]?.recipientId ?? null
+
     const setMessagesAsRead = messages
       .reduce((accumulator: number[], message) => {
         if (message.unread && message.recipientId === user.id) {
@@ -160,11 +164,19 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
         return accumulator
       }, [])
     if (setMessagesAsRead.length > 0) {
-      ctx.waitUntil((async (userId: number) => {
+      ctx.waitUntil((async () => {
         await db.update(schema.mensagem).set({ unread: false }).where(inArray(schema.mensagem.id, setMessagesAsRead))
-        const stub = await getUserDO(userId, env.USER_DO)
-        await stub.sendUnreadMessages()
-      })(user.id))
+        const promises = []
+        if (receipientId !== null) {
+          const stubRecipient = await getUserDO(receipientId, env.USER_DO)
+          promises.push(stubRecipient.sendUnreadMessages())
+        }
+        if (senderId !== null) {
+          const stubSender = await getUserDO(senderId, env.USER_DO)
+          promises.push(stubSender.sendUnreadMessages())
+        }
+        await Promise.all(promises)
+      })())
     }
     return messages
   })
