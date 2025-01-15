@@ -1,7 +1,7 @@
 <template>
   <div
-    class="bg-white rounded-md p-2 shadow"
-    :class="[message.senderId === Number.parseInt(api.userId ?? '') ? 'self-end' : 'self-start']"
+    class="rounded-md p-2 shadow"
+    :class="[message.senderId === Number.parseInt(api.userId ?? '') ? 'bg-white self-end' : 'bg-[var(--primary-lightest)] self-start']"
   >
     <template v-if="message.senderId === Number.parseInt(api.userId ?? '')">
       <div />
