@@ -1,6 +1,6 @@
 import type { Env } from '@cmp/api/types'
 import type { WorkflowEvent, WorkflowStep } from 'cloudflare:workers'
-import { getImageService } from '@/services/image-service'
+import { getImageService } from '@cmp/api/services/image-service'
 import { useTypesense } from '@cmp/api/services/typesense-service'
 import { getDb } from '@cmp/shared/helpers/get-db'
 import { schema } from '@cmp/shared/models/database/schema'

@@ -1,4 +1,4 @@
-import type { Env } from '@/types'
+import type { Env } from '@cmp/api/types'
 import { sha256 } from '@cmp/api/helpers/shsa256'
 
 export interface IImage {
