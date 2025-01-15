@@ -9,14 +9,6 @@ import { NonRetryableError } from 'cloudflare:workflows'
 import { and, eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
-/*
-  adId: z.number().int(),
-  threadId: z.string().uuid().optional(),
-  recipient: z.union([z.number().int(), z.string().email()]),
-  unauthenticatedSender: getUnauthenticatedMessageSenderSchema().optional(),
-  content: z.string()
-})
-  */
 export const processAdMessageEventSchema = z.object({
   senderId: z.number().int().nullable(),
   message: novaMensagemSchema

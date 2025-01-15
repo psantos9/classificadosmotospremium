@@ -96,8 +96,19 @@ export class ImageService {
     }
   }
 
-  async deleteAdFolder(_adId: number) {
-    throw new Error('delete ad folder to be implemented')
+  async deleteAdFolder(adId: number) {
+    const res = await fetch('https://api.imagekit.io/v2/folder', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': this._authorizationHeader,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ folderPath: this._getAdFolder(adId) })
+    })
+    if (!res.ok) {
+      throw new Error(`Error while deleting ad image folder ${adId}: ${res.status}`)
+    }
   }
 
   static getInstance(env: Env) {
@@ -105,4 +116,9 @@ export class ImageService {
     const instance = new ImageService({ imageKit: { privateKey, urlEndpoint }, environment: env.ENVIRONMENT })
     return instance
   }
+}
+
+export const getImageService = (env: Env) => {
+  const instance = ImageService.getInstance(env)
+  return instance
 }

@@ -1,5 +1,6 @@
 import type { Env } from '@cmp/api/types'
 import type { WorkflowEvent, WorkflowStep } from 'cloudflare:workers'
+import { getImageService } from '@/services/image-service'
 import { useTypesense } from '@cmp/api/services/typesense-service'
 import { getDb } from '@cmp/shared/helpers/get-db'
 import { schema } from '@cmp/shared/models/database/schema'
@@ -21,6 +22,11 @@ export class DeleteAdWorkflow extends WorkflowEntrypoint<Env, DeleteAdEvent > {
     await step.do('delete document', { timeout: '10 seconds', retries: { limit: 0, delay: 1000 } }, async () => {
       const typesense = await useTypesense(this.env)
       await typesense.deleteAdDocument(adId)
+    })
+
+    await step.do('delete images', { timeout: '10 seconds' }, async () => {
+      const imageService = getImageService(this.env)
+      await imageService.deleteAdFolder(adId)
     })
   }
 }
