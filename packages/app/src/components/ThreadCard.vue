@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full max-w-screen-sm mx-auto bg-white rounded-md cursor-pointer hover:bg-gray-50 transition-colors p-2 flex flex-col gap-1 text-sm">
+  <div class="w-full bg-white rounded-md cursor-pointer hover:bg-gray-50 transition-colors p-2 flex flex-col gap-1 text-sm">
     <div class="flex items-center justify-between gap-1">
       <div class="flex items-center gap-1 font-extralight">
         <span>{{ thread.sender?.nomeFantasia || thread.sender?.nomeRazaoSocial || thread.unauthenticatedSender?.name }}</span>
@@ -10,7 +10,7 @@
       </div>
     </div>
     <div class="flex items-center justify-between">
-      <span class="font-bold">
+      <span class="font-bold hover:underline hover:text-[var(--info)] transition-colors" @click.stop="$router.push({ name: 'anuncio', params: { id: thread.anuncio.id } })">
         {{ thread.anuncio.marca }}
         {{ thread.anuncio.modelo }}
         {{ thread.anuncio.ano }} / {{ thread.anuncio.anoModelo }}

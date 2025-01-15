@@ -16,19 +16,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { IThread } from '@cmp/shared/models/thread'
 import ThreadCard from '@/components/ThreadCard.vue'
 import { useApp } from '@/composables/useApp'
-import { ref, watch } from 'vue'
 
-const { api, unreadMessages } = useApp()
-const threads = ref<IThread[]>([])
-
-const fetchThreads = async () => {
-  threads.value = await api.fetchThreads()
-}
-
-watch(unreadMessages, () => fetchThreads())
-
-fetchThreads()
+const { threads } = useApp()
 </script>

@@ -5,8 +5,7 @@
         Minha conversa
       </span>
     </div>
-    {{ anuncio }}
-    {{ threadPartnerId }}
+    <ThreadCard v-if="thread" :thread="thread" />
 
     <div ref="scrollContainer" class="flex-1 flex flex-col items-start gap-2 py-2 px-2 md:px-4 overflow-auto rounded-md">
       <ThreadMessageCard
@@ -18,15 +17,15 @@
       <input
         v-model="newMessage"
         type="text"
-        class="block w-full p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500"
+        class="form-input p-4 text-base font-bold"
         @focus="scrollToBottom" @keyup.enter="sendMessage"
       >
       <button
         type="button"
-        class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center"
+        class="h-full aspect-square text-[var(--primary-text)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] focus:outline-none rounded-md flex items-center justify-center"
         @click="sendMessage"
       >
-        <FontAwesomeIcon :icon="faPaperPlane" />
+        <FontAwesomeIcon :icon="faPaperPlane" fixed-width size="xl" />
       </button>
     </div>
   </div>
@@ -35,6 +34,7 @@
 <script  lang="ts" setup>
 import type { NovaMensagem } from '@cmp/shared/models/nova-mensagem'
 import type { IThreadMessage } from '@cmp/shared/models/thread-message'
+import ThreadCard from '@/components/ThreadCard.vue'
 import ThreadMessageCard from '@/components/ThreadMessageCard.vue'
 import { useApp } from '@/composables/useApp'
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons'
@@ -42,7 +42,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, ref, unref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-const { api, unreadMessages } = useApp()
+const { api, unreadMessages, threads } = useApp()
 const route = useRoute()
 const threadId = route.params.id as string
 
@@ -52,6 +52,7 @@ const newMessage = ref('')
 const messages = ref<IThreadMessage[]>([])
 
 const anuncio = computed(() => unref(messages)?.[0]?.anuncio ?? 0)
+const thread = computed(() => unref(threads).find(thread => thread.id === threadId))
 
 const threadPartnerId = computed(() => {
   if (unref(messages).length === 0) {

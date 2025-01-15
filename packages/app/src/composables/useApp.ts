@@ -1,4 +1,5 @@
 import type { Mensagem } from '@cmp/shared/models/database/models'
+import type { IThread } from '@cmp/shared/models/thread'
 import { APIClient, APIClientEvent } from '@/services/api-client'
 import { WebSocketMessageProcessor } from '@/services/websocket-message-processor'
 import { WebSocketService, WebSocketServiceEvent } from '@/services/websocket-service'
@@ -15,6 +16,7 @@ const sidebarOpen = ref(false)
 const signedIn = ref(false)
 
 const unreadMessages = ref<Mensagem[]>([])
+const threads = ref<IThread[]>([])
 
 const cadastraEmail = ref<string | undefined>(undefined)
 
@@ -79,6 +81,12 @@ const scrollToTop = () => {
   el?.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
+watch([signedIn, unreadMessages], async ([signedIn]) => {
+  if (signedIn) {
+    threads.value = await api.fetchThreads()
+  }
+})
+
 export const useApp = () => {
   if (signedInWatcher === null) {
     const router = useRouter()
@@ -100,6 +108,7 @@ export const useApp = () => {
     scrollToTop,
     signedIn: computed(() => unref(signedIn)),
     unreadMessages: computed(() => unref(unreadMessages)),
+    threads: computed(() => unref(threads)),
     menuItems: computed(() => menuItems),
     sidebarOpen: computed(() => unref(sidebarOpen)),
     sortingOptions: computed(() => sortingOptions),
