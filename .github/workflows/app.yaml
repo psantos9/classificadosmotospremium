@@ -6,6 +6,7 @@ on:
       - .github/workflows/app.yaml
       - packages/app/**
       - packages/shared/**
+      - packages/api/**
     branches:
       - main
       - develop
