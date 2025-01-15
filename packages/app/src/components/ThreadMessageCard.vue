@@ -1,8 +1,24 @@
 <template>
   <div
-    class="bg-white rounded-md p-2"
+    class="bg-white rounded-md p-2 shadow"
     :class="[message.senderId === Number.parseInt(api.userId ?? '') ? 'self-end' : 'self-start']"
   >
+    <template v-if="message.senderId === Number.parseInt(api.userId ?? '')">
+      <div />
+    </template>
+    <template v-else>
+      <template v-if="message.sender">
+        <div class="font-semibold text-xs">
+          {{ message.sender.nomeFantasia || message.sender.nomeRazaoSocial }} ({{ message.sender.email }})
+        </div>
+      </template>
+      <template v-if="message.unauthenticatedSender !== null">
+        <div class="font-semibold text-xs">
+          {{ message.unauthenticatedSender.name }} ({{ message.unauthenticatedSender.email }})
+        </div>
+      </template>
+    </template>
+
     <div class="text-xs font-extralight">
       {{ timeAgo }}
     </div>
