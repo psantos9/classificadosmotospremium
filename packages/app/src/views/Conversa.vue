@@ -1,14 +1,14 @@
 <template>
-  <div class="view-container max-w-screen-md mx-auto p-2 md:p-0 flex-1 flex flex-col gap-2 overflow-hidden">
+  <div class="view-container bg-gray-200 max-w-screen-md mx-auto p-4 flex-1 flex flex-col gap-4 overflow-hidden">
     <ThreadCard v-if="thread" :thread="thread" />
 
-    <div ref="scrollContainer" class="flex-1 flex flex-col items-start gap-2 py-2 px-2 md:px-4 overflow-auto rounded-md">
+    <div ref="scrollContainer" class="flex-1 flex flex-col items-start gap-2 px-2 overflow-auto rounded-md">
       <ThreadMessageCard
         v-for="message in messages"
         :key="message.id" :message="message"
       />
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-4">
       <input
         v-model="newMessage"
         class="form-input p-4 text-base font-bold"
