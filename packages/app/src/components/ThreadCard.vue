@@ -15,7 +15,7 @@
         {{ thread.anuncio.modelo }}
         {{ thread.anuncio.ano }} / {{ thread.anuncio.anoModelo }}
       </span>
-      <span class="bg-[var(--primary)] text-[var(--text-primary)] text-xs font-bold px-1 py-0.5 rounded-xl shadow">{{ thread.unreadMessages }}</span>
+      <span class="bg-red-600 text-white text-xs font-bold h-5 w-5 rounded-xl shadow flex items-center justify-center">{{ thread.unreadMessages }}</span>
     </div>
   </div>
 </template>

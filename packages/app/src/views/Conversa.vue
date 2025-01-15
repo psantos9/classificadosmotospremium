@@ -16,7 +16,6 @@
     <div class="flex items-center gap-2">
       <input
         v-model="newMessage"
-        type="text"
         class="form-input p-4 text-base font-bold"
         @focus="scrollToBottom" @keyup.enter="sendMessage"
       >
@@ -39,7 +38,7 @@ import ThreadMessageCard from '@/components/ThreadMessageCard.vue'
 import { useApp } from '@/composables/useApp'
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, ref, unref, watch } from 'vue'
+import { computed, nextTick, ref, unref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const { api, unreadMessages, threads } = useApp()
@@ -63,10 +62,6 @@ const threadPartnerId = computed(() => {
   const id = recipientId !== Number.parseInt(api.userId ?? '') ? recipientId : senderId || unauthenticatedSender?.email || null
   return id
 })
-
-const fetchThreadMessages = async () => {
-  messages.value = await api.fetchThread(threadId)
-}
 
 const sendMessage = async () => {
   if (api.userId === null) {
@@ -93,8 +88,13 @@ const scrollToBottom = () => {
   el?.scrollTo({ top: el.scrollHeight ?? 0, behavior: 'smooth' })
 }
 
+const fetchThreadMessages = async () => {
+  messages.value = await api.fetchThread(threadId)
+  nextTick(() => scrollToBottom())
+}
+
 watch(unreadMessages, () => fetchThreadMessages())
-watch(messages, scrollToBottom, { immediate: true })
 
 fetchThreadMessages()
+  .then(() => scrollToBottom())
 </script>
