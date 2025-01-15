@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "54312e6e-a969-4b6d-b1d7-b8a39eff1206",
+  "id": "4a48dbfc-8acb-45e8-b492-55a4cb5bbfae",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "anuncio": {
@@ -261,11 +261,25 @@
           "notNull": true,
           "autoincrement": false
         },
+        "thread_id": {
+          "name": "thread_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "recipient_id": {
           "name": "recipient_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "recipient_email": {
+          "name": "recipient_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "ad_id": {
@@ -293,17 +307,24 @@
           "name": "content",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         }
       },
       "indexes": {
-        "recipient_thread_idx": {
-          "name": "recipient_thread_idx",
+        "ad_sender_idx": {
+          "name": "ad_sender_idx",
+          "columns": [
+            "ad_id",
+            "sender_id"
+          ],
+          "isUnique": false
+        },
+        "thread_idx": {
+          "name": "thread_idx",
           "columns": [
             "recipient_id",
-            "ad_id",
-            "unread"
+            "thread_id"
           ],
           "isUnique": false
         }

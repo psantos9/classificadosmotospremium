@@ -1,1 +1,0 @@
-ALTER TABLE `mensagem` ADD `thread_id` text;
