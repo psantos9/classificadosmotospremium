@@ -77,6 +77,15 @@ export class ProcessAdMessageWorkflow extends WorkflowEntrypoint<Env, ProcessAdM
       }
     }
 
+    if (senderId !== null && threadId === null) {
+      threadId = await step.do('find an existing thread id for ad, sender and recipient', { timeout: '10 seconds' }, async () => {
+        const mensagem = await db.query.mensagem.findFirst({
+          where: (mensagem, { eq, and, or }) => and(eq(mensagem.adId, adId), or(eq(mensagem.senderId, senderId as number), eq(schema.mensagem.recipientId, senderId as number)))
+        })
+        return mensagem?.threadId ?? null
+      })
+    }
+
     await step.do('insert the message in the database', { timeout: '10 seconds' }, async () => {
       await db.insert(schema.mensagem).values({ recipientId, recipientEmail, adId, senderId, content, unauthenticatedSender, threadId: threadId || crypto.randomUUID() }).returning()
     })

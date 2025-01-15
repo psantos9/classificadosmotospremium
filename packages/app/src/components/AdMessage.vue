@@ -85,7 +85,7 @@ const [email, emailAttrs] = defineField('email', { validateOnInput: false, valid
 const [mobile, mobileAttrs] = defineField('mobile')
 const [name, nameAttrs] = defineField('name')
 
-const message = ref('teste')
+const message = ref('')
 const sendingMessage = ref(false)
 
 const sendingMessageDisabled = computed(() => {
