@@ -96,6 +96,7 @@ const addMessageToThread = (message: NovaMensagem) => {
 const scrollToBottom = () => {
   const el = unref(scrollContainer)
   el?.scrollTo({ top: el.scrollHeight ?? 0, behavior: 'smooth' })
+  console.log('SCCROLLED', el)
 }
 
 const sendMessage = async () => {
