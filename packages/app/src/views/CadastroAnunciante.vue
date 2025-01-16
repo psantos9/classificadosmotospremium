@@ -279,7 +279,9 @@
           </div>
         </div>
       </div>
-      <div class="mt-4 md:mt-8 flex justify-end">
+      <div class="mt-4 md:mt-8 flex justify-end items-center">
+        <div ref="turnstileContainer" />
+        <div class="flex-1" />
         <button
           type="button"
           class="w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold shadow-sm"
@@ -295,6 +297,7 @@
 
 <script lang="ts" setup>
 import { useApp } from '@/composables/useApp'
+import { getTurnstileToken } from '@/helpers/getTurnstileToken'
 import { CpfCnpjConflictError, EmailConflictError } from '@/services/api-client'
 import { novoUsuarioSchema } from '@cmp/shared/models/novo-usuario'
 import { faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
@@ -316,6 +319,7 @@ const $toast = useToast()
 const router = useRouter()
 const { api, cadastraEmail } = useApp()
 const tipoEntidade = ref<EntityType | null>(null)
+const turnstileContainer = ref<HTMLElement | null>(null)
 
 const nomeEl = ref<any>(null)
 const initalEmail = unref(cadastraEmail)
@@ -342,12 +346,18 @@ const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword', {
 
 const submitting = ref(false)
 const submit = async () => {
+  const turnstileEl = unref(turnstileContainer)
+  if (turnstileEl === null) {
+    throw new Error('no turnstile container')
+  }
+
   const { valid } = await validate()
   if (valid) {
     const usuario = novoUsuarioSchema.parse(unref(values))
     try {
       submitting.value = true
-      await api.criaNovoUsuario(usuario)
+      const token = await getTurnstileToken({ el: turnstileEl, siteKey: __CLOUDFLARE_TURNSTILE_SITEKEY__ })
+      await api.criaNovoUsuario({ usuario, token })
       router.push({ name: 'home' })
       $toast.success('Conta criada com sucesso')
     }

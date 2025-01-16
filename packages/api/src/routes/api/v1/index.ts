@@ -3,6 +3,7 @@ import { acessorios } from '@/data/acessorios'
 import { cores } from '@/data/cores'
 import { informacoesAdicionais } from '@/data/informacoes-adicionais'
 import { getBearerToken } from '@/helpers/getBearerToken'
+import { verifyTurnstileToken } from '@/helpers/verify-turnstile-token'
 import { authenticateRequest } from '@/middleware/authenticate-request'
 import { OpencageService } from '@/services/opencage-service'
 import { useTypesense } from '@/services/typesense-service'
@@ -25,7 +26,8 @@ import { z, ZodError } from 'zod'
 
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string()
+  password: z.string(),
+  token: z.string()
 })
 
 const cepSchema = z.string().transform(val => val.replace(/\D+/g, '')).refine(val => val.length === 8)
@@ -73,9 +75,13 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
   .post<IRequest, [Env, ExecutionContext]>('/login/check', async (req, env) => {
     const db = getDb(env.DB)
 
-    const bodySchema = z.object({ email: z.string().email() })
+    const bodySchema = z.object({ email: z.string().email(), token: z.string() })
     try {
-      const { email } = bodySchema.parse(await req.json())
+      const { email, token } = bodySchema.parse(await req.json())
+      const validToken = await verifyTurnstileToken({ token, secretKey: env.TURNSTILE_SECRET_KEY, req })
+      if (!validToken) {
+        return error(403, 'invalid token')
+      }
       const { isExist } = await db.get<{ isExist: number }>(sql`SELECT EXISTS (SELECT 1 from ${schema.usuario} where ${schema.usuario.email} = ${email}) as isExist`)
       return json({ exists: isExist === 1 })
     }
@@ -88,7 +94,11 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
   })
   .post<IRequest, [Env, ExecutionContext]>('/login', async (req, env) => {
     try {
-      const { email, password } = loginSchema.parse(await req.json())
+      const { email, password, token } = loginSchema.parse(await req.json())
+      const validToken = await verifyTurnstileToken({ token, secretKey: env.TURNSTILE_SECRET_KEY, req })
+      if (!validToken) {
+        return error(403, 'invalid token')
+      }
       const bearerToken = await getBearerToken({ email, password, db: env.DB, apiSecret: env.API_SECRET })
       if (bearerToken === null) {
         throw new StatusError(401)
@@ -105,7 +115,12 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
   .post<IRequest, [Env, ExecutionContext]>('/signup', async (req, env, ctx) => {
     const db = getDb(env.DB)
     try {
-      const novoUsuario = novoUsuarioSchema.parse(await req.json())
+      const bodySchema = z.object({ usuario: novoUsuarioSchema, token: z.string() })
+      const { usuario: novoUsuario, token } = bodySchema.parse(await req.json())
+      const validToken = await verifyTurnstileToken({ token, secretKey: env.TURNSTILE_SECRET_KEY, req })
+      if (!validToken) {
+        return error(403, 'invalid token')
+      }
       const password: string = bcrypt.hashSync(novoUsuario.password, 10)
       const isCnpj = cnpj.isValid(novoUsuario.cpfCnpj, true)
       const cachedCEP = await env.CEP.get<OpenCEP>(novoUsuario.cep.toString(), 'json')
@@ -123,7 +138,7 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
         if (err.message.includes('UNIQUE constraint failed: usuario.email')) {
           return Response.json({ status: 409, error: 'conflito:email' }, { status: 409 })
         }
-        else if (err.message.includes('UNIQUE constraint failed: usuario.cpfCnpj')) {
+        else if (err.message.includes('UNIQUE constraint failed: usuario.cpf_cnpj')) {
           return Response.json({ status: 409, error: 'conflito:cpfCnpj' }, { status: 409 })
         }
         throw err

@@ -50,11 +50,11 @@ export interface APIClientEventMap {
 
 export interface IAPIClient {
   signedIn: boolean
-  login: (params: { email: string, password: string }) => Promise<void>
+  login: (params: { email: string, password: string, token: string }) => Promise<void>
   logout: () => Promise<void>
-  validateEmail: (email: string) => Promise<boolean>
+  validateEmail: (params: { email: string, token: string }) => Promise<boolean>
   validateCEP: (cep: string) => Promise<OpenCEP | null>
-  criaNovoUsuario: (cadastro: NovoUsuario) => Promise<void>
+  criaNovoUsuario: (params: { usuario: NovoUsuario, token: string }) => Promise<void>
   fetchUsuario: () => Promise<Omit<Usuario, 'password' | 'confirmPassword'>>
 }
 
@@ -168,7 +168,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     this._fetchToken()
   }
 
-  async login(params: { email: string, password: string }) {
+  async login(params: { email: string, password: string, token: string }) {
     const bearerToken = await this.axios.post<{ bearerToken: string }>('/api/v1/login', params)
       .then(({ data: { bearerToken } }) => bearerToken)
     this._setAuthorizationHeader(bearerToken)
@@ -182,8 +182,9 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     await this.emit(APIClientEvent.SIGNED_IN, false)
   }
 
-  async validateEmail(email: string) {
-    const exists = await this.axios.post<{ exists: boolean }>('/api/v1/login/check', { email })
+  async validateEmail(params: { email: string, token: string }) {
+    const { email, token } = params
+    const exists = await this.axios.post<{ exists: boolean }>('/api/v1/login/check', { email, token })
       .then(({ data: { exists } }) => exists)
     return exists
   }
@@ -200,8 +201,9 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return openCEP
   }
 
-  async criaNovoUsuario(cadastro: NovoUsuario) {
-    const bearerToken = await this.axios.post<{ bearerToken: string }>('/api/v1/signup', cadastro)
+  async criaNovoUsuario(params: { usuario: NovoUsuario, token: string }) {
+    const { usuario, token } = params
+    const bearerToken = await this.axios.post<{ bearerToken: string }>('/api/v1/signup', { usuario, token })
       .then(({ data: { bearerToken } }) => bearerToken)
       .catch((err) => {
         if (err instanceof AxiosError && err.status === 409) {
@@ -304,14 +306,15 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return informacoesAdicionais
   }
 
-  async criaAnuncio(anuncio: AtualizaAnuncio) {
-    const novoAnuncio = await this.axios.post<Anuncio>('/api/v1/ads', anuncio)
+  async criaAnuncio(params: { anuncio: AtualizaAnuncio }) {
+    const novoAnuncio = await this.axios.post<Anuncio>('/api/v1/ads', params)
       .then(({ data }) => data)
     return novoAnuncio
   }
 
-  async atualizaAnuncio(adId: number, anuncio: AtualizaAnuncio) {
-    const anuncioAtualizado = await this.axios.put<Anuncio>(`/api/v1/ads/${adId}`, anuncio)
+  async atualizaAnuncio(params: { adId: number, anuncio: AtualizaAnuncio }) {
+    const { adId, anuncio } = params
+    const anuncioAtualizado = await this.axios.put<Anuncio>(`/api/v1/ads/${adId}`, { anuncio })
       .then(({ data }) => data)
     return anuncioAtualizado
   }

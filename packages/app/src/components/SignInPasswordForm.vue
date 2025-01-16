@@ -22,10 +22,12 @@
     <FontAwesomeIcon :icon="loading ? faSpinner : faArrowRight" :spin="loading" size="lg" />
   </button>
   <span class="font-extralight text-xs text-[var(--info)] hover:underline cursor-pointer" @click="$emit('back')">Usar outra forma de entrada</span>
+  <div ref="turnstileContainer" />
 </template>
 
 <script lang="ts" setup>
 import { useApp } from '@/composables/useApp'
+import { getTurnstileToken } from '@/helpers/getTurnstileToken'
 import { UnauthorizedError } from '@/services/api-client'
 import { faArrowRight, faEye, faEyeSlash, faKey, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -34,11 +36,10 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
 
 const props = defineProps<{ email: string }>()
-
 defineEmits<{
   (e: 'back'): void
 }>()
-
+const turnstileContainer = ref<HTMLElement | null>(null)
 const router = useRouter()
 const { email } = toRefs(props)
 const { api } = useApp()
@@ -50,9 +51,15 @@ const password = ref('')
 const showPassword = ref(false)
 
 const submit = async () => {
+  const turnstileEl = unref(turnstileContainer)
+  if (turnstileEl === null) {
+    throw new Error('no turnstile container')
+  }
+
   loading.value = true
   try {
-    await api.login({ email: unref(email), password: unref(password) })
+    const token = await getTurnstileToken({ el: turnstileEl, siteKey: __CLOUDFLARE_TURNSTILE_SITEKEY__ })
+    await api.login({ email: unref(email), password: unref(password), token })
     router.push({ name: 'home' })
   }
   catch (err) {

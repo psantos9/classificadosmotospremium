@@ -336,6 +336,7 @@ const { api } = useApp()
 const toast = useToast()
 
 const adId = ref<number | null>(null)
+const turnstileContainer = ref<HTMLElement | null>(null)
 
 const anuncio = ref<Anuncio | null>(null)
 
@@ -596,6 +597,7 @@ const submitForReview = async () => {
   }
   try {
     requests.value++
+
     await api.submeteAnuncioParaRevisao(_adId)
     toast.info('O seu anúncio será revisto e publicado em breve.')
     requests.value--
@@ -620,6 +622,11 @@ const removeFotos = debounce(async () => {
 }, 500)
 
 const atualizaAnuncio = async (atualizacao: AtualizaAnuncio) => {
+  const turnstileEl = unref(turnstileContainer)
+  if (turnstileEl === null) {
+    throw new Error('no turnstile container')
+  }
+
   const _anuncio = unref(anuncio)
   const hasDifferences = [...Object.entries(atualizacao)]
     .reduce((accumulator, [key, value], _, array) => {
@@ -640,12 +647,13 @@ const atualizaAnuncio = async (atualizacao: AtualizaAnuncio) => {
   const _adId = unref(adId)
   try {
     requests.value++
+
     if (_adId === null) {
-      anuncio.value = await api.criaAnuncio(atualizacao)
+      anuncio.value = await api.criaAnuncio({ anuncio: atualizacao })
       adId.value = unref(anuncio)?.id ?? null
     }
     else {
-      anuncio.value = await api.atualizaAnuncio(_adId, atualizacao)
+      anuncio.value = await api.atualizaAnuncio({ adId: _adId, anuncio: atualizacao })
     }
   }
   finally {

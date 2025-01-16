@@ -19,15 +19,18 @@
     :disabled="!email || loading"
     type="button"
     class="mt-4 w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold shadow-sm"
+    :class="[loading ? 'pointer-events-none' : '']"
     @click="validateEmail"
   >
     Confirmar
     <FontAwesomeIcon :icon="loading ? faSpinner : faArrowRight" :spin="loading" size="lg" />
   </button>
+  <div ref="turnstileContainer" />
 </template>
 
 <script lang="ts" setup>
 import { useApp } from '@/composables/useApp'
+import { getTurnstileToken } from '@/helpers/getTurnstileToken'
 import { faArrowRight, faEnvelope, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -41,6 +44,7 @@ const { api } = useApp()
 
 const emailEl = ref<null | HTMLInputElement>(null)
 const loading = ref(false)
+const turnstileContainer = ref<null | HTMLInputElement>(null)
 
 const validationSchema = toTypedSchema(z.object({ email: z.string({ required_error: 'Obrigatório' }).email('E-mail inválido') }))
 const { errors, defineField, validate, meta } = useForm({ validationSchema })
@@ -52,10 +56,15 @@ const validateEmail = async () => {
   if (!unref(meta).valid) {
     return
   }
+  const turnstileEl = unref(turnstileContainer)
+  if (turnstileEl === null) {
+    return
+  }
   loading.value = true
+  const token = await getTurnstileToken({ el: turnstileEl, siteKey: __CLOUDFLARE_TURNSTILE_SITEKEY__ })
   const _email = unref(email)?.toLowerCase() as string
   try {
-    const exists = await api.validateEmail(_email)
+    const exists = await api.validateEmail({ email: _email, token })
     emit('emailVerified', { email: _email, exists })
   }
   finally {
@@ -64,6 +73,9 @@ const validateEmail = async () => {
 }
 
 const keydownEventHandler = async (evt: KeyboardEvent) => {
+  if (unref(loading)) {
+    return
+  }
   const { key } = evt
   if (key === 'Enter') {
     await validateEmail()

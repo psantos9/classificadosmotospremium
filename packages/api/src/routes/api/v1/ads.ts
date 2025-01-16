@@ -43,7 +43,8 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   })
   .post('/', async (req, env) => {
     const { id: userId, isCnpj } = req.user
-    const anuncio = getAtualizaAnuncioSchema().parse(await req.json())
+    const bodySchema = z.object({ anuncio: getAtualizaAnuncioSchema() })
+    const { anuncio } = bodySchema.parse(await req.json())
     const cachedCEP = await env.CEP.get<OpenCEP>(anuncio.cep.toString(), 'json')
     const location = cachedCEP?.geometry ?? null
     const db = getDb(env.DB)
@@ -55,7 +56,8 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
   .put('/:adId', async (req, env) => {
     const userId = req.user.id
     const adId = z.coerce.number().parse(req.params.adId)
-    const atualizacao = getAtualizaAnuncioSchema().parse(await req.json())
+    const bodySchema = z.object({ anuncio: getAtualizaAnuncioSchema() })
+    const { anuncio: atualizacao } = bodySchema.parse(await req.json())
     const cachedCEP = await env.CEP.get<OpenCEP>(atualizacao.cep.toString(), 'json')
     atualizacao.location = cachedCEP?.geometry ?? null
 
