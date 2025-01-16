@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-md shadow border p-4 flex flex-col gap-4 bg-gray-100 ">
+  <div class="rounded-md shadow border p-4 flex flex-col items-center gap-4 bg-gray-100 ">
     <div class="text-lg font-black">
       Enviar proposta
     </div>
@@ -54,6 +54,7 @@
         <FontAwesomeIcon :icon="sendingMessage ? faSpinner : faChevronRight" :spin="sendingMessage" fixed-width />
       </button>
     </div>
+    <div ref="turnstileContainer" />
   </div>
 </template>
 
@@ -66,7 +67,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { vMaska } from 'maska/vue'
 import { useForm } from 'vee-validate'
-import { computed, ref, toRefs, unref } from 'vue'
+import { computed, onMounted, ref, toRefs, unref } from 'vue'
 import { useToast } from 'vue-toast-notification'
 
 const props = defineProps<{ anuncio: TAdDocument }>()
@@ -88,6 +89,8 @@ const [name, nameAttrs] = defineField('name')
 const message = ref('')
 const sendingMessage = ref(false)
 
+const turnstileContainer = ref<HTMLElement | null>(null)
+
 const sendingMessageDisabled = computed(() => {
   const _signedIn = unref(signedIn)
   const content = unref(message)
@@ -95,6 +98,20 @@ const sendingMessageDisabled = computed(() => {
   const { valid, touched } = unref(meta)
   const disabled = sending || !content || (!_signedIn && !touched && !valid)
   return disabled
+})
+
+const getTurnstileToken = async () => new Promise<string>((resolve, reject) => {
+  const el = unref(turnstileContainer)
+  if (el === null) {
+    return reject(new Error('no turnstile element'))
+  }
+  turnstile.render(el, {
+    sitekey: __CLOUDFLARE_TURNSTILE_SITEKEY__,
+    appearance: 'interaction-only',
+    callback: (token) => {
+      resolve(token)
+    }
+  })
 })
 
 const enviarMensagem = async () => {
@@ -106,7 +123,8 @@ const enviarMensagem = async () => {
   const unauthenticatedSender = !unref(signedIn) ? getUnauthenticatedMessageSenderSchema().parse(unref(values)) : undefined
   try {
     sendingMessage.value = true
-    await api.enviaMensagem({ adId: Number.parseInt(adId), content, unauthenticatedSender })
+    const token = await getTurnstileToken()
+    await api.enviaMensagem({ adId: Number.parseInt(adId), content, unauthenticatedSender, token })
     toast.success('Mensagem enviada com sucesso!')
     message.value = ''
     resetForm()

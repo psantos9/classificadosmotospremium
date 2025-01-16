@@ -13,7 +13,8 @@ export const novaMensagemSchema = z.object({
   threadId: z.string().uuid().optional(),
   recipient: z.union([z.number().int(), z.string().email().transform(val => val.toLowerCase())]).optional(),
   unauthenticatedSender: getUnauthenticatedMessageSenderSchema().optional(),
-  content: z.string()
+  content: z.string(),
+  token: z.string().optional()
 })
 
 export type NovaMensagem = z.infer<typeof novaMensagemSchema>

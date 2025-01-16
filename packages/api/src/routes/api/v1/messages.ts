@@ -2,6 +2,7 @@ import type { CF, Env, IAppAuthenticatedRequest } from '@cmp/api/types'
 import type { IThread } from '@cmp/shared/models/thread'
 import type { IThreadMessage } from '@cmp/shared/models/thread-message'
 import type { IRequest } from 'itty-router'
+import { verifyTurnstileToken } from '@/helpers/verify-turnstile-token'
 import { getUserDO } from '@cmp/api/durable-objects/UserDO'
 import { defaultErrorHandler } from '@cmp/api/helpers/default-error-handler'
 import { authenticateRequest, getUserIdFromAuthenticationHeader } from '@cmp/api/middleware/authenticate-request'
@@ -23,7 +24,12 @@ export const router = AutoRouter<IAppAuthenticatedRequest, [Env, ExecutionContex
 })
   .post('/', getUserIdFromAuthenticationHeader, async (req, env) => {
     const senderId = req.userId ?? null
-    let { adId, content, unauthenticatedSender, threadId, recipient } = novaMensagemSchema.parse(await req.json())
+    let { adId, content, unauthenticatedSender, threadId, recipient, token = '' } = novaMensagemSchema.parse(await req.json())
+    const validToken = await verifyTurnstileToken({ token, secretKey: env.TURNSTILE_SECRET_KEY, req })
+    if (!validToken) {
+      return error(403, 'invalid token')
+    }
+
     if (senderId === null && !unauthenticatedSender) {
       return error(400, 'sender is required')
     }

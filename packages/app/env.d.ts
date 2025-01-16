@@ -12,3 +12,4 @@ declare const __API_BASE_URL__: string
 declare const __GIT_COMMIT_HASH__: string
 declare const __GIT_COMMIT_BRANCH__: string
 declare const __APP_BUILD_TIMESTAMP__: string
+declare const __CLOUDFLARE_TURNSTILE_SITEKEY__: string

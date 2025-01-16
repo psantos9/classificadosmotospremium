@@ -424,7 +424,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncio
   }
 
-  async enviaMensagem(params: { adId: number, unauthenticatedSender?: UnauthenticatedMessageSender, content: string }) {
+  async enviaMensagem(params: { adId: number, unauthenticatedSender?: UnauthenticatedMessageSender, content: string, token: string }) {
     await this.axios.post('/api/v1/messages', params)
   }
 

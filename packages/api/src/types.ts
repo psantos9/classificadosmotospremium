@@ -21,6 +21,7 @@ export interface Env {
   TYPESENSE_URL_ENDPOINT: string
   IMAGEKIT_URL_ENDPOINT: string
   OPENCAGE_API_KEY: string
+  TURNSTILE_SECRET_KEY: string
   AD_REVIEW_WORKFLOW: Workflow<AdReviewEvent>
   DELETE_AD_WORKFLOW: Workflow<DeleteAdEvent>
   PROCESS_AD_MESSAGE_WORKFLOW: Workflow<ProcessAdMessageEvent>
