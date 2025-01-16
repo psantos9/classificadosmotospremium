@@ -3,9 +3,10 @@
     class="rounded-md p-2 shadow"
     :class="[message.senderId === Number.parseInt(api.userId ?? '') ? 'bg-[var(--primary-lightest)] self-end' : 'bg-white self-start']"
   >
-    <div class="flex items-center gap-1">
+    <div class="flex items-center justify-between gap-1">
       <span class="text-xs font-extralight">{{ timeAgo }}</span>
-      <FontAwesomeIcon v-if="ownMessage" :icon="faCheck" size="xs" :class="[message.unread ? 'text-[var(--primary-lighter)]' : 'text-green-600']" />
+      <FontAwesomeIcon v-if="sending" :icon="faSpinner" spin fixed-width class="text-[var(--primary-lighter)]" />
+      <FontAwesomeIcon v-if="!sending && ownMessage" :icon="faCheck" size="xs" fixed-width :class="[message.unread ? 'text-[var(--primary-lighter)]' : 'text-green-600']" />
     </div>
     <div class="text-xs">
       {{ message.content }}
@@ -16,13 +17,13 @@
 <script lang="ts" setup>
 import type { IThreadMessage } from '@cmp/shared/models/thread-message'
 import { useApp } from '@/composables/useApp'
-import { faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { formatDistance } from 'date-fns'
 import { ptBR } from 'date-fns/locale/pt-BR'
 import { computed, ref, toRefs, unref } from 'vue'
 
-const props = defineProps<{ message: IThreadMessage }>()
+const props = defineProps<{ message: IThreadMessage, sending: boolean }>()
 const { message } = toRefs(props)
 
 const { api, signedIn } = useApp()

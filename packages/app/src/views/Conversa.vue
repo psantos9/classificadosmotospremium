@@ -6,6 +6,7 @@
       <ThreadMessageCard
         v-for="message in messages"
         :key="message.id" :message="message"
+        :sending="sendingMessageId === message.id"
       />
     </div>
     <div class="flex items-center gap-4">
@@ -48,6 +49,7 @@ const scrollContainer = ref<HTMLElement | null>(null)
 const newMessage = ref('')
 const messages = ref<IThreadMessage[]>([])
 const sendingMessage = ref(false)
+const sendingMessageId = ref<number | null>(null)
 
 const anuncio = computed(() => unref(messages)?.[0]?.anuncio ?? 0)
 const thread = computed(() => unref(threads).find(thread => thread.id === threadId))
@@ -87,6 +89,7 @@ const addMessageToThread = (message: NovaMensagem) => {
     content
   }
   unref(messages).push(threadMessage)
+  return threadMessageId
 }
 
 const sendMessage = async () => {
@@ -111,7 +114,7 @@ const sendMessage = async () => {
       recipient,
       content
     }
-    addMessageToThread(novaMensagem)
+    sendingMessageId.value = addMessageToThread(novaMensagem)
     await api.enviaMensagem(novaMensagem)
     newMessage.value = ''
   }
@@ -120,6 +123,7 @@ const sendMessage = async () => {
     throw err
   }
   finally {
+    sendingMessageId.value = null
     sendingMessage.value = false
   }
 }
