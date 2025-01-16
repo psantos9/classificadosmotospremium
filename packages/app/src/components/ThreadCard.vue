@@ -52,7 +52,7 @@ const threadPartner = computed(() => {
   else if (recipient !== null && recipient.id.toString() !== userId) {
     return recipient
   }
-  return externalRecipient ?? unauthenticatedSender ? `${unauthenticatedSender?.name} / ${unauthenticatedSender?.email} / ${unauthenticatedSender?.mobile}` : null
+  return externalRecipient ?? unauthenticatedSender ? `${unauthenticatedSender?.name} (${unauthenticatedSender?.email}) ${unauthenticatedSender?.mobile}` : null
 })
 const timeAgo = computed(() => {
   const timeAgo = formatDistance(new Date(unref(thread).ultimaAtualizacao as unknown as number * 1000), unref(refDate), { locale: ptBR })
