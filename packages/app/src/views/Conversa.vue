@@ -1,6 +1,6 @@
 <template>
   <div class="view-container bg-gray-200 max-w-screen-md mx-auto p-2 md:p-4 flex-1 flex flex-col gap-2 md:gap-4 overflow-hidden">
-    <ThreadCard v-if="thread" :thread="thread" />
+    <ThreadCard v-if="thread" :thread="thread" :hide-timeago="true" />
 
     <div ref="scrollContainer" class="flex-1 flex flex-col items-start gap-2 px-2 overflow-auto rounded-md">
       <ThreadMessageCard
@@ -9,7 +9,7 @@
         :sending="sendingMessageId === message.id"
       />
     </div>
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2 md:gap-4">
       <input
         v-model="newMessage"
         class="form-input p-4 text-base font-bold"
@@ -70,15 +70,16 @@ const threadPartnerId = computed(() => {
 const addMessageToThread = (message: NovaMensagem) => {
   const { adId, recipient, unauthenticatedSender = null, content } = message
 
-  const threadMessageId = unref(messages).reduce((accumulator, message) => {
+  const messageId = unref(messages).reduce((accumulator, message) => {
     if (message.id < accumulator) {
       accumulator = message.id - 1
     }
     return accumulator
   }, 0)
+  console.log('MESSAGE ID', messageId)
 
   const threadMessage: IThreadMessage = {
-    id: threadMessageId,
+    id: messageId,
     createdAt: new Date(),
     adId,
     unread: true,
@@ -93,7 +94,7 @@ const addMessageToThread = (message: NovaMensagem) => {
   }
   unref(messages).push(threadMessage)
 
-  return threadMessageId
+  return messageId
 }
 
 const scrollToBottom = () => {
@@ -118,20 +119,13 @@ const sendMessage = async () => {
   if (!content) {
     return
   }
-
+  newMessage.value = ''
   try {
-    const token = await getTurnstileToken({ el: turnstileEl, siteKey: __CLOUDFLARE_TURNSTILE_SITEKEY__ })
     sendingMessage.value = true
-    const novaMensagem: NovaMensagem = {
-      adId,
-      threadId,
-      recipient,
-      content,
-      token
-    }
+    const novaMensagem: NovaMensagem = { adId, threadId, recipient, content }
     sendingMessageId.value = addMessageToThread(novaMensagem)
+    const token = await getTurnstileToken({ el: turnstileEl, siteKey: __CLOUDFLARE_TURNSTILE_SITEKEY__ })
     await api.enviaMensagem({ ...novaMensagem, token })
-    newMessage.value = ''
   }
   catch (err) {
     unref(messages).pop()

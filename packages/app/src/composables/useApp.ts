@@ -39,7 +39,6 @@ const api = new APIClient({ baseURL: __API_BASE_URL__ })
 
 const webSocketMessageProcessor = new WebSocketMessageProcessor({
   onUnreadMessages: (messages) => {
-    console.log('GOT UNREAD MESSAGES', messages)
     unreadMessages.value = messages
   }
 })
