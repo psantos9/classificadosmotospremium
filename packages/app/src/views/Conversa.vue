@@ -19,19 +19,20 @@
         class="h-full aspect-square text-[var(--primary-text)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] focus:outline-none rounded-md flex items-center justify-center"
         @click="sendMessage"
       >
-        <FontAwesomeIcon :icon="faPaperPlane" fixed-width size="xl" />
+        <FontAwesomeIcon :icon="sendingMessage ? faSpinner : faPaperPlane" :spin="sendingMessage" fixed-width size="xl" />
       </button>
     </div>
   </div>
 </template>
 
 <script  lang="ts" setup>
+import type { IAuthenticatedMessageSender } from '@cmp/shared/models/authenticated-message-sender'
 import type { NovaMensagem } from '@cmp/shared/models/nova-mensagem'
 import type { IThreadMessage } from '@cmp/shared/models/thread-message'
 import ThreadCard from '@/components/ThreadCard.vue'
 import ThreadMessageCard from '@/components/ThreadMessageCard.vue'
 import { useApp } from '@/composables/useApp'
-import { faPaperPlane } from '@fortawesome/free-solid-svg-icons'
+import { faPaperPlane, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, nextTick, ref, unref, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -44,6 +45,7 @@ const scrollContainer = ref<HTMLElement | null>(null)
 
 const newMessage = ref('')
 const messages = ref<IThreadMessage[]>([])
+const sendingMessage = ref(false)
 
 const anuncio = computed(() => unref(messages)?.[0]?.anuncio ?? 0)
 const thread = computed(() => unref(threads).find(thread => thread.id === threadId))
@@ -58,6 +60,33 @@ const threadPartnerId = computed(() => {
   return id
 })
 
+const addMessageToThread = (message: NovaMensagem) => {
+  const { adId, recipient, unauthenticatedSender = null, content } = message
+
+  const threadMessageId = unref(messages).reduce((accumulator, message) => {
+    if (message.id < accumulator) {
+      accumulator = message.id - 1
+    }
+    return accumulator
+  }, 0)
+
+  const threadMessage: IThreadMessage = {
+    id: threadMessageId,
+    createdAt: new Date(),
+    adId,
+    unread: true,
+    threadId,
+    senderId: Number.parseInt(api.userId ?? '-1'),
+    sender: {} as IAuthenticatedMessageSender,
+    recipientEmail: typeof recipient === 'string' ? recipient : null,
+    recipientId: typeof recipient === 'number' ? recipient : null,
+    unauthenticatedSender,
+    anuncio: unref(anuncio),
+    content
+  }
+  unref(messages).push(threadMessage)
+}
+
 const sendMessage = async () => {
   if (api.userId === null) {
     return
@@ -71,14 +100,26 @@ const sendMessage = async () => {
   if (!content) {
     return
   }
-  const novaMensagem: NovaMensagem = {
-    adId,
-    threadId,
-    recipient,
-    content
+
+  try {
+    sendingMessage.value = true
+    const novaMensagem: NovaMensagem = {
+      adId,
+      threadId,
+      recipient,
+      content
+    }
+    addMessageToThread(novaMensagem)
+    await api.enviaMensagem(novaMensagem)
+    newMessage.value = ''
   }
-  await api.enviaMensagem(novaMensagem)
-  newMessage.value = ''
+  catch (err) {
+    unref(messages).pop()
+    throw err
+  }
+  finally {
+    sendingMessage.value = false
+  }
 }
 
 const scrollToBottom = () => {
