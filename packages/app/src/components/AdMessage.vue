@@ -61,13 +61,14 @@
 <script lang="ts" setup>
 import type { TAdDocument } from '@cmp/shared/models/typesense'
 import { useApp } from '@/composables/useApp'
+import { getTurnstileToken } from '@/helpers/getTurnstileToken'
 import { getUnauthenticatedMessageSenderSchema } from '@cmp/shared/models/nova-mensagem'
 import { faChevronRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { toTypedSchema } from '@vee-validate/zod'
 import { vMaska } from 'maska/vue'
 import { useForm } from 'vee-validate'
-import { computed, onMounted, ref, toRefs, unref } from 'vue'
+import { computed, ref, toRefs, unref } from 'vue'
 import { useToast } from 'vue-toast-notification'
 
 const props = defineProps<{ anuncio: TAdDocument }>()
@@ -100,21 +101,11 @@ const sendingMessageDisabled = computed(() => {
   return disabled
 })
 
-const getTurnstileToken = async () => new Promise<string>((resolve, reject) => {
-  const el = unref(turnstileContainer)
-  if (el === null) {
-    return reject(new Error('no turnstile element'))
-  }
-  turnstile.render(el, {
-    sitekey: __CLOUDFLARE_TURNSTILE_SITEKEY__,
-    appearance: 'interaction-only',
-    callback: (token) => {
-      resolve(token)
-    }
-  })
-})
-
 const enviarMensagem = async () => {
+  const turnstileEl = unref(turnstileContainer)
+  if (turnstileEl === null) {
+    throw new Error('can not send message, no turnstile container')
+  }
   const adId = unref(anuncio)?.id ?? null
   const content = unref(message)
   if (adId === null) {
@@ -123,7 +114,7 @@ const enviarMensagem = async () => {
   const unauthenticatedSender = !unref(signedIn) ? getUnauthenticatedMessageSenderSchema().parse(unref(values)) : undefined
   try {
     sendingMessage.value = true
-    const token = await getTurnstileToken()
+    const token = await getTurnstileToken({ el: turnstileEl, siteKey: __CLOUDFLARE_TURNSTILE_SITEKEY__ })
     await api.enviaMensagem({ adId: Number.parseInt(adId), content, unauthenticatedSender, token })
     toast.success('Mensagem enviada com sucesso!')
     message.value = ''
