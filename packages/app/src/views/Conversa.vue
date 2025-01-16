@@ -92,6 +92,11 @@ const addMessageToThread = (message: NovaMensagem) => {
   return threadMessageId
 }
 
+const scrollToBottom = () => {
+  const el = unref(scrollContainer)
+  el?.scrollTo({ top: el.scrollHeight ?? 0, behavior: 'smooth' })
+}
+
 const sendMessage = async () => {
   if (api.userId === null) {
     return
@@ -115,6 +120,7 @@ const sendMessage = async () => {
       content
     }
     sendingMessageId.value = addMessageToThread(novaMensagem)
+    scrollToBottom()
     await api.enviaMensagem(novaMensagem)
     newMessage.value = ''
   }
@@ -126,11 +132,6 @@ const sendMessage = async () => {
     sendingMessageId.value = null
     sendingMessage.value = false
   }
-}
-
-const scrollToBottom = () => {
-  const el = unref(scrollContainer)
-  el?.scrollTo({ top: el.scrollHeight ?? 0, behavior: 'smooth' })
 }
 
 const fetchThreadMessages = async () => {
