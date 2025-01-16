@@ -6,7 +6,7 @@
         <span>{{ typeof threadPartner === 'string' ? threadPartner : threadPartner?.nomeFantasia || threadPartner?.nomeRazaoSocial }}</span>
         <span v-if="typeof threadPartner !== 'string' && threadPartner !== null">({{ threadPartner.email }})</span>
       </div>
-      <div class="font-extralight">
+      <div v-if="!hideTimeago" class="font-extralight">
         {{ timeAgo }}
       </div>
     </div>
@@ -28,7 +28,7 @@ import { formatDistance } from 'date-fns'
 import { ptBR } from 'date-fns/locale/pt-BR'
 import { computed, ref, toRefs, unref } from 'vue'
 
-const props = defineProps<{ thread: IThread }>()
+const props = defineProps<{ thread: IThread, hideTimeago?: boolean }>()
 const { thread } = toRefs(props)
 
 const { api, signedIn } = useApp()

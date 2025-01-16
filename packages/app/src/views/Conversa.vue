@@ -1,6 +1,6 @@
 <template>
   <div class="view-container bg-gray-200 max-w-screen-md mx-auto p-2 md:p-4 flex-1 flex flex-col gap-2 md:gap-4 overflow-hidden">
-    <ThreadCard v-if="thread" :thread="thread" />
+    <ThreadCard v-if="thread" :thread="thread" :hide-timeago="true" />
 
     <div ref="scrollContainer" class="flex-1 flex flex-col items-start gap-2 px-2 overflow-auto rounded-md">
       <ThreadMessageCard
