@@ -70,15 +70,16 @@ const threadPartnerId = computed(() => {
 const addMessageToThread = (message: NovaMensagem) => {
   const { adId, recipient, unauthenticatedSender = null, content } = message
 
-  const threadMessageId = unref(messages).reduce((accumulator, message) => {
+  const messageId = unref(messages).reduce((accumulator, message) => {
     if (message.id < accumulator) {
       accumulator = message.id - 1
     }
     return accumulator
   }, 0)
+  console.log('MESSAGE ID', messageId)
 
   const threadMessage: IThreadMessage = {
-    id: threadMessageId,
+    id: messageId,
     createdAt: new Date(),
     adId,
     unread: true,
@@ -93,7 +94,7 @@ const addMessageToThread = (message: NovaMensagem) => {
   }
   unref(messages).push(threadMessage)
 
-  return threadMessageId
+  return messageId
 }
 
 const scrollToBottom = () => {
