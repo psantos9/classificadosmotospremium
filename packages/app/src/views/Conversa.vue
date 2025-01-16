@@ -25,6 +25,7 @@
         <FontAwesomeIcon :icon="sendingMessage ? faSpinner : faPaperPlane" :spin="sendingMessage" fixed-width size="xl" />
       </button>
     </div>
+    <div ref="turnstileContainer" />
   </div>
 </template>
 
@@ -35,6 +36,7 @@ import type { IThreadMessage } from '@cmp/shared/models/thread-message'
 import ThreadCard from '@/components/ThreadCard.vue'
 import ThreadMessageCard from '@/components/ThreadMessageCard.vue'
 import { useApp } from '@/composables/useApp'
+import { getTurnstileToken } from '@/helpers/getTurnstileToken'
 import { faPaperPlane, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, nextTick, ref, unref, watch } from 'vue'
@@ -45,6 +47,7 @@ const route = useRoute()
 const threadId = route.params.id as string
 
 const scrollContainer = ref<HTMLElement | null>(null)
+const turnstileContainer = ref<HTMLElement | null>(null)
 
 const newMessage = ref('')
 const messages = ref<IThreadMessage[]>([])
@@ -99,6 +102,10 @@ const scrollToBottom = () => {
 }
 
 const sendMessage = async () => {
+  const turnstileEl = unref(turnstileContainer)
+  if (turnstileEl === null) {
+    throw new Error('no turnstile container')
+  }
   if (api.userId === null) {
     return
   }
@@ -113,15 +120,17 @@ const sendMessage = async () => {
   }
 
   try {
+    const token = await getTurnstileToken({ el: turnstileEl, siteKey: __CLOUDFLARE_TURNSTILE_SITEKEY__ })
     sendingMessage.value = true
     const novaMensagem: NovaMensagem = {
       adId,
       threadId,
       recipient,
-      content
+      content,
+      token
     }
     sendingMessageId.value = addMessageToThread(novaMensagem)
-    await api.enviaMensagem(novaMensagem)
+    await api.enviaMensagem({ ...novaMensagem, token })
     newMessage.value = ''
   }
   catch (err) {

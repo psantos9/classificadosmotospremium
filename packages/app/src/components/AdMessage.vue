@@ -1,9 +1,9 @@
 <template>
-  <div class="rounded-md shadow border p-4 flex flex-col items-center gap-4 bg-gray-100 ">
+  <div class="w-full rounded-md shadow border p-4 flex flex-col items-center gap-4 bg-gray-100 ">
     <div class="text-lg font-black">
       Enviar proposta
     </div>
-    <div class="grid gap-3 md:grid-cols-2">
+    <div class="grid gap-3 md:grid-cols-2 w-full">
       <template v-if="!signedIn">
         <div class="col-span-full relative">
           <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome</label>
@@ -38,7 +38,7 @@
         <textarea
           v-model="message"
           rows="4"
-          class="form-input" :placeholder="`Gostei do seu anúncio da ${anuncio?.marca} ${anuncio?.modelo} e gostaria de mais informações.`"
+          class="form-input w-full" :placeholder="`Gostei do seu anúncio da ${anuncio?.marca} ${anuncio?.modelo} e gostaria de mais informações.`"
         />
       </div>
     </div>
