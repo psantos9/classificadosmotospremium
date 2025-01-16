@@ -120,8 +120,8 @@ const sendMessage = async () => {
   }
 
   try {
+		sendingMessage.value = true
     const token = await getTurnstileToken({ el: turnstileEl, siteKey: __CLOUDFLARE_TURNSTILE_SITEKEY__ })
-    sendingMessage.value = true
     const novaMensagem: NovaMensagem = {
       adId,
       threadId,
