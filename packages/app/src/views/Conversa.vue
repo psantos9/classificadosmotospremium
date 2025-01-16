@@ -118,20 +118,13 @@ const sendMessage = async () => {
   if (!content) {
     return
   }
-
+  newMessage.value = ''
   try {
 		sendingMessage.value = true
-    const token = await getTurnstileToken({ el: turnstileEl, siteKey: __CLOUDFLARE_TURNSTILE_SITEKEY__ })
-    const novaMensagem: NovaMensagem = {
-      adId,
-      threadId,
-      recipient,
-      content,
-      token
-    }
+    const novaMensagem: NovaMensagem = { adId, threadId, recipient, content }
     sendingMessageId.value = addMessageToThread(novaMensagem)
+    const token = await getTurnstileToken({ el: turnstileEl, siteKey: __CLOUDFLARE_TURNSTILE_SITEKEY__ })
     await api.enviaMensagem({ ...novaMensagem, token })
-    newMessage.value = ''
   }
   catch (err) {
     unref(messages).pop()
