@@ -54,7 +54,7 @@
         <FontAwesomeIcon :icon="sendingMessage ? faSpinner : faChevronRight" :spin="sendingMessage" fixed-width />
       </button>
     </div>
-    <div ref="turnstileContainer" />
+    <div ref="turnstileContainer" class="fixed bottom-0 right-0" />
   </div>
 </template>
 

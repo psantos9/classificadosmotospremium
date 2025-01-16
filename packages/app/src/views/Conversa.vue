@@ -25,7 +25,7 @@
         <FontAwesomeIcon :icon="sendingMessage ? faSpinner : faPaperPlane" :spin="sendingMessage" fixed-width size="xl" />
       </button>
     </div>
-    <div ref="turnstileContainer" />
+    <div ref="turnstileContainer" class="fixed bottom-0 right-0" />
   </div>
 </template>
 
