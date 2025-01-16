@@ -9,7 +9,19 @@
         :sending="sendingMessageId === message.id"
       />
     </div>
-    <div class="flex items-center gap-2 md:gap-4">
+    <div v-if="thread?.unauthenticatedSender" class="bg-white rounded-md p-2 md:p-4 flex flex-col gap-1">
+      Esta conversa foi enviada por um usuário não cadastrado, por favor retorne através dos seguintes contatos:<br>
+      <div class="flex gap-2 items-center">
+        <FontAwesomeIcon :icon="faUser" fixed-width />{{ thread?.unauthenticatedSender.name }}
+      </div>
+      <div class="flex gap-2 items-center">
+        <FontAwesomeIcon :icon="faEnvelope" fixed-width /> {{ thread.unauthenticatedSender.email }}
+      </div>
+      <div class="flex gap-2 items-center">
+        <FontAwesomeIcon :icon="faMobileAlt" fixed-width /> {{ thread.unauthenticatedSender.mobile }}
+      </div>
+    </div>
+    <div v-if="thread?.unauthenticatedSender === null" class="flex items-center gap-2 md:gap-4">
       <input
         v-model="newMessage"
         class="form-input p-4 text-base font-bold"
@@ -37,7 +49,7 @@ import ThreadCard from '@/components/ThreadCard.vue'
 import ThreadMessageCard from '@/components/ThreadMessageCard.vue'
 import { useApp } from '@/composables/useApp'
 import { getTurnstileToken } from '@/helpers/getTurnstileToken'
-import { faPaperPlane, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faEnvelope, faMobile, faMobileAlt, faPaperPlane, faSpinner, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, nextTick, ref, unref, watch } from 'vue'
 import { useRoute } from 'vue-router'
