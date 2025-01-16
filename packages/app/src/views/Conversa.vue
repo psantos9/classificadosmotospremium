@@ -89,6 +89,7 @@ const addMessageToThread = (message: NovaMensagem) => {
     content
   }
   unref(messages).push(threadMessage)
+
   return threadMessageId
 }
 
@@ -120,7 +121,6 @@ const sendMessage = async () => {
       content
     }
     sendingMessageId.value = addMessageToThread(novaMensagem)
-    scrollToBottom()
     await api.enviaMensagem(novaMensagem)
     newMessage.value = ''
   }
@@ -136,11 +136,10 @@ const sendMessage = async () => {
 
 const fetchThreadMessages = async () => {
   messages.value = await api.fetchThread(threadId)
-  nextTick(() => scrollToBottom())
 }
 
 watch(unreadMessages, () => fetchThreadMessages())
+watch(messages, () => scrollToBottom(), { immediate: true, deep: true })
 
 fetchThreadMessages()
-  .then(() => scrollToBottom())
 </script>
