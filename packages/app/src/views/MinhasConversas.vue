@@ -1,6 +1,6 @@
 <template>
   <div class="view-container flex-1 flex flex-col gap-2 overflow-hidden">
-    <div class="flex items-center justify-between p-4 bg-[var(--primary-lightest)] rounded-md">
+    <div class="flex items-center justify-between md:p-4 bg-[var(--primary-lightest)] md:rounded-md">
       <span class="text-xl font-black uppercase">
         Minhas Conversas
       </span>
