@@ -336,8 +336,6 @@ const { api } = useApp()
 const toast = useToast()
 
 const adId = ref<number | null>(null)
-const turnstileContainer = ref<HTMLElement | null>(null)
-
 const anuncio = ref<Anuncio | null>(null)
 
 const cores = ref<string[]>([])
@@ -622,11 +620,6 @@ const removeFotos = debounce(async () => {
 }, 500)
 
 const atualizaAnuncio = async (atualizacao: AtualizaAnuncio) => {
-  const turnstileEl = unref(turnstileContainer)
-  if (turnstileEl === null) {
-    throw new Error('no turnstile container')
-  }
-
   const _anuncio = unref(anuncio)
   const hasDifferences = [...Object.entries(atualizacao)]
     .reduce((accumulator, [key, value], _, array) => {
