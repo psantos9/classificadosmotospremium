@@ -9,7 +9,7 @@
         :sending="sendingMessageId === message.id"
       />
     </div>
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2 md:gap-4">
       <input
         v-model="newMessage"
         class="form-input p-4 text-base font-bold"
