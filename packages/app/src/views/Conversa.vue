@@ -120,7 +120,7 @@ const sendMessage = async () => {
   }
   newMessage.value = ''
   try {
-		sendingMessage.value = true
+    sendingMessage.value = true
     const novaMensagem: NovaMensagem = { adId, threadId, recipient, content }
     sendingMessageId.value = addMessageToThread(novaMensagem)
     const token = await getTurnstileToken({ el: turnstileEl, siteKey: __CLOUDFLARE_TURNSTILE_SITEKEY__ })
