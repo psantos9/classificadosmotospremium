@@ -16,7 +16,9 @@
       >
       <button
         type="button"
+        :disabled="sendingMessage"
         class="h-full aspect-square text-[var(--primary-text)] bg-[var(--primary)] hover:bg-[var(--primary-lighter)] focus:outline-none rounded-md flex items-center justify-center"
+        :class="[sendingMessage ? 'opacity-50 pointer-events-none' : '']"
         @click="sendMessage"
       >
         <FontAwesomeIcon :icon="sendingMessage ? faSpinner : faPaperPlane" :spin="sendingMessage" fixed-width size="xl" />
