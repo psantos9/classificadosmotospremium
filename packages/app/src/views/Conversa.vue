@@ -140,7 +140,7 @@ const fetchThreadMessages = async () => {
 }
 
 watch(unreadMessages, () => fetchThreadMessages())
-watch(messages, () => scrollToBottom(), { immediate: true, deep: true })
+watch(messages, () => nextTick(() => scrollToBottom()), { immediate: true, deep: true })
 
 fetchThreadMessages()
 </script>
