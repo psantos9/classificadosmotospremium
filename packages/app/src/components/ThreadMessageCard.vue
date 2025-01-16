@@ -5,8 +5,13 @@
   >
     <div class="flex items-center justify-between gap-1">
       <span class="text-xs font-extralight">{{ timeAgo }}</span>
-      <FontAwesomeIcon v-if="sending" :icon="faSpinner" spin fixed-width class="text-[var(--primary-lighter)]" />
-      <FontAwesomeIcon v-if="!sending && ownMessage" :icon="faCheck" size="xs" fixed-width :class="[message.unread ? 'text-[var(--primary-lighter)]' : 'text-green-600']" />
+      <FontAwesomeIcon
+        v-if="ownMessage"
+        :icon="sending ? faSpinner : faCheck"
+        :spin="sending" size="xs"
+        fixed-width
+        :class="[message.unread ? 'text-[var(--primary-lighter)]' : 'text-green-600']"
+      />
     </div>
     <div class="text-xs">
       {{ message.content }}
