@@ -19,7 +19,7 @@
             </DisclosurePanel>
           </Disclosure>
         </div>
-        <p class="mt-8">
+        <p class="mt-8 hidden md:block">
           <img src="@/assets/images/full_logo.svg" class="max-w-[200px] md:max-w-screen-xs">
         </p>
       </div>
