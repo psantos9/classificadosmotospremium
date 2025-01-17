@@ -1,7 +1,7 @@
 <template>
-  <div class="view-container flex-1">
-    <div class="card">
-      <div class="card-header">
+  <div class="view-container flex-1 flex flex-col">
+    <div class="card shadow-none flex-1 md:flex-initial md:shadow">
+      <div class="p-4 md:p-8 flex items-center justify-center uppercase font-black text-2xl">
         Fale Conosco
       </div>
       <div class="card-section">
