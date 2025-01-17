@@ -83,8 +83,8 @@ import { faArrowRight, faChevronDown, faPhone } from '@fortawesome/free-solid-sv
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const sections = [
-  { icon: faWhatsapp, title: 'Whatsapp', description: 'Clique aqui para iniciar uma conversa agora', action: () => console.log('whatsapp') },
-  { icon: faEnvelope, title: 'E-mail', description: 'Envie um email apra...', action: () => console.log('e-mail') },
-  { icon: faPhone, title: 'Telefone', description: 'Ligue para o numero', action: () => console.log('phone') }
+  { icon: faWhatsapp, title: 'Whatsapp', description: 'Clique aqui para iniciar uma conversa agora', action: () => window.open('https://wa.me/5562998590500', '_blank') },
+  { icon: faEnvelope, title: 'E-mail', description: 'Envie um email suporte@classificadosmotospremium.com.br', action: () => window.open('mailto:suporte@classificadosmotospremium.com.br', '_blank') },
+  { icon: faPhone, title: 'Telefone', description: 'Ligue para o numero (62) 99859-0500', action: () => window.open('tel:62998590500', '_blank') }
 ]
 </script>
