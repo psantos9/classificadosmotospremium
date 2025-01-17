@@ -4,9 +4,7 @@
     <Sidebar />
     <RouterView />
     <Footer />
-    <a class="fixed bottom-0 right-0 m-4 shadow-md rounded-lg z-50" href="https://wa.me/5562998590500">
-      <img src="@/assets/images/WhatsAppButtonGreenSmall.svg">
-    </a>
+    <WhatsappButton />
   </div>
 </template>
 
@@ -14,4 +12,5 @@
 import Footer from '@/components/Footer.vue'
 import Header from '@/components/Header.vue'
 import Sidebar from '@/components/Sidebar.vue'
+import WhatsappButton from '@/components/WhatsappButton.vue'
 </script>
