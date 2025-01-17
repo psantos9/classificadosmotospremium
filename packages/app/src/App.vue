@@ -4,6 +4,9 @@
     <Sidebar />
     <RouterView />
     <Footer />
+    <a class="fixed bottom-0 right-0 m-4 shadow-md rounded-lg z-50" href="https://wa.me/5562998590500">
+      <img src="@/assets/images/WhatsAppButtonGreenSmall.svg">
+    </a>
   </div>
 </template>
 
