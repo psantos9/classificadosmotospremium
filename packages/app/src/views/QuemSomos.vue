@@ -18,7 +18,7 @@
           <p class="md:text-justify">
             Venha fazer parte você também, nossa comunidade cresce a cada dia, siga-nos no Instagram <a href="https://www.instagram.com/classificadosmotospremium" class="font-bold text-[var(--primary)] underline">@classificadosmotospremium</a>, fique por dentro de todas as novidades e receba em primeira mão os melhores anúncios de moto do Brasil.
           </p>
-          <p>
+          <p class="hidden md:block">
             <img src="@/assets/images/full_logo.svg" class="max-w-[200px] md:max-w-screen-xs">
           </p>
         </div>
