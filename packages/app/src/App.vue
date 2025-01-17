@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll-container min-h-screen flex flex-col relative">
+  <div class="min-h-screen flex flex-col relative">
     <Header class="sticky top-0 z-50" />
     <Sidebar />
     <RouterView />
