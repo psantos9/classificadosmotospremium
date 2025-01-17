@@ -1,5 +1,5 @@
 <template>
-  <div class="view-container">
+  <div class="view-container flex-1 flex flex-col">
     <div class="card max-w-screen-md mx-auto">
       <div class="card-header">
         Meus Dados

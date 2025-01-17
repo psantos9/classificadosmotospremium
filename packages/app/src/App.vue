@@ -4,6 +4,7 @@
     <Sidebar />
     <div ref="scrollContainer" class="scroll-container flex-1 overflow-y-auto flex flex-col">
       <RouterView />
+      <Footer />
     </div>
   </div>
   <Transition
@@ -26,6 +27,7 @@
 </template>
 
 <script lang="ts" setup>
+import Footer from '@/components/Footer.vue'
 import Header from '@/components/Header.vue'
 import Sidebar from '@/components/Sidebar.vue'
 import { useApp } from '@/composables/useApp'

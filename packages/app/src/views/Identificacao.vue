@@ -1,6 +1,6 @@
 <template>
-  <div class="view-container">
-    <div class="card max-w-screen-sm mx-auto">
+  <div class="view-container flex-1 flex flex-col items-center justify-center">
+    <div class="card max-w-screen-xs w-full mx-auto">
       <div class="card-header">
         Identificação
       </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="view-container">
+  <div class="view-container flex-1 flex flex-col items-center">
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
       <div
         v-for="(section, i) in sections"
