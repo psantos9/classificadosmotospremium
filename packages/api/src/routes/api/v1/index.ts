@@ -51,6 +51,7 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
         throw new StatusError(500, 'Erro ao buscar o CEP')
       }
       const cepResult = openCEPSchema.parse(await response.json())
+      /*
       const geometry = await OpencageService.getInstance(env).fetchCepCoordinates(cepResult).then((result) => {
         if (result === null) {
           return null
@@ -61,6 +62,7 @@ const router = AutoRouter<IRequest, [Env, ExecutionContext]>({ base: '/api/v1' }
         return null
       })
       cepResult.geometry = geometry
+      */
       await env.CEP.put(cep.toString(), JSON.stringify(cepResult))
 
       return json(cepResult)
