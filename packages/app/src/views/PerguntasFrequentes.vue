@@ -19,6 +19,9 @@
             </DisclosurePanel>
           </Disclosure>
         </div>
+        <p class="mt-8">
+          <img src="@/assets/images/full_logo.svg" class="max-w-[200px] md:max-w-screen-xs">
+        </p>
       </div>
     </div>
   </div>
