@@ -1,10 +1,10 @@
 <template>
-  <div class="view-container">
-    <div class="card">
+  <div class="view-container flex-1 flex flex-col">
+    <div class="card flex-1 md:flex-0">
       <div class="p-4 md:p-8 flex items-center justify-center uppercase font-black text-2xl">
         Quem somos
       </div>
-      <div class="flex flex-col items-center p-4 md:p-8">
+      <div class="flex-1 flex flex-col items-center p-4 md:p-8">
         <div class="max-w-screen-sm flex flex-col gap-4 md:gap-8 text-sm md:text-base">
           <p>
             O “Classificados Motos Premium” surgiu da necessidade de preencher uma lacuna no mercado de compra e vendas de motos no segmento de alto valor.
