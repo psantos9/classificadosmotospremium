@@ -116,17 +116,17 @@ preview_database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 migrations_dir = "../shared/migrations"
 
 [[env.preview.workflows]]
-name = "workflow-ad-review"
+name = "cmp-preview-ad-review"
 binding = "AD_REVIEW_WORKFLOW"
 class_name = "AdReviewWorkflow"
 
 [[env.preview.workflows]]
-name = "workflow-delete-ad"
+name = "cmp-preview-delete-ad"
 binding = "DELETE_AD_WORKFLOW"
 class_name = "DeleteAdWorkflow"
 
 [[env.preview.workflows]]
-name = "workflow-process-ad-message"
+name = "cmp-preview-process-ad-message"
 binding = "PROCESS_AD_MESSAGE_WORKFLOW"
 class_name = "ProcessAdMessageWorkflow"
 
@@ -170,16 +170,16 @@ preview_database_id = "504e7e8a-b4a7-41c0-9e2d-5dab6e3b71b7"
 migrations_dir = "../shared/migrations"
 
 [[env.production.workflows]]
-name = "workflow-ad-review"
+name = "cmp-production-ad-review"
 binding = "AD_REVIEW_WORKFLOW"
 class_name = "AdReviewWorkflow"
 
 [[env.production.workflows]]
-name = "workflow-delete-ad"
+name = "cmp-production-delete-ad"
 binding = "DELETE_AD_WORKFLOW"
 class_name = "DeleteAdWorkflow"
 
 [[env.production.workflows]]
-name = "workflow-process-ad-message"
+name = "cmp-production-process-ad-message"
 binding = "PROCESS_AD_MESSAGE_WORKFLOW"
 class_name = "ProcessAdMessageWorkflow"
