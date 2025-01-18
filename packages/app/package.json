@@ -5,9 +5,11 @@
     "dev": "npm run start:pages & vite",
     "build": "run-p type-check \"build-only {@}\" --",
     "build:preview": "run-p type-check \"build-only:preview {@}\" --",
+    "build:production": "run-p type-check \"build-only:production {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
     "build-only:preview": "vite build --mode preview",
+    "build-only:production": "vite build --mode production",
     "type-check": "vue-tsc --build",
     "start:pages": "npx wrangler@latest pages dev --d1 DB=2d1d8ed4-a86a-4fd3-9587-3f754b010d5a --kv=CEP -b API_SECRET=1a9d8369-7b50-4b61-b52c-a4462f7ec309",
     "migrations:commit:dev": "npx wrangler@latest d1 migrations apply cmp-dev -e dev --local"
