@@ -17,17 +17,37 @@
   --info: #1a61d9;
   --success: #01b753;
   --danger: #f51919;
+  --warning: #f5a019;
   --std-gap: 1rem;
-  --body-bg: #f2f2f2;
+
+  --text: var(--grey-800);
+
+  --primary-darker: hsl(from var(--primary) h s calc(l - 10));
+  --primary-lighter: hsl(from var(--primary) h s calc(l + 10));
+  --primary-lightest: hsl(from var(--primary) h s calc(l + 20));
+  --primary-text: black;
+
+  --secondary-lighter: hsl(from var(--secondary) h s calc(l + 10));
+  --secondary-lightest: hsl(from var(--secondary) h s calc(l + 40));
+  --secondary-text: white;
+
+  --info-darker: hsl(from var(--info) h s calc(l - 10));
+  --info-text: white;
+
+  --danger-darker: hsl(from var(--danger) h s calc(l - 10));
+  --danger-lighter: hsl(from var(--danger) h s calc(l + 10));
+  --danger-text: white;
 
   --main-header-size: 5.625rem;
-  --main-header-bg: #000;
-  --main-header-size: 3.125rem;
+  --main-header-bg: var(--secondary);
+  --main-header-size: 4.5rem;
+
+  --swiper-navigation-color: white;
 }
 
 @media screen and (min-width:960px) {
   :root {
     --breakpoint: 960px;
-    --main-header-size: 5.625rem;
+    --main-header-size: 6rem;
   }
 }

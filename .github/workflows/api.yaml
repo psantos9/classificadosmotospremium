@@ -1,0 +1,33 @@
+name: api
+
+on:
+  push:
+    paths:
+      - .github/workflows/api.yaml
+      - packages/api/**
+      - packages/shared/**
+    branches:
+      - main
+      - develop
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-api-preview:
+    runs-on: ubuntu-latest
+    name: Deploy API Preview
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - name: Install
+        run: npm ci
+      - name: Deploy
+        working-directory: ./packages/api
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          npx wrangler deploy --env preview

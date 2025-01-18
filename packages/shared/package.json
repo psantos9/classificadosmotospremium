@@ -1,0 +1,17 @@
+{
+  "name": "@cmp/shared",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "migrations:generate": "npx drizzle-kit generate",
+    "type-check": "npx tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-zod": "^0.6.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30.1"
+  }
+}

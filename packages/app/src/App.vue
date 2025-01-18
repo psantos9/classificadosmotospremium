@@ -1,19 +1,16 @@
 <template>
-  <div class="test h-screen relative">
-    <Header />
+  <div class="min-h-screen flex flex-col relative">
+    <Header class="sticky top-0 z-50" />
     <Sidebar />
-    <div class="main-content">
-      <RouterView />
-    </div>
+    <RouterView />
+    <Footer />
+    <WhatsappButton />
   </div>
 </template>
 
 <script lang="ts" setup>
+import Footer from '@/components/Footer.vue'
 import Header from '@/components/Header.vue'
 import Sidebar from '@/components/Sidebar.vue'
+import WhatsappButton from '@/components/WhatsappButton.vue'
 </script>
-
-<style lang="sass" scoped>
-.main-content
-  @apply p-4 md:p-14 max-w-screen-2xl mx-auto
-</style>

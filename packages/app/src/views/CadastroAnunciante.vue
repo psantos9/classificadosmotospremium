@@ -5,85 +5,155 @@
     </div>
     <div class="card-section !gap-12">
       <div class="flex flex-col gap-4">
-        <span class="title">Tipo de cadastro</span>
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:space-x-10 sm:space-y-0">
-          <div v-for="option in tipoEntidades" :key="option.id" class="flex items-center">
-            <input
-              :id="option.id"
-              type="radio"
-              :checked="registro.tipoEntidade === option.id"
-              class="cursor-pointer relative size-6 appearance-none rounded-full border border-gray-300 bg-white before:absolute before:inset-1.5 before:rounded-full before:bg-white checked:border-[var(--primary)] checked:bg-[var(--primary)] disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden [&:not(:checked)]:before:hidden"
-              @click="registro.tipoEntidade = option.id"
-            >
-            <label :for="option.id" class="ml-3 block text-sm/6 font-medium text-gray-900">{{ option.title }}</label>
-          </div>
+        <div class="title">
+          <span>Seus dados </span>
+          <span v-if="tipoEntidade !== null">({{ tipoEntidade === EntityType.PF ? 'Pessoa Física' : 'Pessoa Jurídica' }})</span>
         </div>
-      </div>
-      <div class="flex flex-col gap-4">
-        <span class="title">Seus dados</span>
 
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-6">
-          <div class="sm:col-span-4">
-            <label for="name" class="block text-sm/6 font-medium">Nome</label>
-            <div class="mt-2">
-              <input id="name" v-model="registro.nome" type="text" autocomplete="off" class="form-input">
+          <div class="sm:col-span-3">
+            <label for="name" class="block text-sm/6 font-medium">{{ tipoEntidade === EntityType.PF ? 'Nome' : tipoEntidade === EntityType.PJ ? 'Razão Social' : 'Nome ou Razão Social' }}</label>
+            <div class="mt-2 relative">
+              <input
+                id="name"
+                ref="nomeEl"
+                v-model="nomeRazaoSocial"
+                v-bind="nomeRazaoSocialAttrs"
+                type="text"
+                autocomplete="off"
+                class="form-input"
+              >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.nomeRazaoSocial }}
+              </p>
             </div>
           </div>
 
-          <div class="sm:col-span-2">
-            <label for="cpfCnpj" class="block text-sm/6 font-medium">{{ registro.tipoEntidade === EntityType.PF ? 'CPF' : 'CNPJ' }}</label>
-            <div class="mt-2">
-              <input id="cpfCnpj" v-model="registro.cpfCnpj" type="text" autocomplete="off" class="form-input">
+          <div class="sm:col-span-3">
+            <label for="cpfCnpj" class="block text-sm/6 font-medium">{{ tipoEntidade === EntityType.PF ? 'CPF' : tipoEntidade === EntityType.PJ ? 'CNPJ' : 'CPF ou CNPJ' }}</label>
+            <div class="mt-2 relative">
+              <input
+                id="cpfCnpj"
+                v-model="cpfCnpj"
+                v-maska="{ mask: (value) => cpf.isValid(value) ? '###.###.###-##' : cnpj.isValid(value) ? '##.###.###/####-##' : '##############' }"
+                v-bind="cpfCnpjAttrs"
+                type="text"
+                autocomplete="off"
+                class="form-input"
+              >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.cpfCnpj }}
+              </p>
             </div>
           </div>
 
           <div class="sm:col-span-3">
             <label for="email" class="block text-sm/6 font-medium">E-mail</label>
-            <div class="mt-2">
-              <input id="email" v-model="registro.email" type="email" autocomplete="off" class="form-input">
+            <div class="mt-2 relative">
+              <input
+                id="email"
+                v-model="email"
+                v-bind="emailAttrs"
+                type="text"
+                autocomplete="off"
+                class="form-input"
+              >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.email }}
+              </p>
             </div>
           </div>
 
           <div class="sm:col-span-3">
             <label for="mobile" class="block text-sm/6 font-medium">Telefone Celular</label>
-            <div class="mt-2">
+            <div class="mt-2 relative">
               <input
                 id="mobile"
-                v-model="registro.celular"
-                type="tel"
-                pattern="[0-9]{11}"
-                maxlength="15"
-                class="form-input"
+                v-model="celular"
+                v-maska="{ mask: '(##) #########' }"
+                v-bind="celularAttrs"
+                type="text"
                 autocomplete="off"
+                class="form-input"
               >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.celular }}
+              </p>
             </div>
           </div>
 
-          <template v-if="registro.tipoEntidade === EntityType.PF">
+          <template v-if="tipoEntidade === EntityType.PF">
             <div class="sm:col-span-3">
               <label for="data_nascimento" class="block text-sm/6 font-medium">Data de Nascimento</label>
-              <div class="mt-2">
-                <input id="data_nascimento" v-model="registro.dataNascimento" type="text" autocomplete="off" maxlength="10" class="form-input">
+              <div class="mt-2 relative">
+                <input
+                  id="data_nascimento"
+                  v-model="dataNascimento"
+                  v-bind="dataNascimentoAttrs"
+                  v-maska="{ mask: '##/##/####' }"
+                  placeholder="dd/mm/aaaa"
+                  type="text"
+                  autocomplete="off"
+                  class="form-input"
+                >
+                <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                  {{ errors.dataNascimento }}
+                </p>
               </div>
             </div>
             <div class="sm:col-span-3" />
           </template>
-          <div v-else class="sm:col-span-6">
+          <div v-if="tipoEntidade === EntityType.PJ" class="sm:col-span-6">
             <label for="nome_fantasia" class="block text-sm/6 font-medium">Nome Fantasia</label>
-            <div class="mt-2">
-              <input id="nome_fantasia" v-model="registro.nomeFantasia" type="text" autocomplete="off" maxlength="10" class="form-input">
+            <div class="mt-2 relative">
+              <input
+                id="nome_fantasia"
+                v-model="nomeFantasia"
+                v-bind="nomeFantasiaAttrs"
+                type="text"
+                autocomplete="off"
+                class="form-input"
+              >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.nomeFantasia }}
+              </p>
             </div>
           </div>
           <div class="sm:col-span-3">
             <label for="password" class="block text-sm/6 font-medium">Senha</label>
-            <div class="mt-2">
-              <input id="password" v-model="registro.password" type="password" class="form-input">
+            <div class="mt-2 relative">
+              <input
+                id="password"
+                v-model="password"
+                v-bind="passwordAttrs"
+                type="password"
+                autocomplete="off"
+                class="form-input"
+                hidden
+              >
+
+              <p v-if="password && errors.password" class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.password }}
+              </p>
+              <p v-if="!password" class="absolute text-xs text-gray-400 -bottom-4 right-0">
+                Pelo menos 10 caracteres, maíscula, minúscula, dígito e símbolo.
+              </p>
             </div>
           </div>
           <div class="sm:col-span-3">
-            <label for="password" class="block text-sm/6 font-medium">Confirmar Senha</label>
-            <div class="mt-2">
-              <input id="password" v-model="confirmPassword" type="password" autocomplete="off" class="form-input">
+            <label for="confirm_password" class="block text-sm/6 font-medium">Confirmar Senha</label>
+            <div class="mt-2 relative">
+              <input
+                id="confirm_password"
+                v-model="confirmPassword"
+                v-bind="confirmPasswordAttrs"
+                type="password"
+                autocomplete="off"
+                class="form-input"
+              >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.confirmPassword }}
+              </p>
             </div>
           </div>
         </div>
@@ -93,56 +163,132 @@
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-6">
           <div class="sm:col-span-1">
             <label for="cep" class="block text-sm/6 font-medium">CEP</label>
-            <div class="mt-2">
-              <input id="cep" v-model="registro.endereco.cep" type="text" autocomplete="off" class="form-input" maxlength="9">
+            <div class="mt-2 relative">
+              <input
+                id="cep"
+                v-model="cep"
+                v-bind="cepAttrs"
+                v-maska="{ mask: '#####-###' }"
+                type="text"
+                autocomplete="off"
+                class="form-input"
+              ><p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.cep }}
+              </p>
             </div>
           </div>
 
           <div class="sm:col-span-2">
             <label for="logradouro" class="block text-sm/6 font-medium">Logradouro</label>
-            <div class="mt-2">
-              <input id="logradouro" v-model="registro.endereco.logradouro" type="text" autocomplete="off" class="form-input">
+            <div class="mt-2 relative">
+              <input
+                id="logradouro"
+                v-model="logradouro"
+                v-bind="logradouroAttrs"
+                type="text"
+                autocomplete="off"
+                class="form-input"
+              >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.logradouro }}
+              </p>
             </div>
           </div>
 
           <div class="sm:col-span-1">
             <label for="numero" class="block text-sm/6 font-medium">Número</label>
-            <div class="mt-2">
-              <input id="numero" v-model="registro.endereco.numero" type="email" autocomplete="off" class="form-input">
+            <div class="mt-2 relative">
+              <input
+                id="numero"
+                v-model="numero"
+                v-bind="numeroAttrs"
+                type="text"
+                autocomplete="off"
+                class="form-input"
+              >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.numero }}
+              </p>
             </div>
           </div>
           <div class="sm:col-span-2">
             <label for="complemento" class="block text-sm/6 font-medium">Complemento</label>
-            <div class="mt-2">
-              <input id="complemento" v-model="registro.endereco.complemento" type="text" autocomplete="off" class="form-input">
+            <div class="mt-2 relative">
+              <input
+                id="complemento"
+                v-model="complemento"
+                v-bind="complementoAttrs"
+                type="text"
+                autocomplete="off"
+                class="form-input"
+              >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.complemento }}
+              </p>
             </div>
           </div>
           <div class="sm:col-span-2">
             <label for="bairro" class="block text-sm/6 font-medium">Bairro</label>
-            <div class="mt-2">
-              <input id="bairro" v-model="registro.endereco.bairro" type="text" autocomplete="off" class="form-input">
+            <div class="mt-2 relative">
+              <input
+                id="bairro"
+                v-model="bairro"
+                v-bind="bairroAttrs"
+                type="text"
+                autocomplete="off"
+                class="form-input"
+              >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.bairro }}
+              </p>
             </div>
           </div>
 
           <div class="sm:col-span-1">
-            <label for="cidade" class="block text-sm/6 font-medium">Cidade</label>
-            <div class="mt-2">
-              <input id="cidade" v-model="registro.endereco.cidade" type="text" autocomplete="off" class="form-input">
+            <label for="localidade" class="block text-sm/6 font-medium">Localidade</label>
+            <div class="mt-2 relative">
+              <input
+                id="localidade"
+                v-model="localidade"
+                v-bind="localidadeAttrs"
+                type="text"
+                autocomplete="off"
+                class="form-input"
+              >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.localidade }}
+              </p>
             </div>
           </div>
 
           <div class="sm:col-span-1">
-            <label for="estado" class="block text-sm/6 font-medium">Estado</label>
-            <div class="mt-2">
-              <input id="estado" v-model="registro.endereco.estado" type="text" autocomplete="off" class="form-input">
+            <label for="ud" class="block text-sm/6 font-medium">UF</label>
+            <div class="mt-2 relative">
+              <input
+                id="uf"
+                v-model="uf"
+                v-bind="ufAttrs"
+                type="text"
+                autocomplete="off"
+                class="form-input"
+              >
+              <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+                {{ errors.uf }}
+              </p>
             </div>
           </div>
         </div>
       </div>
-      <div class="mt-4 md:mt-8 flex justify-end">
-        <button type="button" class="w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold shadow-sm">
+      <div class="mt-4 md:mt-8 flex justify-end items-center">
+        <div ref="turnstileContainer" />
+        <div class="flex-1" />
+        <button
+          type="button"
+          class="w-full md:w-40 flex items-center justify-center gap-x-2 rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold shadow-sm"
+          @click="submit"
+        >
           Enviar
-          <FontAwesomeIcon :icon="faArrowRight" size="lg" />
+          <FontAwesomeIcon :icon="submitting ? faSpinner : faArrowRight" size="lg" :spin="submitting" fixed-width />
         </button>
       </div>
     </div>
@@ -150,50 +296,123 @@
 </template>
 
 <script lang="ts" setup>
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
+import { useApp } from '@/composables/useApp'
+import { getTurnstileToken } from '@/helpers/getTurnstileToken'
+import { CpfCnpjConflictError, EmailConflictError } from '@/services/api-client'
+import { novoUsuarioSchema } from '@cmp/shared/models/novo-usuario'
+import { faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-
-import { reactive, ref } from 'vue'
+import { toTypedSchema } from '@vee-validate/zod'
+import { cnpj, cpf } from 'cpf-cnpj-validator'
+import debounce from 'lodash.debounce'
+import { vMaska } from 'maska/vue'
+import { useForm } from 'vee-validate'
+import { onMounted, ref, unref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toast-notification'
 
 enum EntityType {
   PF = 'pf',
   PJ = 'pj'
 }
+const $toast = useToast()
+const router = useRouter()
+const { api, cadastraEmail } = useApp()
+const tipoEntidade = ref<EntityType | null>(null)
+const turnstileContainer = ref<HTMLElement | null>(null)
 
-interface IEntityType {
-  id: EntityType
-  title: string
+const nomeEl = ref<any>(null)
+const initalEmail = unref(cadastraEmail)
+if (unref(cadastraEmail)) {
+  cadastraEmail.value = undefined
+}
+const validationSchema = toTypedSchema(novoUsuarioSchema)
+const { errors, defineField, values, setFieldError, validate } = useForm({ validationSchema, initialValues: { email: initalEmail } })
+const [cpfCnpj, cpfCnpjAttrs] = defineField('cpfCnpj', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
+const [nomeRazaoSocial, nomeRazaoSocialAttrs] = defineField('nomeRazaoSocial')
+const [nomeFantasia, nomeFantasiaAttrs] = defineField('nomeFantasia')
+const [dataNascimento, dataNascimentoAttrs] = defineField('dataNascimento', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
+const [email, emailAttrs] = defineField('email', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
+const [celular, celularAttrs] = defineField('celular')
+const [cep, cepAttrs] = defineField('cep')
+const [logradouro, logradouroAttrs] = defineField('logradouro')
+const [complemento, complementoAttrs] = defineField('complemento')
+const [numero, numeroAttrs] = defineField('numero')
+const [bairro, bairroAttrs] = defineField('bairro')
+const [localidade, localidadeAttrs] = defineField('localidade')
+const [uf, ufAttrs] = defineField('uf')
+const [password, passwordAttrs] = defineField('password', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
+const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword', { validateOnInput: false, validateOnModelUpdate: false, validateOnChange: false, validateOnBlur: true })
+
+const submitting = ref(false)
+const submit = async () => {
+  const turnstileEl = unref(turnstileContainer)
+  if (turnstileEl === null) {
+    throw new Error('no turnstile container')
+  }
+
+  const { valid } = await validate()
+  if (valid) {
+    const usuario = novoUsuarioSchema.parse(unref(values))
+    try {
+      submitting.value = true
+      const token = await getTurnstileToken({ el: turnstileEl, siteKey: __CLOUDFLARE_TURNSTILE_SITEKEY__ })
+      await api.criaNovoUsuario({ usuario, token })
+      router.push({ name: 'home' })
+      $toast.success('Conta criada com sucesso')
+    }
+    catch (err) {
+      if (err instanceof CpfCnpjConflictError) {
+        setFieldError('cpfCnpj', `Já existe uma conta com este ${tipoEntidade.value === EntityType.PF ? 'CPF' : 'CNPj'}`)
+      }
+      else if (err instanceof EmailConflictError) {
+        setFieldError('email', 'Já existe uma conta com este e-mail')
+      }
+      else {
+        throw err
+      }
+    }
+    finally {
+      submitting.value = false
+    }
+  }
 }
 
-export interface IAddress {
-  cep: string
-  logradouro: string
-  numero: string
-  complemento: string
-  bairro: string
-  cidade: string
-  estado: string
-}
+const debouncedValidateCEP = debounce(async (cep: string) => {
+  const cepOk = unref(errors).cep === undefined
+  if (!cepOk) {
+    return
+  }
+  const openCEP = await api.validateCEP(cep)
+  if (openCEP !== null) {
+    logradouro.value = openCEP.logradouro
+    complemento.value = openCEP.complemento
+    bairro.value = openCEP.bairro
+    localidade.value = openCEP.localidade
+    uf.value = openCEP.uf
+  }
+  else {
+    setFieldError('cep', 'CEP inválido')
+  }
+}, 500)
 
-export interface IUserRegistration {
-  tipoEntidade: EntityType
-  nome: string
-  cpfCnpj: string
-  email: string
-  celular: string
-  dataNascimento: string
-  nomeFantasia: string
-  password: string
-  endereco: IAddress
-}
+watch(cpfCnpj, (cpfCnpj = '') => {
+  if (cpf.isValid(cpfCnpj)) {
+    tipoEntidade.value = EntityType.PF
+  }
+  else if (cnpj.isValid(cpfCnpj)) {
+    tipoEntidade.value = EntityType.PJ
+  }
+  else {
+    tipoEntidade.value = null
+  }
+})
 
-const getDefaultAddress = (): IAddress => ({ cep: '', logradouro: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '' })
-const getDefaultRegistry = (): IUserRegistration => ({ tipoEntidade: EntityType.PF, nome: '', cpfCnpj: '', email: '', celular: '', dataNascimento: '', nomeFantasia: '', password: '', endereco: getDefaultAddress() })
+watch(cep, async () => {
+  await debouncedValidateCEP(unref(cep)?.toString() as string)
+})
 
-const tipoEntidades: IEntityType[] = [
-  { id: EntityType.PF, title: 'Pessoa Física' },
-  { id: EntityType.PJ, title: 'Pessoa Jurídica' }
-]
-const confirmPassword = ref('')
-const registro = ref<IUserRegistration>(getDefaultRegistry())
+onMounted(() => {
+  unref(nomeEl)?.focus?.()
+})
 </script>
