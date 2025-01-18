@@ -5,11 +5,10 @@
     "./*": "./src/*.ts"
   },
   "scripts": {
-    "deploy": "wrangler deploy",
-    "dev": "wrangler dev --env dev",
+    "deploy": "npx wrangler@latest deploy",
+    "dev": "npx wrangler@latest dev --env dev",
     "migrations:commit:dev": "npx wrangler@latest d1 migrations apply cmp --local",
     "migrations:commit:preview": "npx wrangler@latest d1 migrations apply cmp --remote --env preview",
-    "start": "wrangler dev",
     "test": "vitest",
     "type-check": "npx tsc --noEmit"
   },
