@@ -9,6 +9,7 @@
     "dev:app": "npm run dev -w @cmp/app",
     "dev:landing-page": "npm run dev -w landing-page",
     "build:app:preview": "npm run build:preview -w @cmp/app",
+    "build:app:production": "npm run build:production -w @cmp/app",
     "build:app": "npm run build -w @cmp/app",
     "migrations:generate": "npm run migrations:generate -w @cmp/shared",
     "migrations:commit:local": "npx wrangler d1 migrations apply cmp -c ./packages/api/wrangler.toml -e preview --local",
