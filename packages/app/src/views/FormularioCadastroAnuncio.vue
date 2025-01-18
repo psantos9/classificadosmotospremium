@@ -538,6 +538,7 @@ const toggleItem = (item: string, items: string[]) => {
 }
 
 const setAdState = async (ad: Anuncio | null) => {
+  console.log('SETT ADD STATE', ad)
   if (unref(marcas).length === 0) {
     await atualizaMarcas()
   }
@@ -729,7 +730,7 @@ watch(fotos, (fotos) => {
 }, { deep: true })
 
 watch(anoModelo, (anoModelo) => {
-  setFieldValue('ano', anoModelo ?? undefined)
+  setFieldValue('anoModelo', anoModelo ?? undefined)
   atualizaPreco()
 })
 
@@ -791,9 +792,11 @@ const init = async () => {
   }
 }
 
+/*
 watch(anuncio, (anuncio) => {
   setAdState(anuncio)
 })
+*/
 
 watch(cep, async () => {
   await debouncedValidateCEP(unref(cep)?.toString() as string)
