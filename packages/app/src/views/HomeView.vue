@@ -10,4 +10,8 @@
 import HighlightsComponent from '@/components/HighlightsComponent.vue'
 import HomeSwiper from '@/components/HomeSwiper.vue'
 import SearchComponent from '@/components/SearchComponent.vue'
+import { useMixpanel } from '@/composables/useMixpanel'
+
+const { trackOpenLandingPage } = useMixpanel()
+trackOpenLandingPage()
 </script>

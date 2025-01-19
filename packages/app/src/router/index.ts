@@ -130,11 +130,6 @@ const router = createRouter({
       ]
     },
     {
-      path: '/institucional',
-      name: 'institucional',
-      component: async () => import('@/views/Institucional.vue') as Component
-    },
-    {
       path: '/quem-somos',
       name: 'quem-somos',
       component: async () => import('@/views/QuemSomos.vue') as Component

@@ -28,9 +28,13 @@
 </template>
 
 <script lang="ts" setup>
+import { useMixpanel } from '@/composables/useMixpanel'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+
+const { trackOpenFaqPage } = useMixpanel()
+trackOpenFaqPage()
 
 const faq = [
   {

@@ -40,6 +40,7 @@ import AdsFilter from '@/components/AdsFilter.vue'
 import SortingDropdown from '@/components/SortingDropdown.vue'
 import VehicleCard from '@/components/VehicleCard.vue'
 import { useApp } from '@/composables/useApp'
+import { useMixpanel } from '@/composables/useMixpanel'
 import { TypesenseService } from '@cmp/api/services/typesense-service'
 import debounce from 'lodash.debounce'
 import { ref, unref, watch } from 'vue'
@@ -51,6 +52,8 @@ export interface IAdsState {
 
 const SESSION_STORAGE_KEY = 'CMP:ADS:STATE'
 const { api, sortingOption } = useApp()
+const { trackBrowseAds } = useMixpanel()
+
 const filteringState = ref<IAdsState>({ q: '', filter: null })
 const savedState = window.sessionStorage.getItem(SESSION_STORAGE_KEY)
 if (savedState) {
@@ -88,4 +91,6 @@ watch([filteringState, sortingOption], ([state, sortingOption]) => {
 }, { deep: true })
 
 debouncedFetchAds(unref(filteringState))
+
+trackBrowseAds()
 </script>

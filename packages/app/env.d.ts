@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly MODE: string
+  readonly VITE_MIXPANEL_TOKEN: string
 }
 
 interface ImportMeta {

@@ -181,11 +181,12 @@ import type { SwiperOptions } from 'swiper/types'
 import AdMessage from '@/components/AdMessage.vue'
 import ExpandableImage from '@/components/ExpandableImage.vue'
 import { useApp } from '@/composables/useApp'
+import { useMixpanel } from '@/composables/useMixpanel'
 import { faCalendarAlt, faEdit, faExclamationTriangle, faImage, faInfoCircle, faLocationDot, faPalette, faPlusCircle, faSpinner, faTachometerAlt, faWarning } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale/pt-BR'
 
+import { ptBR } from 'date-fns/locale/pt-BR'
 import { register } from 'swiper/element/bundle'
 import { type Component, ref, unref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -211,6 +212,7 @@ const getCaracteristicas = (anuncio: TAdDocument | null): ICaracteristica[] => {
 
 register()
 
+const { trackOpenAd } = useMixpanel()
 const router = useRouter()
 const { api, signedIn } = useApp()
 
@@ -240,8 +242,10 @@ const optionsThumbs: SwiperOptions = {
 const fetchAnuncio = async () => {
   try {
     loading.value = true
-    anuncio.value = await api.fetchAnuncio(adId)
+    const _anuncio = await api.fetchAnuncio(adId)
+    anuncio.value = _anuncio
     caracteristicas.value = getCaracteristicas(unref(anuncio))
+    trackOpenAd(_anuncio)
   }
   finally {
     loading.value = false
