@@ -25,7 +25,7 @@
     Confirmar
     <FontAwesomeIcon :icon="loading ? faSpinner : faArrowRight" :spin="loading" size="lg" />
   </button>
-  <div ref="turnstileContainer" />
+  <div ref="turnstileContainer" class="absolute bottom-0" />
 </template>
 
 <script lang="ts" setup>

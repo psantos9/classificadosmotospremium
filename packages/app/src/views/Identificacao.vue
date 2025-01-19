@@ -1,5 +1,5 @@
 <template>
-  <div class="view-container flex-1 flex flex-col items-center justify-center">
+  <div class="view-container flex-1 flex flex-col items-center justify-center relative">
     <div class="card max-w-screen-xs w-full mx-auto">
       <div class="card-header">
         Identificação
