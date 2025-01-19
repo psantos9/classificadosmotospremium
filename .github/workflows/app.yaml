@@ -27,10 +27,11 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build:app:preview
+        env:
+          VITE_MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN_PREVIEW }}
       - name: Deploy
         working-directory: ./packages/app
         env:
-          VITE_MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN_PREVIEW }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
@@ -48,10 +49,11 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build:app:production
+        env:
+          VITE_MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN_PRODUCTION }}
       - name: Deploy
         working-directory: ./packages/app
         env:
-          VITE_MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN_PRODUCTION }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
