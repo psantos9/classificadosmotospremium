@@ -17,6 +17,7 @@ export enum MixpanelEvent {
 
 const userToMixpanelPeople = (user: SelectUsuario | null) => {
   const mapping: Record<string, keyof SelectUsuario> = {
+    $id: 'id',
     $email: 'email',
     $cpfCnpj: 'cpfCnpj',
     $nomeRazaoSozial: 'nomeRazaoSocial',
@@ -41,7 +42,7 @@ const initMixpanel = () => {
 }
 
 const setLoggedUser = (user: SelectUsuario | null) => {
-  mixpanel.identify(user?.id.toString())
+  mixpanel.identify(user?.email)
   mixpanel.people.set(userToMixpanelPeople(user))
 }
 
