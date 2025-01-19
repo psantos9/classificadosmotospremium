@@ -106,16 +106,17 @@ const enviarMensagem = async () => {
   if (turnstileEl === null) {
     throw new Error('can not send message, no turnstile container')
   }
-  const adId = unref(anuncio)?.id ?? null
-  const content = unref(message)
-  if (adId === null) {
+  const _anuncio = unref(anuncio) ?? null
+  if (_anuncio === null) {
     return
   }
+  const adId = _anuncio.id
+  const content = unref(message)
   const unauthenticatedSender = !unref(signedIn) ? getUnauthenticatedMessageSenderSchema().parse(unref(values)) : undefined
   try {
     sendingMessage.value = true
     const token = await getTurnstileToken({ el: turnstileEl, siteKey: __CLOUDFLARE_TURNSTILE_SITEKEY__ })
-    await api.enviaMensagem({ adId: Number.parseInt(adId), content, unauthenticatedSender, token })
+    await api.enviaMensagem(_anuncio, { adId: Number.parseInt(adId), content, unauthenticatedSender, token })
     toast.success('Mensagem enviada com sucesso!')
     message.value = ''
     resetForm()

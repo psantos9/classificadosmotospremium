@@ -26,3 +26,11 @@
     </div>
   </div>
 </template>
+
+<script lang="ts" setup>
+import { useMixpanel } from '@/composables/useMixpanel'
+
+const { trackOpenWhoAreWePage } = useMixpanel()
+
+trackOpenWhoAreWePage()
+</script>

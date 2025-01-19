@@ -1,10 +1,13 @@
-import type { Mensagem } from '@cmp/shared/models/database/models'
+import type { Mensagem, SelectUsuario } from '@cmp/shared/models/database/models'
 import type { IThread } from '@cmp/shared/models/thread'
 import { APIClient, APIClientEvent } from '@/services/api-client'
 import { WebSocketMessageProcessor } from '@/services/websocket-message-processor'
 import { WebSocketService, WebSocketServiceEvent } from '@/services/websocket-service'
 import { computed, nextTick, ref, unref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useMixpanel } from './useMixpanel'
+
+const { setLoggedUser, trackSignIn, trackSignOut, trackPageLeave } = useMixpanel()
 
 const menuItems = [
   { to: { name: 'quem-somos' }, label: 'Quem Somos' },
@@ -17,6 +20,7 @@ const signedIn = ref(false)
 
 const unreadMessages = ref<Mensagem[]>([])
 const threads = ref<IThread[]>([])
+const usuario = ref<SelectUsuario | null>(null)
 
 const cadastraEmail = ref<string | undefined>(undefined)
 
@@ -56,21 +60,41 @@ api.on(APIClientEvent.SIGNED_IN, async (_signedIn) => {
   signedIn.value = _signedIn
   if (_signedIn) {
     void websocketService.start()
-    unreadMessages.value = await api.fetchMensagens({ unread: true })
+    const [_usuario, _unreadMessages, _threads] = await Promise.all([api.fetchUsuario(), api.fetchMensagens({ unread: true }), api.fetchThreads()])
+    usuario.value = _usuario
+    unreadMessages.value = _unreadMessages
+    threads.value = _threads
   }
   else {
     void websocketService.stop()
     unreadMessages.value = []
+    usuario.value = null
+    threads.value = []
+  }
+  setLoggedUser(unref(usuario))
+  if (_signedIn) {
+    trackSignIn()
+  }
+  else {
+    trackSignOut()
   }
 })
 
-api.init()
+window.onbeforeunload = () => {
+  trackPageLeave()
+  return undefined
+}
 
 const initApp = async () => {
+  api.init()
   const [_acessorios, _informacoesAdicionais, _cores] = await Promise.all([api.fetchAcessorios(), api.fetchInformacoesAdicionais(), api.fetchCores()])
   acessorios.value = _acessorios
   informacoesAdicionais.value = _informacoesAdicionais
   cores.value = _cores
+  if (api.userId !== null) {
+    const _usuario = await api.fetchUsuario()
+    usuario.value = _usuario
+  }
 }
 
 void initApp()
@@ -79,12 +103,6 @@ const scrollToTop = () => {
   const el = document.querySelector('.scroll-container')
   el?.scrollTo({ top: 0, behavior: 'smooth' })
 }
-
-watch([signedIn, unreadMessages], async ([signedIn]) => {
-  if (signedIn) {
-    threads.value = await api.fetchThreads()
-  }
-})
 
 export const useApp = () => {
   if (signedInWatcher === null) {

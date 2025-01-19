@@ -1,4 +1,5 @@
 import App from '@/App.vue'
+import { useMixpanel } from '@/composables/useMixpanel'
 import Draggable from '@/directives/draggable'
 import { printAppVersionConsoleBanner } from '@/helpers/printAppVersionConsoleBanner'
 import router from '@/router'
@@ -8,6 +9,9 @@ import '@/assets/main.css'
 import '@/assets/style/toast-theme/index.scss'
 
 printAppVersionConsoleBanner()
+
+const { initMixpanel } = useMixpanel()
+initMixpanel()
 
 const app = createApp(App as Component)
 

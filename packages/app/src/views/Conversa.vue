@@ -45,6 +45,7 @@
 import type { IAuthenticatedMessageSender } from '@cmp/shared/models/authenticated-message-sender'
 import type { NovaMensagem } from '@cmp/shared/models/nova-mensagem'
 import type { IThreadMessage } from '@cmp/shared/models/thread-message'
+import type { TAdDocument } from '@cmp/shared/models/typesense'
 import ThreadCard from '@/components/ThreadCard.vue'
 import ThreadMessageCard from '@/components/ThreadMessageCard.vue'
 import { useApp } from '@/composables/useApp'
@@ -61,12 +62,14 @@ const threadId = route.params.id as string
 const scrollContainer = ref<HTMLElement | null>(null)
 const turnstileContainer = ref<HTMLElement | null>(null)
 
+const adDocument = ref<TAdDocument | null>(null)
+
 const newMessage = ref('')
 const messages = ref<IThreadMessage[]>([])
 const sendingMessage = ref(false)
 const sendingMessageId = ref<number | null>(null)
 
-const anuncio = computed(() => unref(messages)?.[0]?.anuncio ?? 0)
+const anuncio = computed(() => unref(messages)?.[0]?.anuncio ?? null)
 const thread = computed(() => unref(threads).find(thread => thread.id === threadId))
 
 const threadPartnerId = computed(() => {
@@ -88,7 +91,6 @@ const addMessageToThread = (message: NovaMensagem) => {
     }
     return accumulator
   }, 0)
-  console.log('MESSAGE ID', messageId)
 
   const threadMessage: IThreadMessage = {
     id: messageId,
@@ -126,6 +128,7 @@ const sendMessage = async () => {
   if (recipient === null) {
     return
   }
+  const _anuncio = unref(anuncio)
   const adId = unref(anuncio).id
   const content = unref(newMessage)
   if (!content) {
@@ -137,7 +140,7 @@ const sendMessage = async () => {
     const novaMensagem: NovaMensagem = { adId, threadId, recipient, content }
     sendingMessageId.value = addMessageToThread(novaMensagem)
     const token = await getTurnstileToken({ el: turnstileEl, siteKey: __CLOUDFLARE_TURNSTILE_SITEKEY__ })
-    await api.enviaMensagem({ ...novaMensagem, token })
+    await api.enviaMensagem(unref(adDocument) as TAdDocument, { ...novaMensagem, token })
   }
   catch (err) {
     unref(messages).pop()
@@ -155,6 +158,12 @@ const fetchThreadMessages = async () => {
 
 watch(unreadMessages, () => fetchThreadMessages())
 watch(messages, () => nextTick(() => scrollToBottom()), { immediate: true, deep: true })
+watch(anuncio, async (anuncio) => {
+  if (anuncio === null || unref(adDocument) !== null) {
+    return
+  }
+  adDocument.value = await api.fetchAnuncio(anuncio.id)
+}, { immediate: true, deep: true })
 
 fetchThreadMessages()
 </script>

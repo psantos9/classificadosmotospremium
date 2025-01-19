@@ -3,7 +3,7 @@ import type { GetMessageQueryParams } from '@cmp/api/routes/api/v1/messages'
 import type { AnuncioStatus } from '@cmp/shared/models/anuncio-status'
 import type { AtualizaAnuncio } from '@cmp/shared/models/atualiza-anuncio'
 import type { AtualizaUsuario } from '@cmp/shared/models/atualiza-usuario'
-import type { Anuncio, Mensagem, Usuario } from '@cmp/shared/models/database/models'
+import type { Anuncio, Mensagem, SelectUsuario, Usuario } from '@cmp/shared/models/database/models'
 import type { NovoUsuario } from '@cmp/shared/models/novo-usuario'
 import type { OpenCEP } from '@cmp/shared/models/open-cep'
 import type { IThread } from '@cmp/shared/models/thread'
@@ -11,11 +11,14 @@ import type { IThreadMessage } from '@cmp/shared/models/thread-message'
 import type { TAdDocument, TAdsSearchResponse, TSellerDocument } from '@cmp/shared/models/typesense'
 import type { UnauthenticatedMessageSender } from '@cmp/shared/models/unauthenticated-message-sender'
 import type { SearchParams } from 'typesense/lib/Typesense/Documents'
+import { useMixpanel } from '@/composables/useMixpanel'
 import { computeFileHash } from '@/helpers/computeFileSha256'
 import axios, { type Axios, AxiosError, type AxiosProgressEvent } from 'axios'
 import Emittery from 'emittery'
 import { decodeJwt } from 'jose'
 import { attach as retryAttach } from 'retry-axios'
+
+const { trackSignUp, trackSendMessageToAdPublisher } = useMixpanel()
 
 export const API_PERSISTENCE_KEY = 'CPM:SESSION'
 
@@ -55,7 +58,7 @@ export interface IAPIClient {
   validateEmail: (params: { email: string, token: string }) => Promise<boolean>
   validateCEP: (cep: string) => Promise<OpenCEP | null>
   criaNovoUsuario: (params: { usuario: NovoUsuario, token: string }) => Promise<void>
-  fetchUsuario: () => Promise<Omit<Usuario, 'password' | 'confirmPassword'>>
+  fetchUsuario: () => Promise<SelectUsuario>
 }
 
 const getAxiosInstance = (params: { baseURL: string, ctx: APIClient }) => {
@@ -220,6 +223,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     this._setAuthorizationHeader(bearerToken)
     this._persistToken(bearerToken)
     await this.emit(APIClientEvent.SIGNED_IN, true)
+    trackSignUp()
   }
 
   async atualizaUsuario(params: { id: number, usuario: AtualizaUsuario }) {
@@ -256,8 +260,7 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
   }
 
   async fetchUsuario() {
-    this._fetchToken()
-    const usuario = await this.axios.get<Omit<Usuario, 'password'>>('/api/v1/users')
+    const usuario = await this.axios.get<SelectUsuario>('/api/v1/users')
       .then(({ data }) => data)
     return usuario
   }
@@ -427,7 +430,8 @@ export class APIClient extends Emittery<APIClientEventMap> implements IAPIClient
     return anuncio
   }
 
-  async enviaMensagem(params: { adId: number, unauthenticatedSender?: UnauthenticatedMessageSender, content: string, token: string }) {
+  async enviaMensagem(anuncio: TAdDocument, params: { adId: number, unauthenticatedSender?: UnauthenticatedMessageSender, content: string, token: string }) {
+    trackSendMessageToAdPublisher(anuncio)
     await this.axios.post('/api/v1/messages', params)
   }
 
