@@ -22,7 +22,7 @@
     <FontAwesomeIcon :icon="loading ? faSpinner : faArrowRight" :spin="loading" size="lg" />
   </button>
   <span class="font-extralight text-xs text-[var(--info)] hover:underline cursor-pointer" @click="$emit('back')">Usar outra forma de entrada</span>
-  <div ref="turnstileContainer" />
+  <div ref="turnstileContainer" class="absolute bottom-0" />
 </template>
 
 <script lang="ts" setup>
