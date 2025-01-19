@@ -43,7 +43,7 @@ const initMixpanel = () => {
 }
 
 const setLoggedUser = (user: SelectUsuario | null) => {
-  mixpanel.identify(user?.email)
+  mixpanel.identify(user?.id.toString())
   mixpanel.people.set(userToMixpanelPeople(user))
 }
 
