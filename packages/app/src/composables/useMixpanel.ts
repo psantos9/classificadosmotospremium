@@ -16,10 +16,11 @@ export enum MixpanelEvent {
 }
 
 const userToMixpanelPeople = (user: SelectUsuario | null) => {
-  const mapping: Record<string, keyof SelectUsuario> = {
+  const mapping: Record<string, keyof SelectUsuario | ((user: SelectUsuario | null) => string | undefined)> = {
     $id: 'id',
     $email: 'email',
     $cpfCnpj: 'cpfCnpj',
+    $name: (user: SelectUsuario | null) => user?.nomeFantasia ?? user?.nomeRazaoSocial,
     $nomeRazaoSozial: 'nomeRazaoSocial',
     $nomeFantasia: 'nomeFantasia',
     $isCnpj: 'isCnpj',
@@ -28,7 +29,7 @@ const userToMixpanelPeople = (user: SelectUsuario | null) => {
   }
   const mapped = Object.entries(mapping)
     .reduce((accumulator: Record<string, any>, [key, value]) => {
-      accumulator[key] = user?.[value]
+      accumulator[key] = typeof value === 'function' ? value(user) : user?.[value]
       return accumulator
     }, {})
   return mapped
@@ -42,7 +43,7 @@ const initMixpanel = () => {
 }
 
 const setLoggedUser = (user: SelectUsuario | null) => {
-  mixpanel.identify(user?.email)
+  mixpanel.identify(user?.id.toString())
   mixpanel.people.set(userToMixpanelPeople(user))
 }
 
