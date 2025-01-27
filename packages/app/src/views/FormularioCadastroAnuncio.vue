@@ -792,11 +792,9 @@ const init = async () => {
   }
 }
 
-/*
 watch(anuncio, (anuncio) => {
   setAdState(anuncio)
 })
-*/
 
 watch(cep, async () => {
   await debouncedValidateCEP(unref(cep)?.toString() as string)
