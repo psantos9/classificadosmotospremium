@@ -5,7 +5,7 @@
         <FontAwesomeIcon :icon="thread.unauthenticatedSender !== null ? faUserSecret : faUser" class="text-[var(--primary)]" size="lg" />
         <span class="font-black text-[var(--primary)]">Conversa com</span>
         <span>{{ typeof threadPartner === 'string' ? threadPartner : threadPartner?.nomeFantasia || threadPartner?.nomeRazaoSocial }}</span>
-        <span v-if="typeof threadPartner !== 'string' && threadPartner !== null">({{ threadPartner.email }}) {{ threadPartner.celular }}</span>
+        <span v-if="typeof threadPartner !== 'string' && threadPartner !== null">({{ threadPartner.email }})</span>
       </div>
       <div v-if="!hideTimeago" class="font-extralight">
         {{ timeAgo }}
