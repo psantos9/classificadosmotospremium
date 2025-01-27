@@ -7,7 +7,7 @@
       <div class="card-section">
         <span class="title">Opções de Ajuda</span>
         <span>Não fique com nenhuma dúvida. Escolha a sua forma preferida para entrar em contato conosco.</span>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="(section, i) in sections" :key="i" class="bg-white rounded-md shadow p-4 flex flex-col gap-2 cursor-pointer hover:bg-[var(--primary)] transition-colors" @click="section.action">
             <div class="mb-2">
               <FontAwesomeIcon :icon="section.icon" size="xl" />
