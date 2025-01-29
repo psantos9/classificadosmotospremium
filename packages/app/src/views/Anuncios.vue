@@ -71,7 +71,8 @@ const fetchAds = async (filteringState: IAdsState, sortBy: string = '_text_match
     const params: SearchParams = {
       q,
       query_by: 'marca,modelo,uf',
-      sort_by: sortBy
+      sort_by: sortBy,
+      per_page: 250
     }
     if (filter) {
       params.filter_by = TypesenseService.getFilterByQuery(filter)
