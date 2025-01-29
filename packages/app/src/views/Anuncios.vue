@@ -18,7 +18,7 @@
         <AdFilterModal v-model="filteringState" :facet-counts="anuncios?.facet_counts ?? []" />
       </div>
       <div class="flex-1 flex-col overflow-y-auto">
-        <div class="flex-1 grid grid-cols-[repeat(auto-fill,minmax(19rem,1fr))] items-start px-4 md:px-2 md:p-0 gap-4 md:gap-2">
+        <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 items-start px-4 md:px-2 md:p-0 gap-4">
           <VehicleCard
             v-for="hit in anuncios?.hits ?? []"
             :key="hit.document.id"

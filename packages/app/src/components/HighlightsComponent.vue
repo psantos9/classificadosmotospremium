@@ -6,7 +6,7 @@
         Anúncios
       </span>
     </div>
-    <div class="flex flex-wrap gap-4 overflow-y-auto items-start justify-center w-full md:container md:mx-auto px-4 pb-4">
+    <div class="flex-1 container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 items-start px-4 md:px-2 md:p-0 gap-4">
       <template v-if="loading">
         <div v-for="i in [...Array(10).keys()]" :key="i" class="bg-gray-200 w-full h-full rounded-md border animate-pulse min-h-[335px]" />
       </template>
@@ -15,7 +15,6 @@
           v-for="hit in anuncios?.hits ?? []"
           :key="hit.document.id"
           :anuncio="hit.document"
-          class="w-full md:w-[250px]"
           @click="$router.push({ name: 'anuncio', params: { id: hit.document.id } })"
         />
       </template>
