@@ -35,8 +35,9 @@ const slidesMobile = [
 ]
 
 const slidesDesktop = [
-  '/images/banner-04.png',
-  '/images/banner-05.png',
-  '/images/banner-06.png'
+  '/images/banner-01.png',
+  '/images/banner-02.png',
+  '/images/banner-03.png',
+  '/images/banner-04.png'
 ]
 </script>
