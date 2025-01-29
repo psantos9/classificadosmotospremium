@@ -5,7 +5,7 @@
     :data-expanded="expanded"
     @click="clickHandler"
   >
-    <img :src="api.getImageUrl({ imageId, thumbnail: false })" class="mx-auto object-fit h-full">
+    <img :src="api.getImageUrl({ imageId, thumbnail: false })" class="mx-auto object-contain h-full">
   </div>
   <Teleport to="body">
     <Transition
