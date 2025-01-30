@@ -44,6 +44,7 @@ import { useMixpanel } from '@/composables/useMixpanel'
 import { TypesenseService } from '@cmp/api/services/typesense-service'
 import debounce from 'lodash.debounce'
 import { ref, unref, watch } from 'vue'
+import { onBeforeRouteLeave } from 'vue-router'
 
 export interface IAdsState {
   q: string
@@ -53,7 +54,6 @@ export interface IAdsState {
 const SESSION_STORAGE_KEY = 'CMP:ADS:STATE'
 const { api, sortingOption } = useApp()
 const { trackBrowseAds } = useMixpanel()
-
 const filteringState = ref<IAdsState>({ q: '', filter: null })
 const savedState = window.sessionStorage.getItem(SESSION_STORAGE_KEY)
 if (savedState) {
@@ -83,6 +83,12 @@ const fetchAds = async (filteringState: IAdsState, sortBy: string = '_text_match
     loading.value = false
   }
 }
+
+onBeforeRouteLeave((to) => {
+  if (to.name !== 'anuncio') {
+    window.sessionStorage.removeItem(SESSION_STORAGE_KEY)
+  }
+})
 
 const debouncedFetchAds = debounce(fetchAds, 500)
 
