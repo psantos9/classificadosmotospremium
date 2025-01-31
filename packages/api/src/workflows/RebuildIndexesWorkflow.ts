@@ -45,8 +45,12 @@ export class RebuildIndexesWorkflow extends WorkflowEntrypoint<Env, RebuildIndex
       await typesense.createSellersCollection()
     })
 
-    await step.do('add documents to sellers collection', { timeout: '5 minutes', retries: { limit: 0, delay: 0 } }, async () => {
+    const users = await step.do('fetch users', { timeout: '30 seconds', retries: { limit: 0, delay: 0 } }, async () => {
       const users = await db.query.usuario.findMany()
+      return users
+    })
+
+    await step.do('add documents to sellers collection', { timeout: '5 minutes', retries: { limit: 0, delay: 0 } }, async () => {
       const documents = users.map(typesense.mapUserToSeller)
       try {
         await typesense.client.collections(TypesenseCollection.SELLER).documents().import(documents, { action: 'upsert' })
