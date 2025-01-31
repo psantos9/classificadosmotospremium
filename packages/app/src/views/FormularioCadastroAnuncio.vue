@@ -199,6 +199,21 @@
           </div>
         </div>
       </div>
+      <div class="card-section">
+        <span class="title">Telefone para contato (opcional)</span>
+        <span class="text-xs text-gray-500">Adicione um número de celular caso deseje que seja publicado juntamento com o anúncio em nossas plataformas.</span>
+        <div class="mt-2 relative md:max-w-[150px]">
+          <input
+            v-model="celular"
+            v-maska="{ mask: '(##) #####-####' }"
+            v-bind="celularAttrs"
+            class="form-input"
+          >
+          <p class="absolute text-xs text-[var(--danger)] -bottom-4 right-0">
+            {{ errors.celular }}
+          </p>
+        </div>
+      </div>
       <div v-if="anuncio !== null" class="card-section">
         <div class="flex items-center justify-between">
           <span class="title">
@@ -390,6 +405,7 @@ const [aceitaTroca] = defineField('aceitaTroca', { validateOnBlur: false, valida
 const [cep, cepAttrs] = defineField('cep', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
 const [localidade] = defineField('localidade', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
 const [uf] = defineField('uf', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
+const [celular, celularAttrs] = defineField('celular', { validateOnBlur: true, validateOnChange: false, validateOnInput: false })
 const [ano, anoAttrs] = defineField('ano', { validateOnBlur: false, validateOnChange: false, validateOnInput: false })
 const [placa, placaAttrs] = defineField('placa', { validateOnBlur: true, validateOnChange: false, validateOnInput: false })
 const [quilometragem, quilometragemAttrs] = defineField('quilometragem')
@@ -538,7 +554,6 @@ const toggleItem = (item: string, items: string[]) => {
 }
 
 const setAdState = async (ad: Anuncio | null) => {
-  console.log('SETT ADD STATE', ad)
   if (unref(marcas).length === 0) {
     await atualizaMarcas()
   }
@@ -559,6 +574,7 @@ const setAdState = async (ad: Anuncio | null) => {
 
   setFieldValue('cor', ad?.cor)
   setFieldValue('aceitaTroca', ad?.aceitaTroca ?? false)
+  setFieldValue('celular', ad?.celular ?? '')
   placa.value = ad?.placa ?? undefined
   acessorios.value = [...ad?.acessorios ?? []]
   informacoesAdicionais.value = [...ad?.informacoesAdicionais ?? []]

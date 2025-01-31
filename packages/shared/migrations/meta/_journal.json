@@ -8,6 +8,13 @@
       "when": 1736948879230,
       "tag": "0000_rich_adam_warlock",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1738279389318,
+      "tag": "0001_empty_spectrum",
+      "breakpoints": true
     }
   ]
 }

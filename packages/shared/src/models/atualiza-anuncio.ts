@@ -21,7 +21,8 @@ export const getAtualizaAnuncioSchema = () => z.object({
   cep: z.string({ required_error: REQUIRED_ERROR }).transform(val => val.replace(/\D+/g, '')).refine(val => val.length === 8, { message: 'CEP inválido' }),
   localidade: z.string({ required_error: REQUIRED_ERROR }).nonempty(REQUIRED_ERROR),
   uf: z.string({ required_error: REQUIRED_ERROR }).length(2, '2 caracteres'),
-  location: z.array(z.number()).optional().nullable()
+  location: z.array(z.number()).optional().nullable(),
+  celular: z.string().optional().refine(value => typeof value === 'string' ? /^\(\d{2}\) \d{5}-\d{4}$/.test(value ?? '') : true, 'Número inválido!')
 
 })
 

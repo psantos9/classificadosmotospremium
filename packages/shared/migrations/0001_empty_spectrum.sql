@@ -1,0 +1,1 @@
+ALTER TABLE `anuncio` ADD `celular` text;

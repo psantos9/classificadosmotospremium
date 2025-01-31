@@ -57,6 +57,7 @@ export const anuncio = sqliteTable('anuncio', () => ({
   localidade: text().notNull(),
   uf: text({ length: 2 }).notNull(),
   location: text({ mode: 'json' }).$type<number[] | null>().$defaultFn(() => null), // location = [lat, long]
+  celular: text(),
   pj: integer({ mode: 'boolean' }),
   atualizacao: text({ mode: 'json' }).$type<AtualizaAnuncio | null>().$defaultFn(() => null),
   reviewWorkflowId: text()

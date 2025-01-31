@@ -18,12 +18,8 @@ export const adsCollectionSchema: CollectionCreateSchema = {
   enable_nested_fields: true,
   fields: [
     {
-      name: 'publishedAt',
-      type: 'int64'
-    },
-    {
-      name: 'codigoFipe',
-      type: 'string'
+      name: '.*',
+      type: 'auto'
     },
     {
       name: 'marca',
@@ -36,39 +32,14 @@ export const adsCollectionSchema: CollectionCreateSchema = {
       facet: true
     },
     {
-      name: 'anoModelo',
-      type: 'int32'
-    },
-    {
-      name: 'ano',
-      type: 'int32'
-    },
-    {
-      name: 'quilometragem',
-      type: 'int32'
-    },
-    {
-      name: 'preco',
-      type: 'int32'
-    },
-    {
       name: 'cor',
       type: 'string',
       facet: true
     },
     {
-      name: 'descricao',
-      type: 'string'
-    },
-    {
       name: 'uf',
       type: 'string',
       facet: true
-    },
-    {
-      name: 'location',
-      type: 'geopoint',
-      optional: true
     },
     {
       name: 'sellerId',
@@ -84,17 +55,8 @@ export const sellersCollectionSchema: CollectionCreateSchema = {
   enable_nested_fields: true,
   fields: [
     {
-      name: 'nomeFantasia',
-      type: 'string',
-      optional: true
-    },
-    {
-      name: 'business',
-      type: 'bool'
-    },
-    {
-      name: 'createdAt',
-      type: 'int64'
+      name: '.*',
+      type: 'auto'
     },
     {
       name: 'localidade',
