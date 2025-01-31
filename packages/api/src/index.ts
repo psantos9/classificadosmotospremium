@@ -7,9 +7,10 @@ import api from '@/routes/api'
 import { AdReviewWorkflow } from '@/workflows/AdReviewWorkflow'
 import { DeleteAdWorkflow } from '@/workflows/DeleteAdWorkflow'
 import { ProcessAdMessageWorkflow } from '@/workflows/ProcessAdMessageWorkflow'
+import { RebuildIndexesWorkflow } from '@/workflows/RebuildIndexesWorkflow'
 import { AutoRouter, cors, type IRequest } from 'itty-router'
 
-export { AdReviewWorkflow, DeleteAdWorkflow, FipeClient, ProcessAdMessageWorkflow, UserDO, UsersDO }
+export { AdReviewWorkflow, DeleteAdWorkflow, FipeClient, ProcessAdMessageWorkflow, RebuildIndexesWorkflow, UserDO, UsersDO }
 
 const { preflight, corsify } = cors()
 

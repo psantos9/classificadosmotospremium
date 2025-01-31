@@ -157,7 +157,7 @@
         <div class="bg-black rounded-md shadow aspect-square flex items-center justify-center">
           <img src="@/assets/images/logo_dark.svg" class="h-24 mx-auto">
         </div>
-        <div v-if="anuncio?.seller" class="flex flex-col justify-between gap-3">
+        <div v-if="anuncio?.seller" class="flex flex-col justify-between gap-1 text-sm">
           <span class="font-black text-base">
             {{ anuncio.seller.nomeFantasia ?? 'Particular' }}
           </span>
@@ -165,6 +165,11 @@
             <FontAwesomeIcon :icon="faLocationDot" />
             <span class="font-thin">{{ anuncio.seller.localidade }} - {{ anuncio.seller.uf }}</span>
           </span>
+          <span v-if="anuncio.celular" class="flex items-center gap-2">
+            <FontAwesomeIcon :icon="faPhone" />
+            <span class="font-thin">{{ anuncio.celular }}</span>
+          </span>
+
           <span class="font-thin text-xs">No site desde {{ format(anuncio.seller.createdAt, 'dd \'de\' MMMM yyyy', { locale: ptBR }) }}</span>
         </div>
       </div>
@@ -182,7 +187,7 @@ import AdMessage from '@/components/AdMessage.vue'
 import ExpandableImage from '@/components/ExpandableImage.vue'
 import { useApp } from '@/composables/useApp'
 import { useMixpanel } from '@/composables/useMixpanel'
-import { faCalendarAlt, faEdit, faExclamationTriangle, faImage, faInfoCircle, faLocationDot, faPalette, faPlusCircle, faSpinner, faTachometerAlt, faWarning } from '@fortawesome/free-solid-svg-icons'
+import { faCalendarAlt, faEdit, faExclamationTriangle, faImage, faInfoCircle, faLocationDot, faPalette, faPhone, faPlusCircle, faSpinner, faTachometerAlt, faWarning } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { format } from 'date-fns'
 

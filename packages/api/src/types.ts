@@ -6,6 +6,7 @@ import type { UsersDO } from './durable-objects/UsersDO'
 import type { AdReviewEvent } from './workflows/AdReviewWorkflow'
 import type { DeleteAdEvent } from './workflows/DeleteAdWorkflow'
 import type { ProcessAdMessageEvent } from './workflows/ProcessAdMessageWorkflow'
+import type { RebuildIndexesEvent } from './workflows/RebuildIndexesWorkflow'
 
 export interface Env {
   DB: D1Database
@@ -25,6 +26,7 @@ export interface Env {
   AD_REVIEW_WORKFLOW: Workflow<AdReviewEvent>
   DELETE_AD_WORKFLOW: Workflow<DeleteAdEvent>
   PROCESS_AD_MESSAGE_WORKFLOW: Workflow<ProcessAdMessageEvent>
+  REBUILD_INDEXES_WORKFLOW: Workflow<RebuildIndexesEvent>
 }
 
 export type CF = [env: Env, context: ExecutionContext]

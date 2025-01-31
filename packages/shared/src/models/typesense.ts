@@ -32,11 +32,6 @@ export const adsCollectionSchema: CollectionCreateSchema = {
       facet: true
     },
     {
-      name: 'cor',
-      type: 'string',
-      facet: true
-    },
-    {
       name: 'uf',
       type: 'string',
       facet: true

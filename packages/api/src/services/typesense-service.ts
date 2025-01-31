@@ -18,13 +18,13 @@ export class TypesenseService {
     })
   }
 
-  private _convertUserToSeller(usuario: Usuario): TSellerDocument {
+  mapUserToSeller(usuario: Usuario): TSellerDocument {
     const { id, createdAt, isCnpj, nomeFantasia, localidade, uf } = usuario
     const document: TSellerDocument = { id: id.toString(), createdAt: createdAt.getTime(), business: isCnpj, nomeFantasia: nomeFantasia || undefined, localidade, uf }
     return document
   }
 
-  private _convertAdToDocument(ad: Anuncio): TAdDocument {
+  mapAdToDocument(ad: Anuncio): TAdDocument {
     const { id, userId, createdAt, publishedAt, updatedAt, expiresAt, placa, revision, atualizacao, reviewWorkflowId, status, ...adDocument } = ad
     const document: TAdDocument = { ...adDocument, id: id.toString(), publishedAt: (publishedAt || new Date()).getTime(), sellerId: userId.toString() }
     return document
@@ -41,7 +41,7 @@ export class TypesenseService {
   }
 
   async upsertSeller(user: Usuario) {
-    const update = this._convertUserToSeller(user)
+    const update = this.mapUserToSeller(user)
     const document = await this.client.collections<TSellerDocument>(TypesenseCollection.SELLER).documents().upsert(update)
     return document
   }
@@ -52,8 +52,8 @@ export class TypesenseService {
   }
 
   async searchAds(params: SearchParams) {
-    const queryBy = params.query_by || ['marca', 'modelo', 'uf', 'descricao', 'cor'].join(',')
-    const facetBy = params.facet_by || ['marca', 'cor', 'uf'].join(',')
+    const queryBy = params.query_by || ['marca', 'modelo', 'uf', 'descricao'].join(',')
+    const facetBy = params.facet_by || ['marca', 'uf'].join(',')
     const result = await this.client.multiSearch.perform <[TAdDocument]>({
       searches: [
         { ...params, collection: TypesenseCollection.ADS, query_by: queryBy, facet_by: facetBy, include_fields: `$${TypesenseCollection.SELLER}(*)` }
@@ -77,7 +77,7 @@ export class TypesenseService {
   }
 
   async upsertAd(ad: Anuncio) {
-    const update = this._convertAdToDocument(ad)
+    const update = this.mapAdToDocument(ad)
     const document = await this.client.collections<TAdDocument>(TypesenseCollection.ADS).documents().upsert(update)
     return document
   }

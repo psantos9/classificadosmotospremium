@@ -76,6 +76,11 @@ name = "workflow-process-ad-message"
 binding = "PROCESS_AD_MESSAGE_WORKFLOW"
 class_name = "ProcessAdMessageWorkflow"
 
+[[env.dev.workflows]]
+name = "workflow-rebuild-indexes"
+binding = "REBUILD_INDEXES_WORKFLOW"
+class_name = "RebuildIndexesWorkflow"
+
 # PREVIEW
 [env.preview]
 name = "cmp-api-preview"
@@ -130,6 +135,11 @@ name = "cmp-preview-process-ad-message"
 binding = "PROCESS_AD_MESSAGE_WORKFLOW"
 class_name = "ProcessAdMessageWorkflow"
 
+[[env.preview.workflows]]
+name = "cmp-preview-rebuild-indexes"
+binding = "REBUILD_INDEXES_WORKFLOW"
+class_name = "RebuildIndexesWorkflow"
+
 # PRODUCTION
 [env.production]
 name = "cmp-api-production"
@@ -183,3 +193,8 @@ class_name = "DeleteAdWorkflow"
 name = "cmp-production-process-ad-message"
 binding = "PROCESS_AD_MESSAGE_WORKFLOW"
 class_name = "ProcessAdMessageWorkflow"
+
+[[env.production.workflows]]
+name = "cmp-production-rebuild-indexes"
+binding = "REBUILD_INDEXES_WORKFLOW"
+class_name = "RebuildIndexesWorkflow"
