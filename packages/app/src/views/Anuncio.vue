@@ -140,7 +140,7 @@
             Mais sobre a moto
           </div>
           <div class="font-light text-xs flex">
-            <span v-if="anuncio">
+            <span v-if="anuncio" class="whitespace-pre-line">
               {{ anuncio.descricao || 'Sem descrição' }}
             </span>
             <span v-else class="bg-gray-200 rounded-md w-full h-16 animate-pulse">&nbsp;</span>
