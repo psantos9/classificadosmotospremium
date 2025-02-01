@@ -113,7 +113,7 @@ export class ProcessAdMessageWorkflow extends WorkflowEntrypoint<Env, ProcessAdM
       })
 
       if (sendEmailToRecipient) {
-        await step.do('send email to recipient', { timeout: '10 seconds', retries: { limit: 0, delay: 0 } }, async () => {
+        await step.do('send email to recipient', { timeout: '10 seconds', retries: { limit: 0, delay: '0 seconds' } }, async () => {
           if (!this.env.POSTMARK_API_TOKEN) {
             throw new NonRetryableError('Can not send emails, POSTMARK_API_TOKEN secret is not defined!')
           }
