@@ -1,5 +1,7 @@
 import type { Env } from '@cmp/api/types'
+import type { Usuario } from '@cmp/shared/models/database/models'
 import type { WorkflowEvent, WorkflowStep } from 'cloudflare:workers'
+import { getUsersDO } from '@/durable-objects/UsersDO'
 import { getUserDO } from '@cmp/api/durable-objects/UserDO'
 import { getDb } from '@cmp/shared/helpers/get-db'
 import { schema } from '@cmp/shared/models/database/schema'
@@ -25,12 +27,14 @@ export class ProcessAdMessageWorkflow extends WorkflowEntrypoint<Env, ProcessAdM
     const recipientEmail = typeof recipient === 'string' ? recipient : null
     let { senderId, message: { unauthenticatedSender = null, threadId = null } } = payload
 
+    let recipientUser: Usuario | null = null
     if (recipientId !== null) {
-      await step.do('validate recipient id', { timeout: '10 seconds' }, async () => {
+      recipientUser = await step.do('validate recipient id', { timeout: '10 seconds' }, async () => {
         const usuario = await db.query.usuario.findFirst({ where: (usuario, { eq }) => eq(usuario.id, recipientId) }) ?? null
         if (usuario === null) {
           throw new NonRetryableError(`could not find recipient id ${recipientId}`)
         }
+        return usuario
       })
     }
 
@@ -90,9 +94,63 @@ export class ProcessAdMessageWorkflow extends WorkflowEntrypoint<Env, ProcessAdM
       await db.insert(schema.mensagem).values({ recipientId, recipientEmail, adId, senderId, content, unauthenticatedSender, threadId: threadId || crypto.randomUUID() }).returning()
     })
 
-    if (recipientId !== null) {
+    if (recipientUser !== null) {
+      const users = await getUsersDO(this.env)
+
+      const sendEmailToRecipient = await step.do('check if an email is to be sent to the recipient', { timeout: '10 seconds' }, async () => {
+        // condition to send email: user is offline and no email has been sent in the 30 minutes
+        const userOnline = await users.getUserOnlineStatus(recipientUser.id)
+        if (!userOnline) {
+          const now = new Date().getTime()
+          const deltaMiliSecs = 30 * 60 * 1e3
+          const cutOffTimestamp = now - deltaMiliSecs
+          const lastEmailSent = await users.getLastUserEmailSent(recipientUser.id).then(lastEmail => lastEmail?.getTime() ?? cutOffTimestamp)
+          if (lastEmailSent <= cutOffTimestamp) {
+            return true
+          }
+        }
+        return false
+      })
+
+      if (sendEmailToRecipient) {
+        await step.do('send email to recipient', { timeout: '10 seconds', retries: { limit: 0, delay: 0 } }, async () => {
+          if (!this.env.POSTMARK_API_TOKEN) {
+            throw new NonRetryableError('Can not send emails, POSTMARK_API_TOKEN secret is not defined!')
+          }
+
+          const response = await fetch('https://api.postmarkapp.com/email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Postmark-Server-Token': this.env.POSTMARK_API_TOKEN
+            },
+            body: JSON.stringify({
+              From: 'Classificados Motos Premium <contato@classificadosmotospremium.com.br>',
+              To: recipientUser.email,
+              Subject: 'Você tem novas mensagens!',
+              HtmlBody: `<div>
+  <p>
+    Oie, tudo bem?
+  </p>
+  <p>
+    Corre lá no <a href="classificadosmotospremium.com.br">classificados</a>, tem novas mensagens te esperando!
+  </p>
+  <p>
+    <a href="classificadosmotospremium.com.br">Classificados Motos Premium</a>
+  </p>
+</div>`
+            })
+          })
+
+          if (response.status !== 200) {
+            const body = await response.json()
+            throw new NonRetryableError(`${response.status}: ${JSON.stringify(body)}`)
+          }
+        })
+      }
+
       await step.do('notify the recipient user of new messages', { timeout: '10 seconds' }, async () => {
-        const stub = await getUserDO(recipientId, this.env.USER_DO)
+        const stub = await getUserDO(recipientUser.id, this.env.USER_DO)
         await stub.sendUnreadMessages()
       })
     }
@@ -101,12 +159,6 @@ export class ProcessAdMessageWorkflow extends WorkflowEntrypoint<Env, ProcessAdM
       await step.do('notify the sender user of new messages', { timeout: '10 seconds' }, async () => {
         const stub = await getUserDO(senderId as number, this.env.USER_DO)
         await stub.sendUnreadMessages()
-      })
-    }
-
-    if (recipientEmail !== null) {
-      await step.do('send email to recipiend', { timeout: '10 seconds' }, async () => {
-        console.log('SENDING EMAIL TO ', recipientEmail)
       })
     }
   }

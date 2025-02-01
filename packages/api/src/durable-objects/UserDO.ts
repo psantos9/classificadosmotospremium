@@ -113,7 +113,6 @@ export class UserDO extends DurableObject<Env> {
         where: (mensagem, { eq, and }) => and(eq(mensagem.recipientId, this.userId), eq(mensagem.unread, true)),
         orderBy: (mensagem, { desc }) => [desc(mensagem.createdAt)]
       })
-      console.log('SENDING UNREAD MESSAGES', this.userId, wss.length, messages.length)
       for (const ws of wss) {
         ws.send(JSON.stringify({ type: 'unread-messages', payload: messages }))
       }
