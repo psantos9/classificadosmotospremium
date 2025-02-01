@@ -117,6 +117,8 @@ export class ProcessAdMessageWorkflow extends WorkflowEntrypoint<Env, ProcessAdM
           if (!this.env.POSTMARK_API_TOKEN) {
             throw new NonRetryableError('Can not send emails, POSTMARK_API_TOKEN secret is not defined!')
           }
+          const { isCnpj, nomeRazaoSocial, nomeFantasia } = recipientUser
+          const recipientName = isCnpj ? nomeFantasia ?? nomeRazaoSocial : nomeRazaoSocial.split(' ')[0]
 
           const response = await fetch('https://api.postmarkapp.com/email', {
             method: 'POST',
@@ -130,7 +132,7 @@ export class ProcessAdMessageWorkflow extends WorkflowEntrypoint<Env, ProcessAdM
               Subject: 'Você tem novas mensagens!',
               HtmlBody: `<div>
   <p>
-    Oie, tudo bem?
+    Oie ${recipientName}, tudo bem?
   </p>
   <p>
     Corre lá no <a href="classificadosmotospremium.com.br">classificados</a>, tem novas mensagens te esperando!
