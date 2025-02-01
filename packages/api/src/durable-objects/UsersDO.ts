@@ -40,6 +40,11 @@ export class UsersDO extends DurableObject<Env> {
     await this.ctx.storage.put<TLastUserEmailSentIndex>(STORAGE_KEY_PREFIX.LAST_USER_EMAIL_SENT_INDEX, this._lastUserEmailSentIndex)
   }
 
+  async unsetLastUserEmailSent(userId: number) {
+    delete this._lastUserEmailSentIndex[userId]
+    await this.ctx.storage.put<TLastUserEmailSentIndex>(STORAGE_KEY_PREFIX.LAST_USER_EMAIL_SENT_INDEX, this._lastUserEmailSentIndex)
+  }
+
   async getLastUserEmailSent(userId: number) {
     const lastEmail = this._lastUserEmailSentIndex[userId]?.lastEmail ?? null
     return lastEmail
@@ -48,6 +53,7 @@ export class UsersDO extends DurableObject<Env> {
   async setUserOnline(userId: number, cf?: CfProperties) {
     this._onlineUsersIndex[userId] = { userId, cf }
     await this.ctx.storage.put(STORAGE_KEY_PREFIX.ONLINE_USERS_INDEX, this._onlineUsersIndex)
+    await this.unsetLastUserEmailSent(userId)
   }
 
   async setUserOffline(userId: number) {

@@ -104,8 +104,8 @@ export class ProcessAdMessageWorkflow extends WorkflowEntrypoint<Env, ProcessAdM
           const now = new Date().getTime()
           const deltaMiliSecs = 30 * 60 * 1e3
           const cutOffTimestamp = now - deltaMiliSecs
-          const lastEmailSent = await users.getLastUserEmailSent(recipientUser.id).then(lastEmail => lastEmail?.getTime() ?? cutOffTimestamp)
-          if (lastEmailSent <= cutOffTimestamp) {
+          const lastEmailSent = await users.getLastUserEmailSent(recipientUser.id).then(lastEmail => lastEmail?.getTime() ?? null)
+          if (lastEmailSent === null || lastEmailSent <= cutOffTimestamp) {
             return true
           }
         }
@@ -147,6 +147,12 @@ export class ProcessAdMessageWorkflow extends WorkflowEntrypoint<Env, ProcessAdM
             throw new NonRetryableError(`${response.status}: ${JSON.stringify(body)}`)
           }
         })
+        await step.do('set lastEmailSent for recipient', { timeout: '10 seconds' }, async () => {
+          await users.setLastUserEmailSent(recipientUser.id, new Date())
+        })
+      }
+      else {
+        console.debug('skipping email notification to recipient')
       }
 
       await step.do('notify the recipient user of new messages', { timeout: '10 seconds' }, async () => {
