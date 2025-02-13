@@ -24,7 +24,6 @@ export class AdReviewWorkflow extends WorkflowEntrypoint<Env, AdReviewEvent> {
       return ad
     })
 
-    // await step.sleep('sleep for a bit', '5 second')
     const ad = await step.do('publish ad', { timeout: '10 seconds' }, async () => {
       const adId = event.payload.adId
       const db = getDb(this.env.DB)
@@ -56,6 +55,39 @@ export class AdReviewWorkflow extends WorkflowEntrypoint<Env, AdReviewEvent> {
       const document = await typesense.upsertAd(ad)
       return document
     })
-    console.log('UPSERTED DOCUMENT', document)
+
+    await step.do('send email to support', { timeout: '10 seconds', retries: { limit: 0, delay: '0 seconds' } }, async () => {
+      if (!this.env.POSTMARK_API_TOKEN) {
+        throw new NonRetryableError('Can not send emails, POSTMARK_API_TOKEN secret is not defined!')
+      }
+      const { id, marca, modelo, localidade, uf } = document
+
+      const response = await fetch('https://api.postmarkapp.com/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Postmark-Server-Token': this.env.POSTMARK_API_TOKEN
+        },
+        body: JSON.stringify({
+          From: 'Classificados Motos Premium <contato@classificadosmotospremium.com.br>',
+          To: 'contato@classificadosmotospremium.com.br',
+          Bcc: 'paulo@classificadosmotospremium.com.br',
+          Subject: `Atualização anúncio ${id} - ${marca} ${modelo}`,
+          HtmlBody: `<div>
+<p>
+O Anúncio <a href="https://classificadosmotospremium.com.br/anuncio/${id}">${marca} ${modelo} / ${localidade} ${uf}</a> foi atualizado!
+</p>
+<p>
+<a href="classificadosmotospremium.com.br">Classificados Motos Premium</a>
+</p>
+</div>`
+        })
+      })
+
+      if (response.status !== 200) {
+        const body = await response.json()
+        throw new NonRetryableError(`${response.status}: ${JSON.stringify(body)}`)
+      }
+    })
   }
 }
